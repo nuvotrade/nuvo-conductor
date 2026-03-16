@@ -36,6 +36,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px
 .aum-note{font-size:11px;color:var(--dim);align-self:center;margin-top:14px}
 .status{font-size:11px;font-family:var(--mono);color:var(--dim);padding:6px 0;margin-bottom:12px;min-height:22px}
 .status.running{color:var(--amber)}.status.done{color:var(--green)}.status.err{color:var(--red)}
+
+/* DATA STRIP */
 .data-strip{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 20px;margin-bottom:16px;display:none}
 .data-strip.visible{display:block}
 .strip-title{font-size:10px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:10px;display:flex;gap:8px;align-items:center}
@@ -45,6 +47,29 @@ body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px
 .d-item .lbl{font-size:10px;color:var(--dim)}
 .d-item .val{font-family:var(--mono);font-size:12px;color:var(--bright)}
 .d-item .val.ok{color:var(--green)}.d-item .val.warn{color:var(--amber)}.d-item .val.err{color:var(--red)}
+.strip-section{width:100%;height:1px;background:var(--border);margin:10px 0}
+.strip-section-label{width:100%;font-size:10px;letter-spacing:1px;color:var(--dim);text-transform:uppercase;margin-bottom:8px}
+
+/* OTM QUOTE BOXES */
+.otm-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.otm-box{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px 16px}
+.otm-box.has-quote{border-color:rgba(34,197,94,.3)}
+.otm-box.no-quote{border-color:var(--red)}
+.otm-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.otm-label{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--amber)}
+.otm-source{font-size:10px;color:var(--dim)}
+.otm-main{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:8px}
+.otm-stat{display:flex;flex-direction:column;gap:2px}
+.otm-stat .lbl{font-size:10px;color:var(--dim)}
+.otm-stat .val{font-family:var(--mono);font-size:13px;color:var(--bright)}
+.otm-stat .val.ok{color:var(--green)}.otm-stat .val.warn{color:var(--amber)}.otm-stat .val.err{color:var(--red)}
+.min-credit-row{display:flex;gap:16px;padding-top:8px;border-top:1px solid var(--border);margin-top:4px}
+.min-cred-item{display:flex;flex-direction:column;gap:2px}
+.min-cred-item .lbl{font-size:10px;color:var(--dim)}
+.min-cred-item .val{font-family:var(--mono);font-size:12px}
+.min-cred-item .val.pass{color:var(--green)}.min-cred-item .val.fail{color:var(--red)}.min-cred-item .val.unknown{color:var(--dim)}
+
+/* STRUCTURAL */
 .struct-panel{background:var(--surface);border:1px solid rgba(245,158,11,.3);border-radius:6px;padding:14px 20px;margin-bottom:16px;display:none}
 .struct-panel.visible{display:block}
 .struct-title{font-size:10px;letter-spacing:2px;color:var(--amber);text-transform:uppercase;margin-bottom:12px}
@@ -60,6 +85,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px
 .loc-NEUTRAL{border-color:var(--amber);color:var(--amber)}
 .loc-DISTRIBUTION{border-color:var(--red);color:var(--red)}
 .loc-UNAVAILABLE{border-color:var(--dim);color:var(--dim)}
+
+/* ENGINE CARDS */
 .engines-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
 @media(max-width:900px){.engines-grid{grid-template-columns:1fr}}
 .engine-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden}
@@ -97,6 +124,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px
 .debug-item .lbl{font-size:10px;color:var(--dim)}
 .debug-item .val{font-family:var(--mono);font-size:12px;color:var(--text)}
 .greeks-row{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:6px;letter-spacing:.5px}
+.min-req-row{font-family:var(--mono);font-size:11px;margin-top:6px;padding:6px 8px;border-radius:3px;background:rgba(255,255,255,.03)}
+
+/* CONDUCTOR */
 .conductor-card{background:var(--surface);border:2px solid var(--border);border-radius:8px;overflow:hidden}
 .conductor-card.winner{border-color:var(--amber)}.conductor-card.no-trade{border-color:var(--red)}
 .cond-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
@@ -126,7 +156,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px
 <div class="header">
   <div class="logo">NUVO<span> // </span>CONDUCTOR</div>
   <div style="font-size:11px;color:var(--dim);font-family:var(--mono)">THREE ENGINES · ONE VERDICT</div>
-  <div class="vix-pill" id="vix-pill">VIX —</div>
+  <div class="vix-pill" id="vix-pill">VIX -</div>
 </div>
 <div class="main">
   <div class="input-panel">
@@ -140,11 +170,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px
   </div>
   <div class="status" id="status">Enter ticker and press RUN.</div>
   <div class="data-strip" id="data-strip">
-    <div class="strip-title">Live Data <span class="strip-badge">SINGLE /v1/market CALL - SHARED PAYLOAD</span></div>
+    <div class="strip-title">Live Data <span class="strip-badge">SINGLE /v1/market CALL</span></div>
     <div class="data-grid" id="data-grid"></div>
   </div>
+  <div class="otm-grid" id="otm-grid" style="display:none"></div>
   <div class="struct-panel" id="struct-panel">
-    <div class="struct-title">Structural Dataset - One Map, Three Consumers</div>
+    <div class="struct-title">Structural Dataset</div>
     <div class="struct-grid" id="struct-grid"></div>
   </div>
   <div class="engines-grid">
@@ -167,7 +198,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px
   </div>
 </div>
 <script>
-// ── UTILS ──────────────────────────────────────────────────────────────────
+// ── UTILS ────────────────────────────────────────────────────────────────────
 const r2=n=>Math.round((+n||0)*100)/100;
 const r4=n=>Math.round((+n||0)*10000)/10000;
 const clamp=(x,lo,hi)=>Math.min(hi,Math.max(lo,x));
@@ -200,7 +231,13 @@ function mkApproved(e,t,f){return{engine:e,ticker:t,verdict:'APPROVED',reasons:[
 function mkRejected(e,t,r,d={}){return{engine:e,ticker:t,verdict:'REJECTED',reasons:Array.isArray(r)?r:[r],debug:d};}
 function mkBlock(e,t,r){return{engine:e,ticker:t,verdict:'BLOCK',reason:r};}
 
-// ── FETCH LAYER ─────────────────────────────────────────────────────────────
+// Min credit formulas
+function calcMinCredit(strategy,strike,width,minRoR){
+  if(strategy==='CSP')return r2(strike*minRoR);
+  return r2((width*minRoR)/(1+minRoR));
+}
+
+// ── FETCH LAYER ──────────────────────────────────────────────────────────────
 const CORE_WORKER='https://conductor.yulgutierrez.workers.dev';
 
 async function fetchMarketData(ticker){
@@ -213,36 +250,27 @@ async function fetchMarketData(ticker){
   let hv30=+(d.hv30||0);
   if(hv30>1)hv30=hv30/100;
   return{
-    ticker:upper,
-    spot:d.spot,
-    hv30:hv30||null,
-    vix:d.vix||null,
-    iv:d.iv||null,
-    bid:d.bid||0,
-    ask:d.ask||0,
-    mid:d.mid||0,
-    volume:d.volume||0,
-    oi:d.oi||0,
-    greeks:d.greeks||null,
+    ticker:upper,spot:d.spot,hv30:hv30||null,vix:d.vix||null,
+    // ATM — IV + greeks only
+    iv:d.iv||null,greeks:d.greeks||null,
     option_expiry:d.option_expiry||null,
     option_atm_strike:d.option_atm_strike||null,
     option_contract_ticker:d.option_contract_ticker||null,
     option_source:d.option_source||'unavailable',
-    option_freshness:d.option_freshness||'unavailable',
-    sma20:d.sma20||null,
-    sma200:d.sma200||null,
-    weeklyMAs:d.weeklyMAs||null,
-    fibs:d.fibs||null,
-    nmr:d.nmr||null,
-    location:d.nmr?.location||d.location||'UNAVAILABLE',
-    dominantAnchor:d.dominantAnchor||null,
-    structural:d.structural||null,
+    // OTM strike quotes — real credits for engines
+    otm_7dte:d.otm_7dte||null,   // {strike,expiry,bid,ask,mid,volume,oi,iv,greeks,source,min_credit_bps,min_credit_csp}
+    otm_14dte:d.otm_14dte||null, // same shape
+    // Structural
+    sma20:d.sma20||null,sma200:d.sma200||null,
+    weeklyMAs:d.weeklyMAs||null,fibs:d.fibs||null,
+    nmr:d.nmr||null,location:d.nmr?.location||d.location||'UNAVAILABLE',
+    dominantAnchor:d.dominantAnchor||null,structural:d.structural||null,
     dailyBars:Array.isArray(d.bars)?d.bars:[],
     diagnostics:d.diagnostics||null,
   };
 }
 
-// ── STRUCTURAL BUILDER ──────────────────────────────────────────────────────
+// ── STRUCTURAL BUILDER ───────────────────────────────────────────────────────
 function sma(v,p){if(!Array.isArray(v)||v.length<p)return null;return v.slice(-p).reduce((a,b)=>a+Number(b||0),0)/p;}
 function startOfWeek(ts){const d=new Date(ts);const day=d.getUTCDay();d.setUTCDate(d.getUTCDate()+(day===0?-6:1-day));d.setUTCHours(0,0,0,0);return d.getTime();}
 function resampleWeekly(bars){
@@ -252,24 +280,20 @@ function resampleWeekly(bars){
 }
 function nearestLev(spot,levels){
   return Object.entries(levels).filter(([,v])=>Number.isFinite(v))
-    .map(([label,level])=>({label,level,distance:Math.abs(spot-level),pctDistance:spot>0?Math.abs(spot-level)/spot:null}))
+    .map(([l,lev])=>({label:l,level:lev,distance:Math.abs(spot-lev),pctDistance:spot>0?Math.abs(spot-lev)/spot:null}))
     .sort((a,b)=>a.distance-b.distance)[0]||null;
 }
-
 function buildStructural(market){
   const{ticker,spot,dailyBars}=market;
-  // Worker path first
   if(market.structural&&market.nmr){
     const ws=market.structural,nmr=market.nmr;
     return{ticker,spot,high2y:ws.high2y||null,low2y:ws.low2y||null,range2y:ws.range2y||null,
       fibs:ws.fibs||market.fibs||{},sma20daily:ws.sma20||market.sma20||null,sma200daily:ws.sma200||market.sma200||null,
-      weeklyMAs:ws.weeklyMAs||market.weeklyMAs||{},nearestFib:ws.nearestFib||null,nearestMA:ws.nearestWeeklyMA||null,
-      dominantAnchor:ws.dominantAnchor||market.dominantAnchor||null,
+      weeklyMAs:ws.weeklyMAs||market.weeklyMAs||{},
       wholesale:nmr.wholesale,fair:nmr.fair,retail:nmr.retail,
       location:nmr.location||'UNAVAILABLE',locationDetail:nmr.locationDetail||'',
       dailyBarsCount:ws.dailyBarsCount||dailyBars.length,weeklyBarsCount:ws.weeklyBarsCount||0,_source:'worker'};
   }
-  // Client fallback
   if(!spot||!Array.isArray(dailyBars)||dailyBars.length<50)throw new Error('STRUCTURAL_DATA_UNAVAILABLE');
   const bars2y=dailyBars.slice(-520);
   const weekly=resampleWeekly(bars2y);
@@ -283,7 +307,6 @@ function buildStructural(market){
   const fibs={r236:r2(high2y-0.236*range2y),r382:r2(high2y-0.382*range2y),r500:r2(high2y-0.500*range2y),r618:r2(high2y-0.618*range2y),r786:r2(high2y-0.786*range2y)};
   const weeklyMAs={w20:sma(wc,20),w50:sma(wc,50),w100:sma(wc,100),w200:sma(wc,200)};
   const sma20daily=sma(dc,20),sma200daily=sma(dc,200);
-  const nearestFib=nearestLev(spot,fibs),nearestMA=nearestLev(spot,weeklyMAs);
   const wsCands=[fibs.r618,sma200daily].filter(Number.isFinite);
   const wholesale=wsCands.length?r2(Math.min(...wsCands)):fibs.r618;
   const fair=fibs.r500,retail=fibs.r382;
@@ -293,11 +316,12 @@ function buildStructural(market){
   else if(spot<=fair){location='ACCUMULATION';locationDetail=`wholesale < spot <= fair $${fair}`;}
   else if(spot<=retail){location='NEUTRAL';locationDetail=`fair < spot <= retail $${retail}`;}
   else{location='DISTRIBUTION';locationDetail=`spot > retail $${retail}`;}
-  return{ticker,spot,high2y,low2y,range2y,fibs,sma20daily,sma200daily,weeklyMAs,nearestFib,nearestMA,
-    wholesale,fair,retail,location,locationDetail,dailyBarsCount:bars2y.length,weeklyBarsCount:weekly.length,_source:'client'};
+  return{ticker,spot,high2y,low2y,range2y,fibs,sma20daily,sma200daily,weeklyMAs,
+    wholesale,fair,retail,location,locationDetail,
+    dailyBarsCount:bars2y.length,weeklyBarsCount:weekly.length,_source:'client'};
 }
 
-// ── VSIM ENGINE ─────────────────────────────────────────────────────────────
+// ── VSIM ENGINE ──────────────────────────────────────────────────────────────
 const VSIM_REG=[
   {maxVix:14,label:'NO FEAR',       allowCSP:false,allowBPS:false,minRoR:0.20,cspCap:0.10,bpsCap:0.02},
   {maxVix:18,label:'FEAR COOLING',  allowCSP:true, allowBPS:false,minRoR:0.20,cspCap:0.10,bpsCap:0.02},
@@ -316,6 +340,7 @@ function vsimCalc({market,structural,config}){
   if(vix==null)return mkBlock('VSIM',ticker,'VIX_UNAVAILABLE');
   if(!hv30||hv30<=0)return mkBlock('VSIM',ticker,'HV30_MISSING');
   if(!iv||iv<=0)return mkBlock('VSIM',ticker,'IV_MISSING');
+  if(!credit||credit<=0)return mkBlock('VSIM',ticker,'CREDIT_MISSING — no 14DTE OTM quote from worker');
   const regime=VSIM_REG.find(r=>vix<r.maxVix)||VSIM_REG[VSIM_REG.length-1];
   const trend=sma20daily?(spot>sma20daily?'BULL':'BEAR'):null;
   const volRatio=iv/hv30;
@@ -339,11 +364,12 @@ function vsimCalc({market,structural,config}){
   const edgePP=r2((pTrue-pMarket)*100),popPct=r2(pMarket*100);
   const ev=r2(pTrue*credit-(1-pTrue)*wheelLoss);
   const evLabel=strategy==='CSP'?'Wheel-adjusted EV':'EV';
+  const minReq=calcMinCredit(strategy,shortK,5,regime.minRoR);
   const fails=[];
   if(edgePP<5)fails.push(`EDGE_${edgePP.toFixed(1)}pp<5pp`);
   if(popPct<75)fails.push(`POP_${popPct.toFixed(1)}%<75%`);
   if(ev<=0)fails.push(`EV_${ev.toFixed(2)}_NOT_POSITIVE`);
-  if(ror<regime.minRoR*100)fails.push(`ROR_${ror.toFixed(1)}%<${(regime.minRoR*100).toFixed(1)}%`);
+  if(ror<regime.minRoR*100)fails.push(`ROR_${ror.toFixed(1)}%<${(regime.minRoR*100).toFixed(1)}% — credit $${credit.toFixed(2)} < min $${minReq.toFixed(2)}`);
   const capPct=strategy==='CSP'?regime.cspCap:regime.bpsCap;
   const budget=r2(aum*capPct);
   const contracts=Math.max(0,Math.floor(budget/maxLossPerCt));
@@ -354,7 +380,7 @@ function vsimCalc({market,structural,config}){
   const tickerConc=r2(((exT+totalColl)/aum)*100);
   const totalDeploy=r2(((exA+totalColl)/aum)*100);
   if(tickerConc>30)fails.push(`TICKER_CONC_${tickerConc.toFixed(1)}%>30%`);
-  if(fails.length)return mkRejected('VSIM',ticker,fails,{edgePP,popPct,ror,ev,regime:regime.label,location,trend,vol});
+  if(fails.length)return mkRejected('VSIM',ticker,fails,{edgePP,popPct,ror,ev,credit,minReq,regime:regime.label,location,trend,vol});
   const brokerOrder=strategy==='CSP'
     ?[`Sell to Open ${contracts} ${ticker} ${expFmt(exp)} ${shortK}P @ $${credit.toFixed(2)} limit`]
     :[`Sell to Open ${contracts} ${ticker} ${expFmt(exp)} ${shortK}P`,`Buy to Open  ${contracts} ${ticker} ${expFmt(exp)} ${longK}P`,`Net credit: $${credit.toFixed(2)} / spread`];
@@ -362,12 +388,12 @@ function vsimCalc({market,structural,config}){
     credit,expectedFill:credit,maxLossPerContract:maxLossPerCt,collateralPerContract:collateral,
     contracts,totalCollateral:totalColl,totalMaxLoss:r2(maxLossPerCt*contracts),totalCredit:r2(credit*contracts*100),
     ror,pTrue:r4(pTrue),pMarket:r4(pMarket),edgePP,popPct,ev,evLabel,
-    capitalEfficiency:ev>0&&collateral>0?r4(ev/collateral):0,liqScore:null,
+    capitalEfficiency:ev>0&&collateral>0?r4(ev/collateral):0,liqScore:null,minReq,
     regime:regime.label,trend,volState:vol,nmrLocation:location,
     capitalDeployedPct:totalDeploy,tickerConcentrationPct:tickerConc,brokerOrder});
 }
 
-// ── CROS ENGINE ─────────────────────────────────────────────────────────────
+// ── CROS ENGINE ──────────────────────────────────────────────────────────────
 const CROS_UNIV=['NVDL','TQQQ','TSLL','HOOD','SOFI','IBIT','SPY','QQQ','NVDA','AAPL'];
 const CROS_DRO=['IBIT'];
 function crosLiq(bid,ask,volume,oi){
@@ -385,6 +411,7 @@ function crosCalc({market,structural,config}){
   if(!hv30||hv30<=0)return mkBlock('CROS',ticker,'HV30_MISSING');
   if(!iv||iv<=0)return mkBlock('CROS',ticker,'IV_MISSING');
   if(sma20daily==null)return mkBlock('CROS',ticker,'SMA20_MISSING');
+  if(!credit||credit<=0)return mkBlock('CROS',ticker,'CREDIT_MISSING — no 7DTE OTM quote from worker');
   if(!CROS_UNIV.includes(ticker))return mkRejected('CROS',ticker,['NOT_IN_APPROVED_UNIVERSE'],{});
   if(vix==null)return mkBlock('CROS',ticker,'VIX_UNAVAILABLE');
   if(vix>=45)return mkBlock('CROS',ticker,`VIX_${vix}_ABOVE_BLOCK_45`);
@@ -399,7 +426,6 @@ function crosCalc({market,structural,config}){
   const{shortK}=placeStrike(spot,iv,dte);
   const longK=strategy==='BPS'?shortK-5:null;
   const exp=expiryDate(dte);
-  if(credit<0.15)return mkRejected('CROS',ticker,['CREDIT_BELOW_FLOOR'],{credit});
   if(!Number.isFinite(wholesale)||!Number.isFinite(fair))return mkRejected('CROS',ticker,['STRUCTURAL_DATA_UNAVAILABLE'],{location});
   const breakeven=r2(shortK-credit);
   if(strategy==='CSP'&&breakeven>wholesale)return mkRejected('CROS',ticker,[`NMR_CSP_BE>WHOLESALE`],{breakeven,wholesale});
@@ -416,12 +442,13 @@ function crosCalc({market,structural,config}){
   const ev=r2(pTrue*credit-(1-pTrue)*wheelLoss);
   const evLabel=strategy==='CSP'?'Wheel-adjusted EV':'EV';
   const minRoR=vix<22?16:vix<30?13:10;
+  const minReq=calcMinCredit(strategy,shortK,5,minRoR/100);
   const fails=[];
   if(edgePP<2)fails.push(`EDGE_${edgePP.toFixed(1)}pp<2pp`);
   if(popPct<70)fails.push(`POP_${popPct.toFixed(1)}%<70%`);
   if(ev<=0)fails.push(`EV_${ev.toFixed(2)}_NOT_POSITIVE`);
-  if(ror<minRoR)fails.push(`ROR_${ror.toFixed(1)}%<${minRoR}%`);
-  if(fails.length)return mkRejected('CROS',ticker,fails,{edgePP,popPct,ror,ev,strategy,trend,vol,regime});
+  if(ror<minRoR)fails.push(`ROR_${ror.toFixed(1)}%<${minRoR}% — credit $${credit.toFixed(2)} < min $${minReq.toFixed(2)}`);
+  if(fails.length)return mkRejected('CROS',ticker,fails,{edgePP,popPct,ror,ev,credit,minReq,strategy,trend,vol,regime});
   const baseRisk=r2(aum*0.02);
   const edgeMult=edgePP<2?0:edgePP<4?0.25:edgePP<7?0.50:edgePP<10?0.75:1;
   const adjRisk=r2(baseRisk*edgeMult*macroMult);
@@ -443,12 +470,12 @@ function crosCalc({market,structural,config}){
     credit,expectedFill:liq.expectedFill,maxLossPerContract:maxLossPerCt,collateralPerContract:collateral,
     contracts,totalCollateral:totalColl,totalMaxLoss:r2(maxLossPerCt*contracts),totalCredit:r2(credit*contracts*100),
     ror,pTrue:r4(pTrue),pMarket:r4(pMarket),edgePP,popPct,ev,evLabel,
-    capitalEfficiency:ev>0&&collateral>0?r4(ev/collateral):0,liqScore:liq.liqScore,
+    capitalEfficiency:ev>0&&collateral>0?r4(ev/collateral):0,liqScore:liq.liqScore,minReq,
     regime,trend,volState:vol,nmrLocation:location,
     capitalDeployedPct:totalDeploy,tickerConcentrationPct:tickerConc,brokerOrder});
 }
 
-// ── HYBRID ENGINE ───────────────────────────────────────────────────────────
+// ── HYBRID ENGINE ─────────────────────────────────────────────────────────────
 const HYBRID_UNIV=['NVDL','TQQQ','TSLL','HOOD','SOFI','IBIT','SPY','QQQ','NVDA','AAPL'];
 const HYBRID_DRO=['IBIT'];
 const HYBRID_REG=[
@@ -465,12 +492,13 @@ function hLiq(bid,ask,volume,oi){
   const ls=r2(0.4*Math.max(0,1-sp/0.20)+0.3*Math.min(1,volume/500)+0.3*Math.min(1,oi/2000));
   return{liqScore:ls,expectedFill:r2(Math.max(bid,mid-(ask-bid)*0.5)),execValid:sp<=0.25&&volume>=50&&oi>=100&&ls>=0.35};
 }
-function hEval(strategy,dte,spot,hv30,iv,credit,structural,liqData,regime){
+function hEval(strategy,dte,spot,hv30,iv,credit,liqData,structural,regime){
   const{wholesale,fair,location}=structural;
   const exp=expiryDate(dte);
   const inc=spot<25?0.5:spot<500?1:5;
   const shortK=Math.round((spot-emv(spot,iv,dte))/inc)*inc;
   const longK=strategy==='BPS'?shortK-5:null;
+  if(!credit||credit<=0)return{pass:false,reason:'CREDIT_MISSING',strategy,dte};
   if(credit<0.15)return{pass:false,reason:'CREDIT_BELOW_FLOOR',strategy,dte};
   let maxLossPerCt,collateral,ror,wheelLoss;
   if(strategy==='CSP'){maxLossPerCt=r2((shortK-credit)*100);collateral=r2(shortK*100);ror=r2((credit/shortK)*100);wheelLoss=Math.max(0,spot-shortK-credit);}
@@ -490,7 +518,7 @@ function hEval(strategy,dte,spot,hv30,iv,credit,structural,liqData,regime){
   if(edgePP<5)return{pass:false,reason:`EDGE_${edgePP.toFixed(1)}pp<5pp`,strategy,dte};
   if(popPct<75)return{pass:false,reason:`POP_${popPct.toFixed(1)}%<75%`,strategy,dte};
   if(ev<=0)return{pass:false,reason:`EV_${ev.toFixed(2)}<0`,strategy,dte};
-  if(ror<minRoR)return{pass:false,reason:`ROR_${ror.toFixed(1)}%<${minRoR.toFixed(1)}%`,strategy,dte};
+  if(ror<minRoR)return{pass:false,reason:`ROR_${ror.toFixed(1)}%<${minRoR.toFixed(1)}% min=$${calcMinCredit(strategy,shortK,5,regime.minRoR).toFixed(2)}`,strategy,dte};
   const score=r4(pTrue*0.40+clamp(ror/50,0,1)*0.35+clamp(ev/0.50,0,1)*0.25);
   const ce=ev>0&&collateral>0?r4(ev/collateral):0;
   return{pass:true,strategy,dte,exp,shortK,longK,maxLossPerCt,collateral,ror,wheelLoss,
@@ -499,8 +527,7 @@ function hEval(strategy,dte,spot,hv30,iv,credit,structural,liqData,regime){
 function hybridCalc({market,structural,config}){
   const{ticker,spot,hv30,vix}=market;
   const{sma20daily,location}=structural;
-  const{iv,credit,bid=0,ask=0,volume=0,oi=0,aum=100000,positions=[]}=config;
-  const liqData={bid,ask,volume,oi};
+  const{iv,credit7,credit14,bid=0,ask=0,volume=0,oi=0,aum=100000,positions=[]}=config;
   if(!spot||spot<=0)return mkBlock('HYBRID',ticker,'SPOT_MISSING');
   if(!hv30||hv30<=0)return mkBlock('HYBRID',ticker,'HV30_MISSING');
   if(!iv||iv<=0)return mkBlock('HYBRID',ticker,'IV_MISSING');
@@ -519,9 +546,17 @@ function hybridCalc({market,structural,config}){
   if(regime.allowBPS&&(vol==='RICH'||(vol==='FAIR'&&trend==='BULL')))structs.push('BPS');
   if(dro&&!structs.includes('BPS'))structs.push('BPS');
   if(!structs.length)return mkRejected('HYBRID',ticker,['NO_VALID_SETUP'],{trend,vol,regime:regime.label});
-  const tenors=[7,14,21];
+
+  // Each tenor gets the correct real credit from the worker
+  const liqData={bid,ask,volume,oi};
   const allCands=[];
-  for(const s of structs)for(const d of tenors)allCands.push(hEval(s,d,spot,hv30,iv,credit,structural,liqData,regime));
+  for(const s of structs){
+    for(const d of [7,14,21]){
+      // 7DTE uses OTM 7DTE quote, all others use OTM 14DTE quote
+      const c=d===7?(credit7||0):(credit14||0);
+      allCands.push(hEval(s,d,spot,hv30,iv,c,liqData,structural,regime));
+    }
+  }
   const passing=allCands.filter(c=>c.pass);
   if(!passing.length)return mkRejected('HYBRID',ticker,allCands.map(c=>`${c.strategy}-${c.dte}DTE:${c.reason}`),{trend,vol});
   const byS={};
@@ -535,12 +570,13 @@ function hybridCalc({market,structural,config}){
   }
   winners.sort((a,b)=>b.capEff-a.capEff);
   const W=winners[0];
+  const credit=W.dte===7?(credit7||0):(credit14||0);
   const perTradeBudget=r2(aum*0.03*regime.sizeMult);
   const hardCap=W.collateral>0?Math.floor(perTradeBudget/W.collateral):0;
   let contracts;
   if(W.wheelLoss<=0){contracts=hardCap;}
   else{const b_h=credit/W.wheelLoss;const f_h=b_h>0?Math.max(0,(b_h*W.prob.pTrue-(1-W.prob.pTrue))/b_h):0;contracts=Math.max(0,Math.min(Math.floor(aum*Math.min(f_h*0.5,0.10)/W.wheelLoss),hardCap));}
-  if(contracts<1)return mkRejected('HYBRID',ticker,['NON_EXECUTABLE_SETUP'],{capEff:W.capEff,dte:W.dte});
+  if(contracts<1)return mkRejected('HYBRID',ticker,['NON_EXECUTABLE_SETUP'],{capEff:W.capEff,dte:W.dte,credit});
   const totalColl=r2(W.collateral*contracts);
   const exT=(positions||[]).filter(p=>p.ticker===ticker).reduce((s,p)=>s+(+p.collateral||0),0);
   const exA=(positions||[]).reduce((s,p)=>s+(+p.collateral||0),0);
@@ -564,7 +600,7 @@ function hybridCalc({market,structural,config}){
     capitalDeployedPct:totalDeploy,tickerConcentrationPct:tickerConc,selectionReason,brokerOrder});
 }
 
-// ── CONDUCTOR ───────────────────────────────────────────────────────────────
+// ── CONDUCTOR ─────────────────────────────────────────────────────────────────
 function conductorScore(t){
   return r4(0.35*clamp(t.edgePP/20,0,1)+0.30*clamp((t.capitalEfficiency||0)/0.005,0,1)
     +0.20*clamp((t.popPct-70)/25,0,1)+0.15*(t.liqScore!=null?clamp(t.liqScore,0,1):0.5)
@@ -592,7 +628,7 @@ function conductor(results){
   return{finalVerdict:'APPROVED',winningEngine:winner.engine,winningStrategy:winner.strategy,conductorScore:winner.conductorScore,whyChosen,losers,brokerOrder:winner.brokerOrder,winnerTicket:winner};
 }
 
-// ── RENDER ──────────────────────────────────────────────────────────────────
+// ── RENDER ────────────────────────────────────────────────────────────────────
 function setStatus(msg,cls=''){const el=document.getElementById('status');el.textContent=msg;el.className='status '+cls;}
 function updateVixPill(vix){
   const el=document.getElementById('vix-pill');
@@ -600,40 +636,62 @@ function updateVixPill(vix){
   el.textContent=`VIX ${vix.toFixed(1)}`;
   el.className='vix-pill '+(vix<24?'allow':vix<45?'warn':'block');
 }
+
 function renderDataStrip(m){
   const f=(l,v,c='')=>`<div class="d-item"><div class="lbl">${l}</div><div class="val ${c}">${v}</div></div>`;
   let h='';
-  h+=f('Ticker',m.ticker,'ok');
-  h+=f('Spot',  m.spot   ?`$${m.spot.toFixed(2)}`        :'MISSING', m.spot   ?'ok':'err');
-  h+=f('HV30',  m.hv30   ?`${(m.hv30*100).toFixed(1)}%`  :'MISSING', m.hv30   ?'ok':'err');
-  h+=f('VIX',   m.vix    ?m.vix.toFixed(1)               :'MISSING', m.vix    ?'ok':'err');
-  h+=f('IV',    m.iv     ?`${(m.iv*100).toFixed(1)}%`    :'MISSING', m.iv     ?'ok':'err');
-  h+=f('IV/HV', m.iv&&m.hv30?(m.iv/m.hv30).toFixed(2)   :'--',      m.iv&&m.hv30&&m.iv/m.hv30>=1.15?'ok':'warn');
-  h+=f('IV src',m.option_source,                                      m.option_source!=='unavailable'?'ok':'warn');
-  h+=f('Bid/Ask',m.bid?`$${m.bid.toFixed(2)} / $${m.ask.toFixed(2)}`:'--',     m.bid?'ok':'warn');
-  h+=f('Mid',   m.mid    ?`$${m.mid.toFixed(2)}`         :'--',      m.mid    ?'ok':'warn');
-  h+=f('Volume',m.volume||0,                                          (m.volume||0)>=50?'ok':'warn');
-  h+=f('OI',    m.oi    ||0,                                          (m.oi||0)>=100?'ok':'warn');
+  h+=f('Spot',m.spot?`$${m.spot.toFixed(2)}`:'MISSING',m.spot?'ok':'err');
+  h+=f('HV30',m.hv30?`${(m.hv30*100).toFixed(1)}%`:'MISSING',m.hv30?'ok':'err');
+  h+=f('VIX',m.vix?m.vix.toFixed(1):'MISSING',m.vix?'ok':'err');
+  h+=f('IV (ATM)',m.iv?`${(m.iv*100).toFixed(1)}%`:'MISSING',m.iv?'ok':'err');
+  h+=f('IV/HV',m.iv&&m.hv30?(m.iv/m.hv30).toFixed(2):'--',m.iv&&m.hv30&&m.iv/m.hv30>=1.15?'ok':'warn');
+  h+=f('IV src',m.option_source,m.option_source!=='unavailable'?'ok':'warn');
   if(m.greeks){
     h+=f('Delta',m.greeks.delta?.toFixed(4)??'--','ok');
     h+=f('Gamma',m.greeks.gamma?.toFixed(5)??'--','ok');
     h+=f('Theta',m.greeks.theta?.toFixed(4)??'--','ok');
-    h+=f('Vega', m.greeks.vega?.toFixed(4)??'--', 'ok');
-  }else{h+=f('Greeks','unavailable','warn');}
-  if(m.option_contract_ticker)h+=f('Contract',m.option_contract_ticker,'ok');
-  if(m.option_atm_strike)h+=f('ATM strike',`$${m.option_atm_strike}`,'ok');
-  if(m.option_expiry)h+=f('Expiry',m.option_expiry,'ok');
-  h+=f('SMA20', m.sma20  ?`$${m.sma20.toFixed(2)}` :'--', m.sma20 ?'ok':'warn');
-  h+=f('SMA200',m.sma200 ?`$${m.sma200.toFixed(2)}`:'--', m.sma200?'ok':'warn');
-  h+=f('NMR WS',m.nmr?.wholesale?`$${m.nmr.wholesale.toFixed(2)}`:'--',m.nmr?.wholesale?'ok':'warn');
-  h+=f('NMR Fair',m.nmr?.fair?`$${m.nmr.fair.toFixed(2)}`:'--',       m.nmr?.fair?'ok':'warn');
+    h+=f('Vega',m.greeks.vega?.toFixed(4)??'--','ok');
+  }
+  h+=f('SMA20',m.sma20?`$${m.sma20.toFixed(2)}`:'--',m.sma20?'ok':'warn');
+  h+=f('SMA200',m.sma200?`$${m.sma200.toFixed(2)}`:'--',m.sma200?'ok':'warn');
   h+=f('Location',m.location||'UNAVAILABLE',
     m.location==='WHOLESALE'||m.location==='ACCUMULATION'?'ok':m.location==='NEUTRAL'?'warn':'err');
   h+=f('Bars',`${m.dailyBars.length}d`,m.dailyBars.length>=200?'ok':'warn');
-  h+=f('Struct src',m.structural?'worker':'client',m.structural?'ok':'warn');
   document.getElementById('data-grid').innerHTML=h;
   document.getElementById('data-strip').classList.add('visible');
 }
+
+function renderOtmBoxes(m){
+  const minRoR=m.diagnostics?.min_ror_regime||0.13;
+  function box(otm,label,dte){
+    if(!otm)return`<div class="otm-box no-quote"><div class="otm-header"><span class="otm-label">${label}</span><span class="otm-source" style="color:var(--red)">no quote</span></div><div style="font-size:11px;color:var(--dim)">Worker could not fetch ${dte}DTE OTM quote</div></div>`;
+    const mid=otm.mid;
+    const minBPS=otm.min_credit_bps;
+    const minCSP=otm.min_credit_csp;
+    const passBPS=mid!=null&&minBPS!=null&&mid>=minBPS;
+    const passCSP=mid!=null&&minCSP!=null&&mid>=minCSP;
+    return`<div class="otm-box ${mid?'has-quote':'no-quote'}">
+      <div class="otm-header">
+        <span class="otm-label">${label} — $${otm.strike} ${expFmt(otm.expiry)}</span>
+        <span class="otm-source">${otm.source||'unavailable'}</span>
+      </div>
+      <div class="otm-main">
+        <div class="otm-stat"><div class="lbl">Mid</div><div class="val ${mid?'ok':'err'}">${mid?`$${mid.toFixed(2)}`:'NO QUOTE'}</div></div>
+        <div class="otm-stat"><div class="lbl">Bid/Ask</div><div class="val">${otm.bid!=null?`$${otm.bid.toFixed(2)}/$${otm.ask.toFixed(2)}`:'--'}</div></div>
+        <div class="otm-stat"><div class="lbl">Volume</div><div class="val ${(otm.volume||0)>=50?'ok':'warn'}">${otm.volume||0}</div></div>
+        <div class="otm-stat"><div class="lbl">OI</div><div class="val ${(otm.oi||0)>=100?'ok':'warn'}">${otm.oi||0}</div></div>
+      </div>
+      <div class="min-credit-row">
+        <div class="min-cred-item"><div class="lbl">Min credit (BPS)</div><div class="val ${mid!=null?(passBPS?'pass':'fail'):'unknown'}">${minBPS!=null?`$${minBPS.toFixed(2)}`:'--'} ${mid!=null?(passBPS?'PASS':'FAIL GATE'):'(no mid)'}</div></div>
+        <div class="min-cred-item"><div class="lbl">Min credit (CSP)</div><div class="val ${mid!=null?(passCSP?'pass':'fail'):'unknown'}">${minCSP!=null?`$${minCSP.toFixed(2)}`:'--'} ${mid!=null?(passCSP?'PASS':'FAIL GATE'):'(no mid)'}</div></div>
+      </div>
+    </div>`;
+  }
+  const grid=document.getElementById('otm-grid');
+  grid.innerHTML=box(m.otm_7dte,'7DTE OTM (CROS credit)','7DTE')+box(m.otm_14dte,'14DTE OTM (VSIM/HYBRID credit)','14DTE');
+  grid.style.display='grid';
+}
+
 function renderStructural(s){
   const f=(l,p)=>`<div class="slevel"><span class="sn">${l}</span><span class="sp">${Number.isFinite(p)?'$'+p.toFixed(2):'--'}</span></div>`;
   const loc=s.location||'UNAVAILABLE';
@@ -654,6 +712,7 @@ function renderStructural(s){
     </div>`;
   document.getElementById('struct-panel').classList.add('visible');
 }
+
 function renderEngineCard(engine,result){
   const card=document.getElementById('card-'+engine.toLowerCase());
   const vb=document.getElementById('vbadge-'+engine.toLowerCase());
@@ -669,7 +728,7 @@ function renderEngineCard(engine,result){
     body+='<div class="divider"></div>';
     body+=`<div class="metrics-grid">
       <div class="met"><div class="lbl">Contracts</div><div class="val">${t.contracts}x</div></div>
-      <div class="met"><div class="lbl">Credit</div><div class="val">$${t.credit?.toFixed(2)}</div></div>
+      <div class="met"><div class="lbl">Credit</div><div class="val ok">$${t.credit?.toFixed(2)}</div></div>
       <div class="met"><div class="lbl">RoR</div><div class="val g">${t.ror?.toFixed(1)}%</div></div>
       <div class="met"><div class="lbl">Edge</div><div class="val g">+${t.edgePP?.toFixed(1)}pp</div></div>
       <div class="met"><div class="lbl">POP</div><div class="val">${t.popPct?.toFixed(1)}%</div></div>
@@ -677,19 +736,28 @@ function renderEngineCard(engine,result){
       <div class="met"><div class="lbl">CapEff</div><div class="val a">${t.capitalEfficiency?.toExponential(2)}</div></div>
       <div class="met"><div class="lbl">Deploy</div><div class="val">${t.capitalDeployedPct?.toFixed(1)}%</div></div>
     </div>`;
-    if(t.liqScore!=null)body+=`<div style="font-size:11px;color:var(--dim)">Liq: ${t.liqScore}</div>`;
+    if(t.minReq!=null)body+=`<div class="min-req-row" style="color:var(--green)">Min required: $${t.minReq.toFixed(2)} — actual credit $${t.credit?.toFixed(2)} PASSES</div>`;
+    if(t.liqScore!=null)body+=`<div style="font-size:11px;color:var(--dim);margin-top:4px">Liq: ${t.liqScore}</div>`;
     if(t.selectionReason)body+=`<div style="font-size:10px;color:var(--dim);margin-top:4px">${t.selectionReason}</div>`;
     const g=window._mkt?.greeks;
-    if(g)body+=`<div class="greeks-row">d ${g.delta?.toFixed(3)??'--'}  g ${g.gamma?.toFixed(5)??'--'}  t ${g.theta?.toFixed(4)??'--'}  v ${g.vega?.toFixed(4)??'--'}</div>`;
+    if(g)body+=`<div class="greeks-row">d ${g.delta?.toFixed(3)??'--'} g ${g.gamma?.toFixed(5)??'--'} t ${g.theta?.toFixed(4)??'--'} v ${g.vega?.toFixed(4)??'--'}</div>`;
     body+=`<div class="broker-box">${(t.brokerOrder||[]).map(l=>`<div class="broker-line">${l}</div>`).join('')}</div>`;
   }else if(result.verdict==='REJECTED'){
     body+=`<div class="reject-list">${(result.reasons||[]).map(r=>`<div class="reject-item">x ${r}</div>`).join('')}</div>`;
-    if(result.debug&&Object.keys(result.debug).length){
-      body+=`<div class="debug-row">${Object.entries(result.debug).filter(([,v])=>typeof v==='number').map(([k,v])=>`<div class="debug-item"><div class="lbl">${k}</div><div class="val">${v.toFixed?v.toFixed(2):v}</div></div>`).join('')}</div>`;
+    if(result.debug){
+      const dbg=result.debug;
+      body+=`<div class="debug-row">`;
+      if(dbg.credit!=null)body+=`<div class="debug-item"><div class="lbl">Actual credit</div><div class="val">$${(+dbg.credit).toFixed(2)}</div></div>`;
+      if(dbg.minReq!=null)body+=`<div class="debug-item"><div class="lbl">Min required</div><div class="val err">$${(+dbg.minReq).toFixed(2)}</div></div>`;
+      if(dbg.edgePP!=null)body+=`<div class="debug-item"><div class="lbl">Edge</div><div class="val">${(+dbg.edgePP).toFixed(1)}pp</div></div>`;
+      if(dbg.ror!=null)body+=`<div class="debug-item"><div class="lbl">RoR</div><div class="val">${(+dbg.ror).toFixed(1)}%</div></div>`;
+      if(dbg.ev!=null)body+=`<div class="debug-item"><div class="lbl">EV</div><div class="val">${(+dbg.ev).toFixed(2)}</div></div>`;
+      body+=`</div>`;
     }
   }else{body+=`<div style="color:var(--red);font-family:var(--mono);font-size:12px;padding:8px 0">blocked: ${result.reason}</div>`;}
   card.querySelector('.card-body').innerHTML=body;
 }
+
 function renderConductor(decision){
   const card=document.getElementById('conductor-card');
   const verd=document.getElementById('cond-verdict');
@@ -712,9 +780,7 @@ function renderConductor(decision){
       <div class="csect">Why chosen</div>
       ${(decision.whyChosen||[]).map(w=>`<div class="why-item">${w}</div>`).join('')}
     </div>
-    <div>
-      <div class="csect">Other engines</div>${loserRows}
-    </div>
+    <div><div class="csect">Other engines</div>${loserRows}</div>
     <div class="cond-order">
       <div class="csect">Broker Order</div>
       <div class="final-order">${(decision.brokerOrder||[]).map(l=>`<div class="final-order-line">${l}</div>`).join('')}</div>
@@ -722,7 +788,7 @@ function renderConductor(decision){
   </div>`;
 }
 
-// ── MAIN RUN ─────────────────────────────────────────────────────────────────
+// ── MAIN RUN ──────────────────────────────────────────────────────────────────
 async function runAll(){
   const ticker=document.getElementById('ticker').value.trim().toUpperCase();
   if(!ticker){setStatus('Enter a ticker.','err');return;}
@@ -730,43 +796,51 @@ async function runAll(){
   const aum=+document.getElementById('aum').value||100000;
   document.getElementById('run-btn').disabled=true;
   document.getElementById('run-btn').textContent='RUNNING...';
+  document.getElementById('otm-grid').style.display='none';
   ['vsim','cros','hybrid'].forEach(e=>{
     document.getElementById('vbadge-'+e).textContent='...';
     document.getElementById('vbadge-'+e).className='vbadge idle';
     document.getElementById('card-'+e).querySelector('.card-body').innerHTML='<div class="idle-msg">Running...</div>';
   });
   try{
-    setStatus(`Fetching ${ticker} from /v1/market...`,'running');
+    setStatus(`Fetching ${ticker} — spot + IV + OTM strikes + structural...`,'running');
     const market=await fetchMarketData(ticker);
     window._mkt=market;
     updateVixPill(market.vix);
     renderDataStrip(market);
+    renderOtmBoxes(market);
     let structural;
     try{
       structural=buildStructural(market);
       renderStructural(structural);
     }catch(se){
-      setStatus(`Structural unavailable (${se.message}) - NMR gates will block`,'running');
+      setStatus(`Structural unavailable — NMR gates will block`,'running');
       structural={ticker,spot:market.spot,wholesale:null,fair:null,retail:null,
         location:'UNAVAILABLE',locationDetail:se.message,
         sma20daily:market.sma20||null,sma200daily:market.sma200||null,
         fibs:market.fibs||{},weeklyMAs:market.weeklyMAs||{},
         dailyBarsCount:market.dailyBars.length,weeklyBarsCount:0,high2y:null,low2y:null,range2y:null};
     }
-    setStatus(`Running engines...`,'running');
-    const credit=manualCredit>0?manualCredit:(market.mid||0);
-    if(!credit)setStatus(`Warning: credit is zero - enter manually or check option quote`,'running');
-    const payload={market,structural,config:{iv:market.iv,credit,bid:market.bid,ask:market.ask,volume:market.volume,oi:market.oi,aum,positions:[]}};
-    const vsimResult=vsimCalc(payload);
-    const crosResult=crosCalc(payload);
-    const hybridResult=hybridCalc(payload);
+    setStatus(`Running engines with real OTM credits...`,'running');
+
+    // Credit routing: override applies to all; otherwise use strike-specific quotes
+    const credit7  = manualCredit>0 ? manualCredit : (market.otm_7dte?.mid  || 0);
+    const credit14 = manualCredit>0 ? manualCredit : (market.otm_14dte?.mid || 0);
+
+    // Liq data from 7DTE OTM (best proxy for near-term liquidity)
+    const otm7=market.otm_7dte||{};
+
+    const vsimResult=vsimCalc({market,structural,config:{iv:market.iv,credit:credit14,aum,positions:[]}});
+    const crosResult=crosCalc({market,structural,config:{iv:market.iv,credit:credit7,bid:otm7.bid||0,ask:otm7.ask||0,volume:otm7.volume||0,oi:otm7.oi||0,aum,positions:[]}});
+    const hybridResult=hybridCalc({market,structural,config:{iv:market.iv,credit7,credit14,bid:otm7.bid||0,ask:otm7.ask||0,volume:otm7.volume||0,oi:otm7.oi||0,aum,positions:[]}});
+
     renderEngineCard('VSIM',vsimResult);
     renderEngineCard('CROS',crosResult);
     renderEngineCard('HYBRID',hybridResult);
     const decision=conductor([vsimResult,crosResult,hybridResult]);
     renderConductor(decision);
     const n=[vsimResult,crosResult,hybridResult].filter(r=>r.verdict==='APPROVED').length;
-    setStatus(`Done - ${n}/3 approved - ${decision.finalVerdict}`,'done');
+    setStatus(`Done — ${n}/3 approved — ${decision.finalVerdict}`,'done');
   }catch(e){
     setStatus(`Error: ${e.message}`,'err');
     console.error(e);
@@ -775,7 +849,6 @@ async function runAll(){
     document.getElementById('run-btn').textContent='Run';
   }
 }
-
 document.getElementById('ticker').addEventListener('keydown',e=>{if(e.key==='Enter')runAll();});
 document.getElementById('aum').addEventListener('input',e=>{
   document.getElementById('aum-note').textContent=`AUM $${(+e.target.value||0).toLocaleString()}`;
