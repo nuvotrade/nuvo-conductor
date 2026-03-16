@@ -264,50 +264,58 @@ function mkBlock(engine,ticker,reason){return{engine,ticker,verdict:'BLOCK',reas
 
 // ============================================================
 // MARKET FETCH LAYER
+// Production path: /v1/market — single call, full payload
+// All other routes are debug-only
 // ============================================================
-const TRUTH_WORKER = 'https://nuvo-vsim-truth.yulgutierrez.workers.dev';
-const SNAP_WORKER  = 'https://vsim-test-worker.yulgutierrez.workers.dev';
+const CORE_WORKER = 'https://conductor.yulgutierrez.workers.dev';
 
 async function fetchMarketData(ticker) {
-  const upper = ticker.toUpperCase();
+  const upper = ticker.toUpperCase().trim();
+  const r = await fetch(`${CORE_WORKER}/v1/market?ticker=${encodeURIComponent(upper)}&bust=1`);
+  if (!r.ok) throw new Error(`market_fetch_failed_${r.status}`);
+  const d = await r.json();
+  if (d.error) throw new Error(d.error);
+  if (!(d.spot > 0)) throw new Error('SPOT_MISSING');
 
-  // Parallel: bars + snap + VIX
-  const [barsRes, snapRes, vixRes] = await Promise.all([
-    fetch(`${TRUTH_WORKER}/v1/bars?ticker=${encodeURIComponent(upper)}&tf=1d&ts=${Date.now()}`)
-      .then(r=>r.ok?r.json():null).catch(()=>null),
-    fetch(`${SNAP_WORKER}?tickers=${upper}&bust=${Date.now()}`)
-      .then(r=>r.ok?r.json():null).catch(()=>null),
-    fetch(`${SNAP_WORKER}?vix=1&bust=${Date.now()}`)
-      .then(r=>r.ok?r.json():null).catch(()=>null)
-  ]);
+  let hv30 = +(d.hv30 || 0);
+  if (hv30 > 1) hv30 = hv30 / 100;
 
-  // Parse bars
-  const rawBars = barsRes ? (Array.isArray(barsRes)?barsRes:(barsRes.bars||barsRes.results||[])) : [];
-  const dailyBars = rawBars.map(b=>({
-    t:+(b.t||b.timestamp||0),
-    o:+(b.o||b.open||0),
-    h:+(b.h||b.high||0),
-    l:+(b.l||b.low||0),
-    c:+(b.c||b.close||0),
-    v:+(b.v||b.volume||0)
-  })).filter(b=>b.t&&b.c);
+  return {
+    ticker: upper,
+    spot: d.spot,
+    hv30: hv30 || null,
+    vix: d.vix || null,
+    iv: d.iv || null,
+    bid: d.bid || 0,
+    ask: d.ask || 0,
+    mid: d.mid || 0,
+    volume: d.volume || 0,
+    oi: d.oi || 0,
+    dailyBars: Array.isArray(d.bars) ? d.bars : [],
 
-  // Parse snap
-  const snap = snapRes ? ((snapRes.results||snapRes)[upper]||{}) : {};
-  const spot = +(snap.underlying||snap.spot||0);
-  let hv30 = +(snap.hv30||snap.realizedVol30||snap.hv||0);
-  if(hv30>1) hv30=hv30/100;
+    _workerStructural: d.structural || null,
+    _workerNmr: d.nmr || null,
+    _sma20: d.sma20 || null,
+    _sma200: d.sma200 || null,
+    _weeklyMAs: d.weeklyMAs || null,
+    _fibs: d.fibs || null,
+    _location: d.nmr?.location || d.location || 'UNAVAILABLE',
+    _dominantAnchor: d.dominantAnchor || null,
 
-  // Parse VIX
-  const vix = vixRes ? +(vixRes.vix||vixRes.value||0)||null : null;
+    _optionExpiry: d.option_expiry || null,
+    _optionAtmStrike: d.option_atm_strike || null,
+    _optionContractTicker: d.option_contract_ticker || null,
+    _optionSource: d.option_source || 'unavailable',
+    _optionFreshness: d.option_freshness || 'unavailable',
 
-  if(!spot) throw new Error('SPOT_MISSING — worker returned no price data');
-
-  return { ticker:upper, spot, hv30:hv30||null, vix, dailyBars };
+    diagnostics: d.diagnostics || null,
+    greeks: d.greeks || null,
+  };
 }
 
 // ============================================================
-// STRUCTURAL DATASET BUILDER — single source, all engines consume
+// STRUCTURAL DATASET BUILDER — uses worker pre-built structural,
+// falls back to client computation only if worker structural missing
 // ============================================================
 function sma(values, period) {
   if(!Array.isArray(values)||values.length<period) return null;
@@ -342,6 +350,34 @@ function nearestLevel(spot, levels) {
 function buildStructuralDataset(marketData) {
   const {ticker, spot, dailyBars} = marketData;
 
+  // Use worker pre-built structural if available — avoids redundant computation
+  if(marketData._workerStructural && marketData._workerNmr) {
+    const ws = marketData._workerStructural;
+    const nmr = marketData._workerNmr;
+    return {
+      ticker, spot,
+      high2y: ws.high2y || null,
+      low2y:  ws.low2y  || null,
+      range2y:ws.range2y|| null,
+      fibs:   ws.fibs   || marketData._fibs || {},
+      sma20daily:  ws.sma20  || marketData._sma20  || null,
+      sma200daily: ws.sma200 || marketData._sma200 || null,
+      weeklyMAs:   ws.weeklyMAs || marketData._weeklyMAs || {},
+      nearestFib:  ws.nearestFib || null,
+      nearestMA:   ws.nearestWeeklyMA || null,
+      dominantAnchor: ws.dominantAnchor || marketData._dominantAnchor || null,
+      wholesale:   nmr.wholesale,
+      fair:        nmr.fair,
+      retail:      nmr.retail,
+      location:    nmr.location || 'UNAVAILABLE',
+      locationDetail: nmr.locationDetail || '',
+      dailyBarsCount: ws.dailyBarsCount || dailyBars.length,
+      weeklyBarsCount: ws.weeklyBarsCount || 0,
+      _source: 'worker'
+    };
+  }
+
+  // Fallback: compute client-side from raw bars
   if(!spot||!Array.isArray(dailyBars)||dailyBars.length<50)
     throw new Error('STRUCTURAL_DATA_UNAVAILABLE — insufficient bar history');
 
@@ -415,24 +451,12 @@ function buildStructuralDataset(marketData) {
     wholesale, fair, retail,
     location, locationDetail,
     weeklyBarsCount: weeklyBars.length,
-    dailyBarsCount: bars2y.length
+    dailyBarsCount: bars2y.length,
+    _source: 'client'
   };
 }
 
-// ============================================================
-// ATM OPTION FETCH (separate, for IV/credit)
-// ============================================================
-async function fetchOptionData(ticker, spot, dte) {
-  const exp = expiryDate(dte);
-  const inc = spot<25?0.5:spot<500?1:5;
-  const atmK = Math.round(spot/inc)*inc;
-  const url = `${SNAP_WORKER}?option=1&ticker=${encodeURIComponent(ticker)}&expiry=${exp}&strike=${atmK}&type=put&bust=${Date.now()}`;
-  const d = await fetch(url).then(r=>r.ok?r.json():null).catch(()=>null);
-  if(!d) return {iv:null,bid:0,ask:0,mid:0,volume:0,oi:0,exp,atmK};
-  let iv=+(d.iv||0); if(iv>2)iv=iv/100;
-  const bid=+(d.bid||0), ask=+(d.ask||bid);
-  return {iv:iv||null,bid,ask,mid:(bid+ask)/2,volume:+(d.volume||0),oi:+(d.oi||0),exp,atmK};
-}
+// fetchOptionData removed — IV/bid/ask now returned by /v1/market
 
 // ============================================================
 // VSIM ENGINE — consumes structural.wholesale/fair/retail
@@ -867,20 +891,52 @@ function updateVixPill(vix){
   el.className='vix-pill '+(vix<24?'allow':vix<45?'throttle':'block');
 }
 
-function renderDataStrip(market, optData){
+function renderDataStrip(market){
   const grid=document.getElementById('data-grid');
   const f=(l,v,cls='')=>`<div class="d-item"><div class="label">${l}</div><div class="val ${cls}">${v}</div></div>`;
   let h='';
-  h+=f('Spot',market.spot?`$${market.spot.toFixed(2)}`:'MISSING',market.spot?'ok':'err');
-  h+=f('HV30',market.hv30?`${(market.hv30*100).toFixed(1)}%`:'MISSING',market.hv30?'ok':'err');
-  h+=f('IV (ATM)',optData.iv?`${(optData.iv*100).toFixed(1)}%`:'MISSING',optData.iv?'ok':'warn');
-  h+=f('IV/HV',optData.iv&&market.hv30?r2(optData.iv/market.hv30).toFixed(2):'—',optData.iv&&market.hv30&&optData.iv/market.hv30>=1.15?'ok':'warn');
-  h+=f('VIX',market.vix?market.vix.toFixed(1):'MISSING',market.vix?'ok':'err');
-  h+=f('Bid/Ask',optData.bid?`$${optData.bid.toFixed(2)}/$${optData.ask.toFixed(2)}`:'—',optData.bid?'ok':'warn');
-  h+=f('Volume',optData.volume||0,optData.volume>=50?'ok':'warn');
-  h+=f('OI',optData.oi||0,optData.oi>=100?'ok':'warn');
-  h+=f('Mid',optData.mid?`$${optData.mid.toFixed(2)}`:'—');
-  h+=f('Bars',`${market.dailyBars.length}d`,market.dailyBars.length>=200?'ok':'warn');
+
+  // Market snapshot
+  h+=f('Spot',  market.spot  ? `$${market.spot.toFixed(2)}`  : 'MISSING', market.spot?'ok':'err');
+  h+=f('HV30',  market.hv30  ? `${(market.hv30*100).toFixed(1)}%` : 'MISSING', market.hv30?'ok':'err');
+  h+=f('VIX',   market.vix   ? market.vix.toFixed(1) : 'MISSING', market.vix?'ok':'err');
+
+  // IV — source from diagnostics if available
+  const ivPct = market.iv ? `${(market.iv*100).toFixed(1)}%` : null;
+  const ivSrc = market.diagnostics?.iv_source || market._optionSource || 'unavailable';
+  const ivIsEst = ivSrc === 'hv30_estimate';
+  const ivDisplay = ivPct ? `${ivPct}${ivIsEst?' (est)':''}` : 'MISSING';
+  const ivCls = !market.iv ? 'err' : ivIsEst ? 'warn' : 'ok';
+  h+=f('IV', ivDisplay, ivCls);
+  h+=f('IV source', ivSrc, ivSrc!=='unavailable'?'ok':'warn');
+  h+=f('IV/HV', market.iv&&market.hv30 ? r2(market.iv/market.hv30).toFixed(2) : '—',
+    market.iv&&market.hv30&&market.iv/market.hv30>=1.15?'ok':'warn');
+
+  // Option quote
+  h+=f('Bid/Ask', market.bid ? `$${market.bid.toFixed(2)} / $${market.ask.toFixed(2)}` : '—', market.bid?'ok':'warn');
+  h+=f('Mid',     market.mid ? `$${market.mid.toFixed(2)}` : '—', market.mid?'ok':'warn');
+  h+=f('Volume',  market.volume||0, (market.volume||0)>=50?'ok':'warn');
+  h+=f('OI',      market.oi||0,     (market.oi||0)>=100?'ok':'warn');
+
+  // Greeks (if Polygon returned them)
+  if(market.greeks) {
+    h+=f('Delta', market.greeks.delta?.toFixed(4)??'—', 'ok');
+    h+=f('Theta', market.greeks.theta?.toFixed(4)??'—', 'ok');
+    h+=f('Vega',  market.greeks.vega?.toFixed(4)??'—',  'ok');
+  } else {
+    h+=f('Greeks', 'unavailable', 'warn');
+  }
+
+  // Contract info
+  if(market._optionContractTicker) h+=f('Contract', market._optionContractTicker, 'ok');
+  if(market._optionAtmStrike) h+=f('ATM strike', `$${market._optionAtmStrike}`, 'ok');
+  if(market._optionExpiry) h+=f('Expiry', market._optionExpiry, 'ok');
+  if(market._optionSource&&market._optionSource!=='unavailable') h+=f('Option src', market._optionSource, 'ok');
+
+  // Structural
+  h+=f('Bars',   `${market.dailyBars.length}d`, market.dailyBars.length>=200?'ok':'warn');
+  h+=f('Struct', market._workerStructural?'worker':'client', market._workerStructural?'ok':'warn');
+
   grid.innerHTML=h;
   document.getElementById('data-strip').classList.add('visible');
 }
@@ -957,6 +1013,13 @@ function renderEngineCard(engine,result){
       <div class="metric"><div class="label">Deploy</div><div class="value">${t.capitalDeployedPct?.toFixed(1)}%</div></div>
     </div>`;
     if(t.liqScore!=null) body+=`<div style="font-size:11px;color:var(--dim)">Liq: ${t.liqScore}</div>`;
+    // Show greeks from market data if Polygon returned them
+    const mkt = window._lastMarket;
+    if(mkt?.greeks) {
+      body+=`<div style="font-size:11px;color:var(--dim);margin-top:4px;font-family:var(--font-mono)">
+        δ ${mkt.greeks.delta?.toFixed(3)??'—'} &nbsp; γ ${mkt.greeks.gamma?.toFixed(4)??'—'} &nbsp; θ ${mkt.greeks.theta?.toFixed(4)??'—'} &nbsp; ν ${mkt.greeks.vega?.toFixed(4)??'—'}
+      </div>`;
+    }
     if(t.selectionReason) body+=`<div style="font-size:10px;color:var(--dim);margin-top:6px">${t.selectionReason}</div>`;
     body+=`<div class="broker-order">`;
     (t.brokerOrder||[]).forEach(l=>body+=`<div class="broker-line">${l}</div>`);
@@ -1036,29 +1099,26 @@ async function runAll(){
     const market = await fetchMarketData(ticker);
     updateVixPill(market.vix);
 
-    setStatus(`[2/3] Fetching option data + building structural dataset…`,'running');
-    const [optData] = await Promise.all([
-      fetchOptionData(ticker, market.spot, 14)
-    ]);
+    setStatus(`[2/3] Building structural dataset…`,'running');
 
-    // IV from option fetch
-    market.iv = optData.iv;
+    // /v1/market already returned structural, NMR, IV, bid/ask — no separate fetches
+    renderDataStrip(market);
 
-    renderDataStrip(market, optData);
-
-    // Build structural dataset — once, shared by all engines
     let structural;
     try {
-      structural = buildStructuralDataset(market);
+      structural = buildStructuralDataset(market); // uses worker pre-built first
       renderStructural(structural);
     } catch(se) {
       setStatus(`Structural build failed: ${se.message}`,'err');
-      // Still run engines with partial structural
-      structural = { ticker, spot:market.spot, wholesale:null, fair:null, retail:null, location:'UNAVAILABLE', locationDetail:se.message, sma20daily:null, sma200daily:null, fibs:{}, weeklyMAs:{}, dailyBarsCount:market.dailyBars.length, weeklyBarsCount:0, high2y:null, low2y:null, range2y:null };
+      structural = { ticker, spot:market.spot, wholesale:null, fair:null, retail:null,
+        location:'UNAVAILABLE', locationDetail:se.message,
+        sma20daily:null, sma200daily:null, fibs:{}, weeklyMAs:{},
+        dailyBarsCount:market.dailyBars.length, weeklyBarsCount:0,
+        high2y:null, low2y:null, range2y:null };
     }
 
     setStatus(`[3/3] Running engines…`,'running');
-    const credit = manualCredit>0 ? manualCredit : (optData.mid||0);
+    const credit = manualCredit>0 ? manualCredit : (market.mid||0);
     if(!credit) setStatus(`Warning: no credit — set manually if ATM option unavailable`,'running');
 
     // Unified payload — all three engines receive identical market + structural
@@ -1068,15 +1128,16 @@ async function runAll(){
       config: {
         iv: market.iv,
         credit,
-        bid: optData.bid,
-        ask: optData.ask,
-        volume: optData.volume,
-        oi: optData.oi,
+        bid: market.bid,
+        ask: market.ask,
+        volume: market.volume,
+        oi: market.oi,
         aum,
         positions:[]
       }
     };
 
+    window._lastMarket = market;  // store for engine card greek display
     const vsimResult  = vsimCalc(payload);
     const crosResult  = crosCalc(payload);
     const hybridResult = hybridCalc(payload);
