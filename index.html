@@ -132,7 +132,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px
   <div class="input-panel">
     <div class="input-row">
       <div class="field"><label>Ticker</label><input class="ticker-in" id="ticker" value="SOFI" maxlength="8"></div>
-      <div class="field"><label>Credit override</label><input class="narrow" id="credit" type="number" step="0.01" placeholder="auto"></div>
+      <div class="field">
+        <label>Credit override</label>
+        <input class="narrow" id="credit" type="number" step="0.01" placeholder="auto">
+        <div style="font-size:10px;color:var(--dim);margin-top:3px">Leave blank = ATM mid auto-fill</div>
+      </div>
       <div class="field"><label>AUM ($)</label><input class="wide" id="aum" type="number" value="100000"></div>
       <button class="run-btn" id="run-btn" onclick="runAll()">&#9654; RUN</button>
       <div class="aum-note" id="aum-note">AUM $100,000</div>
@@ -199,6 +203,14 @@ function placeStrike(spot,iv,dte){
 function mkApproved(e,t,f){return{engine:e,ticker:t,verdict:'APPROVED',reasons:[],...f};}
 function mkRejected(e,t,r,d={}){return{engine:e,ticker:t,verdict:'REJECTED',reasons:Array.isArray(r)?r:[r],debug:d};}
 function mkBlock(e,t,r){return{engine:e,ticker:t,verdict:'BLOCK',reason:r};}
+
+// Minimum credit required to clear regime RoR floor
+// CSP: shortStrike × minRoR
+// BPS: (width × minRoR) / (1 + minRoR)
+function calcMinCredit(strategy, strike, width, minRoR){
+  if(strategy==='CSP') return r2(strike * minRoR);
+  return r2((width * minRoR) / (1 + minRoR));
+}
 
 // ── FETCH LAYER ─────────────────────────────────────────────────────────────
 const CORE_WORKER='https://conductor.yulgutierrez.workers.dev';
@@ -343,7 +355,8 @@ function vsimCalc({market,structural,config}){
   if(edgePP<5)fails.push(`EDGE_${edgePP.toFixed(1)}pp<5pp`);
   if(popPct<75)fails.push(`POP_${popPct.toFixed(1)}%<75%`);
   if(ev<=0)fails.push(`EV_${ev.toFixed(2)}_NOT_POSITIVE`);
-  if(ror<regime.minRoR*100)fails.push(`ROR_${ror.toFixed(1)}%<${(regime.minRoR*100).toFixed(1)}%`);
+  const vsimMinReq=calcMinCredit(strategy,shortK,5,regime.minRoR);
+  if(ror<regime.minRoR*100)fails.push(`ROR_${ror.toFixed(1)}%<${(regime.minRoR*100).toFixed(1)}% — need $${vsimMinReq.toFixed(2)} min`);
   const capPct=strategy==='CSP'?regime.cspCap:regime.bpsCap;
   const budget=r2(aum*capPct);
   const contracts=Math.max(0,Math.floor(budget/maxLossPerCt));
@@ -354,7 +367,7 @@ function vsimCalc({market,structural,config}){
   const tickerConc=r2(((exT+totalColl)/aum)*100);
   const totalDeploy=r2(((exA+totalColl)/aum)*100);
   if(tickerConc>30)fails.push(`TICKER_CONC_${tickerConc.toFixed(1)}%>30%`);
-  if(fails.length)return mkRejected('VSIM',ticker,fails,{edgePP,popPct,ror,ev,regime:regime.label,location,trend,vol});
+  if(fails.length)return mkRejected('VSIM',ticker,fails,{edgePP,popPct,ror,ev,minReq:vsimMinReq,credit,regime:regime.label,location,trend,vol});
   const brokerOrder=strategy==='CSP'
     ?[`Sell to Open ${contracts} ${ticker} ${expFmt(exp)} ${shortK}P @ $${credit.toFixed(2)} limit`]
     :[`Sell to Open ${contracts} ${ticker} ${expFmt(exp)} ${shortK}P`,`Buy to Open  ${contracts} ${ticker} ${expFmt(exp)} ${longK}P`,`Net credit: $${credit.toFixed(2)} / spread`];
@@ -364,6 +377,7 @@ function vsimCalc({market,structural,config}){
     ror,pTrue:r4(pTrue),pMarket:r4(pMarket),edgePP,popPct,ev,evLabel,
     capitalEfficiency:ev>0&&collateral>0?r4(ev/collateral):0,liqScore:null,
     regime:regime.label,trend,volState:vol,nmrLocation:location,
+    minReq:vsimMinReq,
     capitalDeployedPct:totalDeploy,tickerConcentrationPct:tickerConc,brokerOrder});
 }
 
@@ -420,8 +434,9 @@ function crosCalc({market,structural,config}){
   if(edgePP<2)fails.push(`EDGE_${edgePP.toFixed(1)}pp<2pp`);
   if(popPct<70)fails.push(`POP_${popPct.toFixed(1)}%<70%`);
   if(ev<=0)fails.push(`EV_${ev.toFixed(2)}_NOT_POSITIVE`);
-  if(ror<minRoR)fails.push(`ROR_${ror.toFixed(1)}%<${minRoR}%`);
-  if(fails.length)return mkRejected('CROS',ticker,fails,{edgePP,popPct,ror,ev,strategy,trend,vol,regime});
+  const crosMinReq=calcMinCredit(strategy,shortK,5,minRoR/100);
+  if(ror<minRoR)fails.push(`ROR_${ror.toFixed(1)}%<${minRoR}% — need $${crosMinReq.toFixed(2)} min`);
+  if(fails.length)return mkRejected('CROS',ticker,fails,{edgePP,popPct,ror,ev,minReq:crosMinReq,credit,strategy,trend,vol,regime});
   const baseRisk=r2(aum*0.02);
   const edgeMult=edgePP<2?0:edgePP<4?0.25:edgePP<7?0.50:edgePP<10?0.75:1;
   const adjRisk=r2(baseRisk*edgeMult*macroMult);
@@ -445,6 +460,7 @@ function crosCalc({market,structural,config}){
     ror,pTrue:r4(pTrue),pMarket:r4(pMarket),edgePP,popPct,ev,evLabel,
     capitalEfficiency:ev>0&&collateral>0?r4(ev/collateral):0,liqScore:liq.liqScore,
     regime,trend,volState:vol,nmrLocation:location,
+    minReq:crosMinReq,
     capitalDeployedPct:totalDeploy,tickerConcentrationPct:tickerConc,brokerOrder});
 }
 
@@ -678,6 +694,14 @@ function renderEngineCard(engine,result){
       <div class="met"><div class="lbl">Deploy</div><div class="val">${t.capitalDeployedPct?.toFixed(1)}%</div></div>
     </div>`;
     if(t.liqScore!=null)body+=`<div style="font-size:11px;color:var(--dim)">Liq: ${t.liqScore}</div>`;
+    if(t.minReq!=null){
+      const clears=t.credit>=t.minReq;
+      body+=`<div style="font-size:11px;font-family:var(--mono);margin-top:6px;padding:5px 8px;border-radius:3px;background:rgba(255,255,255,.03)">
+        Min credit: <span style="color:var(--dim)">$${t.minReq.toFixed(2)}</span> &nbsp;|&nbsp;
+        Actual: <span style="color:${clears?'var(--green)':'var(--red)'}">$${t.credit?.toFixed(2)}</span> &nbsp;
+        <span style="color:${clears?'var(--green)':'var(--red)'};font-weight:700">${clears?'CLEARS':'FAILS'} RoR floor</span>
+      </div>`;
+    }
     if(t.selectionReason)body+=`<div style="font-size:10px;color:var(--dim);margin-top:4px">${t.selectionReason}</div>`;
     const g=window._mkt?.greeks;
     if(g)body+=`<div class="greeks-row">d ${g.delta?.toFixed(3)??'--'}  g ${g.gamma?.toFixed(5)??'--'}  t ${g.theta?.toFixed(4)??'--'}  v ${g.vega?.toFixed(4)??'--'}</div>`;
@@ -685,7 +709,17 @@ function renderEngineCard(engine,result){
   }else if(result.verdict==='REJECTED'){
     body+=`<div class="reject-list">${(result.reasons||[]).map(r=>`<div class="reject-item">x ${r}</div>`).join('')}</div>`;
     if(result.debug&&Object.keys(result.debug).length){
-      body+=`<div class="debug-row">${Object.entries(result.debug).filter(([,v])=>typeof v==='number').map(([k,v])=>`<div class="debug-item"><div class="lbl">${k}</div><div class="val">${v.toFixed?v.toFixed(2):v}</div></div>`).join('')}</div>`;
+      const dbg=result.debug;
+      // Show credit vs min required prominently if present
+      if(dbg.minReq!=null||dbg.credit!=null){
+        const actual=dbg.credit,needed=dbg.minReq;
+        body+=`<div style="font-family:var(--mono);font-size:12px;margin-top:8px;padding:8px;border-radius:3px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2)">`;
+        if(actual!=null)body+=`<span style="color:var(--dim)">Actual credit: </span><span style="color:var(--red);font-weight:700">$${(+actual).toFixed(2)}</span>&nbsp;&nbsp;`;
+        if(needed!=null)body+=`<span style="color:var(--dim)">Min required: </span><span style="color:var(--amber);font-weight:700">$${(+needed).toFixed(2)}</span>`;
+        if(actual!=null&&needed!=null)body+=`&nbsp;&nbsp;<span style="color:var(--red)">deficit: $${((+needed)-(+actual)).toFixed(2)}</span>`;
+        body+=`</div>`;
+      }
+      body+=`<div class="debug-row">${Object.entries(dbg).filter(([k,v])=>typeof v==='number'&&k!=='minReq'&&k!=='credit').map(([k,v])=>`<div class="debug-item"><div class="lbl">${k}</div><div class="val">${v.toFixed?v.toFixed(2):v}</div></div>`).join('')}</div>`;
     }
   }else{body+=`<div style="color:var(--red);font-family:var(--mono);font-size:12px;padding:8px 0">blocked: ${result.reason}</div>`;}
   card.querySelector('.card-body').innerHTML=body;
