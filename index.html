@@ -1,818 +1,1156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>NUVO CONDUCTOR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#07080d;--surface:#0e1018;--surface2:#161b27;--border:#1e2535;
-  --text:#c8d0e0;--dim:#5a657a;--bright:#e8edf5;
-  --green:#22c55e;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;
-  --cyan:#06b6d4;--purple:#a78bfa;
-  --mono:'JetBrains Mono','Fira Code','Courier New',monospace;
+  --bg:#07080d;
+  --surface:#0e1018;
+  --surface2:#13181f;
+  --border:#1a2030;
+  --border2:#242e42;
+  --text:#b8c4d8;
+  --dim:#48566a;
+  --bright:#e8edf5;
+  --green:#22c55e;
+  --green-dim:rgba(34,197,94,.08);
+  --red:#ef4444;
+  --red-dim:rgba(239,68,68,.08);
+  --amber:#f59e0b;
+  --amber-dim:rgba(245,158,11,.08);
+  --cyan:#06b6d4;
+  --cyan-dim:rgba(6,182,212,.08);
+  --blue:#3b82f6;
+  --mono:'JetBrains Mono','Fira Code',monospace;
   --ui:'DM Sans','Inter',system-ui,sans-serif;
 }
+
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px;min-height:100vh;padding:0 0 60px}
-.header{border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;background:var(--bg);z-index:100}
-.logo{font-family:var(--mono);font-size:11px;letter-spacing:3px;color:var(--amber)}
-.logo span{color:var(--dim)}
-.vix-pill{margin-left:auto;font-family:var(--mono);font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:3px;color:var(--dim)}
-.vix-pill.allow{border-color:var(--green);color:var(--green)}
-.vix-pill.warn{border-color:var(--amber);color:var(--amber)}
-.vix-pill.block{border-color:var(--red);color:var(--red)}
-.main{max-width:1400px;margin:0 auto;padding:24px}
-.input-panel{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px;margin-bottom:16px}
-.input-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
-.field{display:flex;flex-direction:column;gap:6px}
-.field label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim)}
-.field input{background:var(--bg);border:1px solid var(--border);color:var(--bright);padding:8px 12px;border-radius:4px;font-family:var(--mono);font-size:14px;outline:none;transition:border-color .15s}
-.field input:focus{border-color:var(--amber)}
-.ticker-in{width:100px;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:2px}
-.narrow{width:90px}.wide{width:120px}
-.run-btn{background:var(--amber);color:#000;border:none;padding:10px 28px;border-radius:4px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;text-transform:uppercase;white-space:nowrap}
-.run-btn:hover{opacity:.9}.run-btn:disabled{opacity:.4;cursor:not-allowed}
-.aum-note{font-size:11px;color:var(--dim);align-self:center;margin-top:14px}
-.status{font-size:11px;font-family:var(--mono);color:var(--dim);padding:6px 0;margin-bottom:12px;min-height:22px}
-.status.running{color:var(--amber)}.status.done{color:var(--green)}.status.err{color:var(--red)}
-.data-strip{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 20px;margin-bottom:16px;display:none}
-.data-strip.visible{display:block}
-.strip-title{font-size:10px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:10px;display:flex;gap:8px;align-items:center}
-.strip-badge{font-size:9px;padding:2px 6px;border-radius:2px;background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2)}
-.data-grid{display:flex;flex-wrap:wrap;gap:20px}
-.d-item{display:flex;flex-direction:column;gap:3px}
-.d-item .lbl{font-size:10px;color:var(--dim)}
-.d-item .val{font-family:var(--mono);font-size:12px;color:var(--bright)}
-.d-item .val.ok{color:var(--green)}.d-item .val.warn{color:var(--amber)}.d-item .val.err{color:var(--red)}
-.struct-panel{background:var(--surface);border:1px solid rgba(245,158,11,.3);border-radius:6px;padding:14px 20px;margin-bottom:16px;display:none}
-.struct-panel.visible{display:block}
-.struct-title{font-size:10px;letter-spacing:2px;color:var(--amber);text-transform:uppercase;margin-bottom:12px}
-.struct-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-@media(max-width:800px){.struct-grid{grid-template-columns:repeat(2,1fr)}}
-.ssect .slbl{font-size:10px;color:var(--dim);text-transform:uppercase;margin-bottom:6px}
-.slevel{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-.slevel .sn{font-size:11px;color:var(--dim)}
-.slevel .sp{font-family:var(--mono);font-size:12px;color:var(--bright)}
-.loc-badge{margin-top:8px;display:inline-flex;font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:3px;border:1px solid}
-.loc-WHOLESALE{border-color:var(--green);color:var(--green)}
-.loc-ACCUMULATION{border-color:var(--cyan);color:var(--cyan)}
-.loc-NEUTRAL{border-color:var(--amber);color:var(--amber)}
-.loc-DISTRIBUTION{border-color:var(--red);color:var(--red)}
-.loc-UNAVAILABLE{border-color:var(--dim);color:var(--dim)}
-.engines-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
-@media(max-width:900px){.engines-grid{grid-template-columns:1fr}}
-.engine-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden}
-.engine-card.approved{border-color:var(--green)}
-.card-header{padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
-.ebadge{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:2px;padding:3px 8px;border-radius:2px}
-.ebadge.vsim{background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.3)}
-.ebadge.cros{background:rgba(167,139,250,.15);color:var(--purple);border:1px solid rgba(167,139,250,.3)}
-.ebadge.hybrid{background:rgba(6,182,212,.15);color:var(--cyan);border:1px solid rgba(6,182,212,.3)}
-.vbadge{margin-left:auto;font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 8px;border-radius:2px}
-.vbadge.approved{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
-.vbadge.rejected{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
-.vbadge.block{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
-.vbadge.idle{background:var(--surface2);color:var(--dim);border:1px solid var(--border)}
-.card-body{padding:16px}
-.idle-msg{color:var(--dim);font-size:12px;text-align:center;padding:24px 0}
-.ticket-top{display:flex;gap:6px;align-items:baseline;margin-bottom:10px;flex-wrap:wrap}
-.t-strat{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--bright)}
-.t-strikes{font-family:var(--mono);font-size:14px;color:var(--amber)}
-.t-exp{font-family:var(--mono);font-size:12px;color:var(--dim)}
-.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.met .lbl{font-size:10px;color:var(--dim);text-transform:uppercase}
-.met .val{font-family:var(--mono);font-size:13px;color:var(--bright)}
-.met .val.g{color:var(--green)}.met .val.a{color:var(--amber)}.met .val.r{color:var(--red)}
-.tag{display:inline-flex;font-size:10px;font-family:var(--mono);padding:2px 6px;border-radius:2px;border:1px solid var(--border);color:var(--dim);margin-right:4px;margin-bottom:6px}
-.tag.RICH,.tag.BULL{border-color:var(--green);color:var(--green)}
-.tag.CHEAP,.tag.BEAR{border-color:var(--red);color:var(--red)}
-.tag.FAIR{border-color:var(--amber);color:var(--amber)}
-.divider{height:1px;background:var(--border);margin:10px 0}
-.broker-box{margin-top:12px;padding:10px 12px;background:var(--bg);border-radius:4px;border:1px solid var(--border)}
-.broker-line{font-family:var(--mono);font-size:11px;color:var(--green);line-height:1.6}
-.reject-list{margin-top:8px}
-.reject-item{font-family:var(--mono);font-size:11px;color:var(--red);padding:2px 0}
-.debug-row{margin-top:8px;display:flex;gap:14px;flex-wrap:wrap}
-.debug-item .lbl{font-size:10px;color:var(--dim)}
-.debug-item .val{font-family:var(--mono);font-size:12px;color:var(--text)}
-.greeks-row{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:6px;letter-spacing:.5px}
-.conductor-card{background:var(--surface);border:2px solid var(--border);border-radius:8px;overflow:hidden}
-.conductor-card.winner{border-color:var(--amber)}.conductor-card.no-trade{border-color:var(--red)}
-.cond-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
-.cond-title{font-family:var(--mono);font-size:11px;letter-spacing:3px;color:var(--amber);text-transform:uppercase}
-.cond-verdict{margin-left:auto;font-family:var(--mono);font-size:12px;font-weight:700;padding:4px 12px;border-radius:3px}
-.cond-verdict.approved{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
-.cond-verdict.no-trade{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
-.cond-body{padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
-@media(max-width:700px){.cond-body{grid-template-columns:1fr}}
-.csect{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
-.winner-eng{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--bright);margin-bottom:4px}
-.winner-sub{font-family:var(--mono);font-size:13px;color:var(--amber);margin-bottom:14px}
-.why-item{display:flex;gap:8px;font-size:12px;color:var(--text);padding:4px 0;line-height:1.5}
-.why-item::before{content:'=>';color:var(--amber);font-family:var(--mono);flex-shrink:0}
-.loser-row{display:flex;gap:10px;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
-.loser-row:last-child{border-bottom:none}
-.loser-eng{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--dim)}
-.cond-order{grid-column:1/-1;margin-top:4px}
-.final-order{padding:14px 16px;background:var(--bg);border:1px solid var(--green);border-radius:4px}
-.final-order-line{font-family:var(--mono);font-size:13px;color:var(--green);line-height:1.8}
-.no-trade-msg{padding:20px;text-align:center;color:var(--dim)}
-.no-trade-reasons{margin-top:8px;display:flex;flex-direction:column;gap:4px;align-items:center}
-.no-trade-reason{font-family:var(--mono);font-size:11px;color:var(--red)}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--ui);
+  font-size:14px;
+  min-height:100vh;
+  padding:0 0 100px;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* noise overlay */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:0;
+  opacity:.4;
+}
+
+/* ── HEADER ── */
+.header{
+  border-bottom:1px solid var(--border);
+  padding:0 28px;
+  display:flex;
+  align-items:stretch;
+  gap:0;
+  position:sticky;
+  top:0;
+  background:rgba(7,8,13,.92);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  z-index:100;
+  height:52px;
+}
+
+.header-left{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding-right:24px;
+  border-right:1px solid var(--border);
+}
+
+.logo{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:4px;
+  color:var(--amber);
+  font-weight:700;
+}
+.logo-sep{color:var(--dim);margin:0 4px;font-weight:300}
+
+.header-mid{
+  display:flex;
+  align-items:center;
+  padding:0 20px;
+  flex:1;
+  gap:20px;
+}
+
+.subhead{
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--dim);
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+}
+
+.header-tag{
+  font-family:var(--mono);
+  font-size:9px;
+  padding:2px 7px;
+  border-radius:2px;
+  letter-spacing:1.5px;
+  background:var(--amber-dim);
+  border:1px solid rgba(245,158,11,.2);
+  color:var(--amber);
+}
+
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding-left:20px;
+  border-left:1px solid var(--border);
+}
+
+.vix-pill{
+  font-family:var(--mono);
+  font-size:11px;
+  padding:5px 12px;
+  border:1px solid var(--border2);
+  border-radius:3px;
+  color:var(--dim);
+  letter-spacing:1px;
+  transition:all .3s ease;
+}
+.vix-pill.allow{border-color:rgba(34,197,94,.4);color:var(--green);background:var(--green-dim)}
+.vix-pill.warn{border-color:rgba(245,158,11,.4);color:var(--amber);background:var(--amber-dim)}
+.vix-pill.block{border-color:rgba(239,68,68,.4);color:var(--red);background:var(--red-dim)}
+
+/* ── MAIN ── */
+.main{
+  max-width:1000px;
+  margin:0 auto;
+  padding:28px 24px;
+  position:relative;
+  z-index:1;
+}
+
+/* ── SCAN PANEL ── */
+.scan-panel{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:20px 22px;
+  margin-bottom:14px;
+  display:flex;
+  align-items:flex-end;
+  gap:14px;
+  flex-wrap:wrap;
+}
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+.field label{
+  font-family:var(--mono);
+  font-size:9px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--dim);
+}
+
+.field input{
+  background:var(--bg);
+  border:1px solid var(--border2);
+  color:var(--bright);
+  padding:10px 14px;
+  border-radius:4px;
+  font-family:var(--mono);
+  outline:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+.field input:focus{
+  border-color:var(--amber);
+  box-shadow:0 0 0 3px rgba(245,158,11,.1);
+}
+.field input.ticker{
+  width:130px;
+  font-size:20px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:3px;
+}
+.field input.sm{
+  width:150px;
+  font-size:14px;
+  font-weight:500;
+}
+
+.run-btn{
+  background:var(--amber);
+  color:#000;
+  border:none;
+  padding:11px 36px;
+  border-radius:4px;
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:opacity .15s,transform .1s;
+  white-space:nowrap;
+}
+.run-btn:hover{opacity:.9;transform:translateY(-1px)}
+.run-btn:active{transform:translateY(0)}
+.run-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* scanning animation */
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+.run-btn.scanning{animation:pulse 1s ease-in-out infinite}
+
+/* ── STATUS ── */
+.status{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--dim);
+  min-height:18px;
+  margin:0 2px 16px;
+  letter-spacing:.5px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.status::before{
+  content:'';
+  display:block;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:var(--dim);
+  flex-shrink:0;
+  transition:background .3s;
+}
+.status.running{color:var(--amber)}
+.status.running::before{background:var(--amber);animation:pulse .8s ease-in-out infinite}
+.status.done{color:var(--green)}
+.status.done::before{background:var(--green)}
+.status.err{color:var(--red)}
+.status.err::before{background:var(--red)}
+
+/* ── MARKET BAR ── */
+.market-bar{
+  display:none;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:12px 18px;
+  margin-bottom:16px;
+  flex-wrap:wrap;
+  gap:0;
+  align-items:stretch;
+}
+.market-bar.on{display:flex}
+
+.m-item{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  padding:4px 16px 4px 0;
+  margin-right:16px;
+  border-right:1px solid var(--border);
+}
+.m-item:last-child{border-right:none}
+
+.m-item .lbl{
+  font-family:var(--mono);
+  font-size:9px;
+  color:var(--dim);
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+.m-item .val{
+  font-family:var(--mono);
+  font-size:13px;
+  font-weight:600;
+  color:var(--bright);
+}
+.m-item .val.ok{color:var(--green)}
+.m-item .val.warn{color:var(--amber)}
+.m-item .val.err{color:var(--red)}
+.m-item .val.dim{color:var(--dim)}
+
+/* ── CARDS ── */
+.cards{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+@keyframes slideIn{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:6px;
+  overflow:hidden;
+  animation:slideIn .25s ease forwards;
+}
+.card:nth-child(2){animation-delay:.06s;opacity:0}
+.card:nth-child(3){animation-delay:.12s;opacity:0}
+.card.winner{
+  border-color:rgba(245,158,11,.5);
+  box-shadow:0 0 0 1px rgba(245,158,11,.1), 0 4px 24px rgba(245,158,11,.06);
+}
+
+.card-head{
+  padding:12px 18px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border-bottom:1px solid var(--border);
+  background:rgba(0,0,0,.15);
+}
+
+.struct-tag{
+  font-family:var(--mono);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:2px;
+  padding:4px 10px;
+  border-radius:3px;
+}
+.st-csp{
+  background:var(--green-dim);
+  color:var(--green);
+  border:1px solid rgba(34,197,94,.25);
+}
+.st-bps{
+  background:var(--cyan-dim);
+  color:var(--cyan);
+  border:1px solid rgba(6,182,212,.25);
+}
+.st-shares{
+  background:var(--amber-dim);
+  color:var(--amber);
+  border:1px solid rgba(245,158,11,.25);
+}
+
+.rank-tag{
+  font-family:var(--mono);
+  font-size:9px;
+  color:var(--amber);
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  margin-left:auto;
+}
+.rank-tag.not-winner{color:var(--dim)}
+
+.qual-tag{
+  font-family:var(--mono);
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:1.5px;
+  padding:3px 8px;
+  border-radius:3px;
+}
+.qual-prime{
+  color:var(--green);
+  background:var(--green-dim);
+  border:1px solid rgba(34,197,94,.25);
+}
+.qual-spec{
+  color:var(--amber);
+  background:var(--amber-dim);
+  border:1px solid rgba(245,158,11,.2);
+}
+.qual-aggro{
+  color:var(--red);
+  background:var(--red-dim);
+  border:1px solid rgba(239,68,68,.2);
+}
+
+.card-body{padding:18px}
+
+/* exec box */
+.exec{
+  background:rgba(0,0,0,.2);
+  border:1px solid var(--border);
+  border-radius:5px;
+  padding:16px;
+  margin-bottom:14px;
+}
+.exec-title{
+  font-family:var(--mono);
+  font-size:9px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--dim);
+  margin-bottom:14px;
+}
+.exec-levels{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(155px,1fr));
+  gap:14px;
+}
+.elev{display:flex;flex-direction:column;gap:4px}
+.elev .lbl{
+  font-family:var(--mono);
+  font-size:9px;
+  color:var(--dim);
+  text-transform:uppercase;
+  letter-spacing:.8px;
+}
+.elev .val{
+  font-family:var(--mono);
+  font-size:22px;
+  font-weight:700;
+  color:var(--bright);
+  line-height:1;
+}
+.elev .val.strike{color:var(--amber)}
+.elev .val.credit{color:var(--green)}
+.elev .val.shares{color:var(--cyan)}
+.elev .sub{
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--dim);
+  margin-top:2px;
+}
+
+/* metrics row */
+.metrics{
+  display:flex;
+  gap:0;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+  border:1px solid var(--border);
+  border-radius:5px;
+  overflow:hidden;
+}
+.met{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  padding:10px 14px;
+  border-right:1px solid var(--border);
+  flex:1;
+  min-width:80px;
+}
+.met:last-child{border-right:none}
+.met .lbl{
+  font-family:var(--mono);
+  font-size:9px;
+  color:var(--dim);
+  text-transform:uppercase;
+  letter-spacing:.8px;
+}
+.met .val{
+  font-family:var(--mono);
+  font-size:13px;
+  font-weight:600;
+  color:var(--bright);
+}
+.met .val.g{color:var(--green)}
+.met .val.a{color:var(--amber)}
+.met .val.r{color:var(--red)}
+
+/* why notes */
+.why{
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--dim);
+  line-height:1.75;
+  margin-bottom:14px;
+  padding:10px 12px;
+  background:rgba(0,0,0,.12);
+  border-radius:4px;
+  border-left:2px solid var(--border2);
+}
+
+/* order block */
+.order{
+  background:rgba(34,197,94,.04);
+  border:1px solid rgba(34,197,94,.18);
+  border-radius:4px;
+  padding:12px 16px;
+}
+.order-line{
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--green);
+  line-height:1.85;
+}
+
+/* empty / error states */
+.empty{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:40px 24px;
+  color:var(--dim);
+  font-family:var(--mono);
+  text-align:center;
+  font-size:12px;
+  letter-spacing:.5px;
+}
+
+/* regime blocker banner */
+.regime-banner{
+  background:rgba(245,158,11,.06);
+  border:1px solid rgba(245,158,11,.2);
+  border-radius:5px;
+  padding:10px 14px;
+  margin-bottom:12px;
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--amber);
+  letter-spacing:.5px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.regime-banner::before{content:'⚠'}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  .main{padding:18px 14px}
+  .header{padding:0 16px;height:auto;min-height:52px;flex-wrap:wrap}
+  .header-mid{padding:8px 0}
+  .exec-levels{grid-template-columns:1fr 1fr}
+  .metrics{flex-wrap:wrap}
+  .met{min-width:70px}
+}
 </style>
 </head>
 <body>
+
+<!-- ── HEADER ── -->
 <div class="header">
-  <div class="logo">NUVO<span> // </span>CONDUCTOR</div>
-  <div style="font-size:11px;color:var(--dim);font-family:var(--mono)">THREE ENGINES · ONE VERDICT</div>
-  <div class="vix-pill" id="vix-pill">VIX —</div>
+  <div class="header-left">
+    <div class="logo">NUVO<span class="logo-sep">//</span>CONDUCTOR</div>
+  </div>
+  <div class="header-mid">
+    <div class="subhead">CSP · BPS · SHARES · 7 DTE RANK ENGINE</div>
+    <div class="header-tag">v1.0</div>
+  </div>
+  <div class="header-right">
+    <div class="vix-pill" id="vix-pill">VIX —</div>
+  </div>
 </div>
+
+<!-- ── MAIN ── -->
 <div class="main">
-  <div class="input-panel">
-    <div class="input-row">
-      <div class="field"><label>Ticker</label><input class="ticker-in" id="ticker" value="SOFI" maxlength="8"></div>
-      <div class="field">
-        <label>Credit override</label>
-        <input class="narrow" id="credit" type="number" step="0.01" placeholder="auto">
-        <div style="font-size:10px;color:var(--dim);margin-top:3px">Leave blank = ATM mid auto-fill</div>
-      </div>
-      <div class="field"><label>AUM ($)</label><input class="wide" id="aum" type="number" value="100000"></div>
-      <button class="run-btn" id="run-btn" onclick="runAll()">&#9654; RUN</button>
-      <div class="aum-note" id="aum-note">AUM $100,000</div>
+
+  <!-- scan input -->
+  <div class="scan-panel">
+    <div class="field">
+      <label>Ticker</label>
+      <input id="ticker" class="ticker" value="NVDA" maxlength="8" autocomplete="off" spellcheck="false" />
     </div>
-  </div>
-  <div class="status" id="status">Enter ticker and press RUN.</div>
-  <div class="data-strip" id="data-strip">
-    <div class="strip-title">Live Data <span class="strip-badge">SINGLE /v1/market CALL - SHARED PAYLOAD</span></div>
-    <div class="data-grid" id="data-grid"></div>
-  </div>
-  <div class="struct-panel" id="struct-panel">
-    <div class="struct-title">Structural Dataset - One Map, Three Consumers</div>
-    <div class="struct-grid" id="struct-grid"></div>
-  </div>
-  <div class="engines-grid">
-    <div class="engine-card" id="card-vsim">
-      <div class="card-header"><span class="ebadge vsim">VSIM</span><span style="font-size:11px;color:var(--dim)">Acquisition + Regime</span><span class="vbadge idle" id="vbadge-vsim">IDLE</span></div>
-      <div class="card-body"><div class="idle-msg">Waiting...</div></div>
+    <div class="field">
+      <label>AUM ($)</label>
+      <input id="aum" class="sm" type="number" value="100000" min="1000" />
     </div>
-    <div class="engine-card" id="card-cros">
-      <div class="card-header"><span class="ebadge cros">CROS</span><span style="font-size:11px;color:var(--dim)">Edge + Liquidity</span><span class="vbadge idle" id="vbadge-cros">IDLE</span></div>
-      <div class="card-body"><div class="idle-msg">Waiting...</div></div>
-    </div>
-    <div class="engine-card" id="card-hybrid">
-      <div class="card-header"><span class="ebadge hybrid">HYBRID</span><span style="font-size:11px;color:var(--dim)">Matrix Selection</span><span class="vbadge idle" id="vbadge-hybrid">IDLE</span></div>
-      <div class="card-body"><div class="idle-msg">Waiting...</div></div>
-    </div>
+    <button class="run-btn" id="run-btn" onclick="runAll()">▶ SCAN</button>
   </div>
-  <div class="conductor-card" id="conductor-card">
-    <div class="cond-header"><span class="cond-title">Conductor</span><span style="font-size:11px;color:var(--dim)">Final trade decision</span><span class="cond-verdict no-trade" id="cond-verdict">IDLE</span></div>
-    <div class="no-trade-msg" id="cond-body">Run engines first.</div>
+
+  <!-- status -->
+  <div class="status" id="status">Enter ticker and press SCAN.</div>
+
+  <!-- market bar -->
+  <div class="market-bar" id="market-bar"></div>
+
+  <!-- cards -->
+  <div class="cards" id="cards">
+    <div class="empty">No scan yet — enter a ticker and press SCAN.</div>
   </div>
+
 </div>
+
 <script>
-// ── UTILS ──────────────────────────────────────────────────────────────────
-const r2=n=>Math.round((+n||0)*100)/100;
-const r4=n=>Math.round((+n||0)*10000)/10000;
-const clamp=(x,lo,hi)=>Math.min(hi,Math.max(lo,x));
-function normCDF(x){
-  const a=[0.319381530,-0.356563782,1.781477937,-1.821255978,1.330274429];
-  const k=1/(1+0.2316419*Math.abs(x));let p=0,kp=k;
-  for(let i=0;i<5;i++){p+=a[i]*kp;kp*=k;}
-  const phi=Math.exp(-x*x/2)/Math.sqrt(2*Math.PI)*p;
-  return x>=0?1-phi:phi;
+// ============================================================
+//  CONFIG
+// ============================================================
+const WORKER = 'https://conductor.yulgutierrez.workers.dev';
+const DTE    = 7;
+
+// ============================================================
+//  MATH UTILS
+// ============================================================
+const r2 = n => Math.round((+n || 0) * 100)   / 100;
+const r4 = n => Math.round((+n || 0) * 10000) / 10000;
+
+function normCDF(x) {
+  const a1 =  0.319381530, a2 = -0.356563782, a3 = 1.781477937;
+  const a4 = -1.821255978, a5 =  1.330274429, p  = 0.2316419;
+  const sign = x < 0 ? -1 : 1;
+  const z    = Math.abs(x);
+  const t    = 1 / (1 + p * z);
+  const poly = a1*t + a2*t*t + a3*t*t*t + a4*t*t*t*t + a5*t*t*t*t*t;
+  const pdf  = Math.exp(-0.5*z*z) / Math.sqrt(2*Math.PI);
+  const cdf  = 1 - pdf * poly;
+  return sign === 1 ? cdf : 1 - cdf;
 }
-function probAbove(spot,strike,vol,dte){
-  if(!vol||vol<=0||!dte||dte<=0||!spot||!strike)return null;
-  const T=dte/365;
-  return r4(normCDF((Math.log(spot/strike)-0.5*vol*vol*T)/(vol*Math.sqrt(T))));
+
+function probAbove(spot, strike, vol, dte = DTE) {
+  if (!(spot>0)||!(strike>0)||!(vol>0)||!(dte>0)) return null;
+  const T = dte/365;
+  const denom = vol * Math.sqrt(T);
+  if (!(denom>0)) return null;
+  const d2 = (Math.log(spot/strike) - 0.5*vol*vol*T) / denom;
+  return r4(normCDF(d2));
 }
-function emv(spot,iv,dte){return r2(spot*iv*Math.sqrt(dte/365));}
-function expiryDate(dte){
-  const d=new Date();d.setDate(d.getDate()+Math.max(dte,1));
-  const dow=d.getDay();if(dow!==5)d.setDate(d.getDate()+((5-dow+7)%7));
+
+function expectedMove(spot, iv, dte = DTE) {
+  if (!(spot>0)||!(iv>0)||!(dte>0)) return null;
+  return r2(spot * iv * Math.sqrt(dte/365));
+}
+
+function strikeIncrement(spot) {
+  if (spot < 25)  return 0.5;
+  if (spot < 500) return 1;
+  return 5;
+}
+
+function placeShortStrike(spot, iv, dte = DTE) {
+  const em = expectedMove(spot, iv, dte);
+  if (em == null) return null;
+  const inc    = strikeIncrement(spot);
+  const shortK = Math.round((spot - em) / inc) * inc;
+  return { shortK, em };
+}
+
+function nextFriday(dte = DTE) {
+  const d = new Date();
+  d.setDate(d.getDate() + Math.max(dte, 1));
+  const dow = d.getDay();
+  if (dow !== 5) d.setDate(d.getDate() + ((5 - dow + 7) % 7));
   return d.toISOString().slice(0,10);
 }
-function expFmt(ds){
-  return new Date(ds+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'2-digit'}).replace(',','').toUpperCase();
-}
-function placeStrike(spot,iv,dte){
-  const inc=spot<25?0.5:spot<500?1:5;
-  return{shortK:Math.round((spot-emv(spot,iv,dte))/inc)*inc};
-}
-function mkApproved(e,t,f){return{engine:e,ticker:t,verdict:'APPROVED',reasons:[],...f};}
-function mkRejected(e,t,r,d={}){return{engine:e,ticker:t,verdict:'REJECTED',reasons:Array.isArray(r)?r:[r],debug:d};}
-function mkBlock(e,t,r){return{engine:e,ticker:t,verdict:'BLOCK',reason:r};}
 
-// Minimum credit required to clear regime RoR floor
-// CSP: shortStrike × minRoR
-// BPS: (width × minRoR) / (1 + minRoR)
-function calcMinCredit(strategy, strike, width, minRoR){
-  if(strategy==='CSP') return r2(strike * minRoR);
-  return r2((width * minRoR) / (1 + minRoR));
+function expFmt(ds) {
+  return new Date(ds + 'T12:00:00')
+    .toLocaleDateString('en-US', { month:'short', day:'2-digit' })
+    .replace(',','').toUpperCase();
 }
 
-// ── FETCH LAYER ─────────────────────────────────────────────────────────────
-const CORE_WORKER='https://conductor.yulgutierrez.workers.dev';
+function minCreditCSP(strike, minRoR)   { return r2(strike * minRoR); }
+function minCreditBPS(width,  minRoR)   { return r2((width * minRoR) / (1 + minRoR)); }
 
-async function fetchMarketData(ticker){
-  const upper=ticker.toUpperCase().trim();
-  const r=await fetch(`${CORE_WORKER}/v1/market?ticker=${encodeURIComponent(upper)}&bust=1`);
-  if(!r.ok)throw new Error(`market_fetch_failed_${r.status}`);
-  const d=await r.json();
-  if(d.error)throw new Error(d.error);
-  if(!(d.spot>0))throw new Error('SPOT_MISSING');
-  let hv30=+(d.hv30||0);
-  if(hv30>1)hv30=hv30/100;
-  return{
-    ticker:upper,
-    spot:d.spot,
-    hv30:hv30||null,
-    vix:d.vix||null,
-    iv:d.iv||null,
-    bid:d.bid||0,
-    ask:d.ask||0,
-    mid:d.mid||0,
-    volume:d.volume||0,
-    oi:d.oi||0,
-    greeks:d.greeks||null,
-    option_expiry:d.option_expiry||null,
-    option_atm_strike:d.option_atm_strike||null,
-    option_contract_ticker:d.option_contract_ticker||null,
-    option_source:d.option_source||'unavailable',
-    option_freshness:d.option_freshness||'unavailable',
-    sma20:d.sma20||null,
-    sma200:d.sma200||null,
-    weeklyMAs:d.weeklyMAs||null,
-    fibs:d.fibs||null,
-    nmr:d.nmr||null,
-    location:d.nmr?.location||d.location||'UNAVAILABLE',
-    dominantAnchor:d.dominantAnchor||null,
-    structural:d.structural||null,
-    dailyBars:Array.isArray(d.bars)?d.bars:[],
-    diagnostics:d.diagnostics||null,
+function expectedValue(pop, credit, maxLoss) {
+  return r2(pop * credit * 100 - (1-pop) * maxLoss);
+}
+
+function safeEfficiency(ev, capital) {
+  if (!(capital>0)) return 0;
+  return r4(ev / capital);
+}
+
+function getSpreadWidth(spot) {
+  if (spot < 25)  return 2;
+  if (spot < 75)  return 3;
+  if (spot < 200) return 5;
+  if (spot < 500) return 10;
+  return 20;
+}
+
+function qualityLabel(popPct, edgePP) {
+  if (popPct >= 80 && edgePP >= 5) return 'PRIME';
+  if (popPct >= 70 && edgePP >= 0) return 'SPECULATIVE';
+  return 'AGGRESSIVE';
+}
+
+function qualityClass(q) {
+  if (q === 'PRIME')       return 'qual-prime';
+  if (q === 'SPECULATIVE') return 'qual-spec';
+  return 'qual-aggro';
+}
+
+// ============================================================
+//  REGIMES
+// ============================================================
+const REGIMES = [
+  { maxVix:14,  label:'NO FEAR',       minRoR:0.20, cspPct:0.05,  bpsPct:0.03, sharePct:0.05, allowCSP:false, allowBPS:false, allowShares:false },
+  { maxVix:18,  label:'FEAR COOLING',  minRoR:0.20, cspPct:0.10,  bpsPct:0.03, sharePct:0.05, allowCSP:true,  allowBPS:false, allowShares:false },
+  { maxVix:22,  label:'FEAR BUILDING', minRoR:0.16, cspPct:0.10,  bpsPct:0.03, sharePct:0.07, allowCSP:true,  allowBPS:true,  allowShares:false },
+  { maxVix:30,  label:'FEAR ELEVATED', minRoR:0.13, cspPct:0.10,  bpsPct:0.03, sharePct:0.10, allowCSP:true,  allowBPS:true,  allowShares:true  },
+  { maxVix:45,  label:'HEAVY FEAR',    minRoR:0.10, cspPct:0.075, bpsPct:0.03, sharePct:0.10, allowCSP:true,  allowBPS:true,  allowShares:true  },
+  { maxVix:999, label:'PANIC',         minRoR:0.10, cspPct:0.05,  bpsPct:0.03, sharePct:0.10, allowCSP:false, allowBPS:true,  allowShares:true  },
+];
+
+function getRegime(vix) {
+  if (!(vix >= 0)) return null;
+  return REGIMES.find(r => vix < r.maxVix) || REGIMES[REGIMES.length-1];
+}
+
+// ============================================================
+//  FETCH
+// ============================================================
+async function fetchMarketData(ticker) {
+  const upper      = ticker.toUpperCase().trim();
+  const controller = new AbortController();
+  const timeout    = setTimeout(() => controller.abort(), 15000);
+
+  try {
+    const res = await fetch(
+      `${WORKER}/v1/market?ticker=${encodeURIComponent(upper)}&bust=${Date.now()}`,
+      { signal: controller.signal }
+    );
+    if (!res.ok) throw new Error(`HTTP_${res.status}`);
+    const d = await res.json();
+    if (d.error) throw new Error(d.error);
+    if (!(d.spot > 0)) throw new Error('SPOT_MISSING');
+
+    let hv30 = +(d.hv30 || 0);
+    if (hv30 > 1) hv30 = hv30 / 100;
+
+    return {
+      ticker   : upper,
+      spot     : d.spot,
+      hv30     : hv30 || null,
+      vix      : d.vix  || null,
+      iv       : d.iv   || null,
+      sma20    : d.sma20   || null,
+      sma200   : d.sma200  || null,
+      nmr      : d.nmr        || null,
+      structural: d.structural || null,
+      bars     : Array.isArray(d.bars) ? d.bars : []
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function getStructural(market) {
+  if (market.structural && market.nmr) {
+    const ws  = market.structural;
+    const nmr = market.nmr;
+    return {
+      wholesale  : nmr.wholesale ?? null,
+      fair       : nmr.fair      ?? null,
+      retail     : nmr.retail    ?? null,
+      location   : nmr.location  || 'UNAVAILABLE',
+      sma20daily : ws.sma20  || market.sma20  || null,
+      sma200daily: ws.sma200 || market.sma200 || null
+    };
+  }
+  return {
+    wholesale  : null, fair: null, retail: null,
+    location   : 'UNAVAILABLE',
+    sma20daily : market.sma20  || null,
+    sma200daily: market.sma200 || null
   };
 }
 
-// ── STRUCTURAL BUILDER ──────────────────────────────────────────────────────
-function sma(v,p){if(!Array.isArray(v)||v.length<p)return null;return v.slice(-p).reduce((a,b)=>a+Number(b||0),0)/p;}
-function startOfWeek(ts){const d=new Date(ts);const day=d.getUTCDay();d.setUTCDate(d.getUTCDate()+(day===0?-6:1-day));d.setUTCHours(0,0,0,0);return d.getTime();}
-function resampleWeekly(bars){
-  const m=new Map();
-  for(const b of bars){const k=startOfWeek(b.t);if(!m.has(k)){m.set(k,{t:k,o:b.o,h:b.h,l:b.l,c:b.c,v:b.v});}else{const w=m.get(k);w.h=Math.max(w.h,b.h);w.l=Math.min(w.l,b.l);w.c=b.c;w.v+=b.v;}}
-  return[...m.values()].sort((a,b)=>a.t-b.t);
-}
-function nearestLev(spot,levels){
-  return Object.entries(levels).filter(([,v])=>Number.isFinite(v))
-    .map(([label,level])=>({label,level,distance:Math.abs(spot-level),pctDistance:spot>0?Math.abs(spot-level)/spot:null}))
-    .sort((a,b)=>a.distance-b.distance)[0]||null;
+// ============================================================
+//  EVALUATORS
+// ============================================================
+function evalCSP(market, structural, aum) {
+  const { ticker, spot, hv30, iv, vix } = market;
+  const { wholesale, sma20daily, location } = structural || {};
+  const regime = getRegime(vix);
+
+  if (!(spot>0)||!(hv30>0)||!(iv>0)||!(vix>=0))
+    return { structure:'CSP', verdict:'UNAVAILABLE', reason:'Missing core inputs' };
+
+  const trend    = sma20daily ? (spot > sma20daily ? 'BULL' : 'BEAR') : 'UNKNOWN';
+  const volRatio = iv / hv30;
+  const volState = volRatio >= 1.15 ? 'RICH' : volRatio < 0.90 ? 'CHEAP' : 'FAIR';
+
+  const placed = placeShortStrike(spot, iv, DTE);
+  if (!placed) return { structure:'CSP', verdict:'UNAVAILABLE', reason:'Strike placement failed' };
+
+  const { shortK, em } = placed;
+  const minRoR     = regime?.minRoR ?? 0.13;
+  const minCredit  = minCreditCSP(shortK, minRoR);
+  const breakeven  = r2(shortK - minCredit);
+
+  const pTrue   = probAbove(spot, shortK, hv30, DTE) ?? 0;
+  const pMarket = probAbove(spot, shortK, iv,   DTE) ?? 0;
+  const edgePP  = r2((pTrue - pMarket) * 100);
+  const popPct  = r2(pMarket * 100);
+
+  const collateralPerContract = r2(shortK * 100);
+  const maxLossPerContract    = r2((shortK - minCredit) * 100);
+  const evPerContract         = expectedValue(pMarket, minCredit, maxLossPerContract);
+  const capitalEfficiency     = safeEfficiency(evPerContract, collateralPerContract);
+
+  const budget          = r2((aum||100000) * (regime?.cspPct ?? 0.10));
+  const contracts       = Math.max(1, Math.floor(budget / collateralPerContract) || 1);
+  const totalCollateral = r2(contracts * collateralPerContract);
+  const expiry          = nextFriday(DTE);
+  const capitalDeployedPct = aum > 0 ? r2((totalCollateral/aum)*100) : 0;
+
+  const structuralNote = !(wholesale>0)
+    ? 'Wholesale unavailable'
+    : breakeven <= wholesale
+      ? `Breakeven $${breakeven} ≤ wholesale $${wholesale}`
+      : `Breakeven $${breakeven} above wholesale $${wholesale}`;
+
+  return {
+    structure:'CSP', verdict:'SCANNED',
+    quality: qualityLabel(popPct, edgePP),
+    ticker, dte:DTE, expiry,
+    shortStrike:shortK, expectedMove:em,
+    minCredit, breakeven, contracts,
+    collateralPerContract, totalCollateral, maxLossPerContract,
+    pTrue, pMarket, edgePP, popPct,
+    evPerContract, capitalEfficiency,
+    regime:regime?.label||'UNKNOWN', trend, volState,
+    location:location||'UNAVAILABLE', capitalDeployedPct,
+    why:[
+      regime?.allowCSP ? `Regime allows CSP (${regime.label})` : `Regime disfavors CSP (${regime?.label||'UNKNOWN'})`,
+      `Trend: ${trend}`, `Vol state: ${volState}`, structuralNote
+    ],
+    brokerOrder:[
+      `Sell to Open ${contracts} ${ticker} ${expFmt(expiry)} ${shortK}P @ $${minCredit.toFixed(2)} limit`
+    ],
+    execLevels:{
+      'Short Strike':{ val:`$${shortK}`,               cls:'strike', sub:'1σ placement' },
+      'Min Credit':  { val:`$${minCredit.toFixed(2)}`, cls:'credit', sub:`${(minRoR*100).toFixed(0)}% RoR floor` },
+      'Breakeven':   { val:`$${breakeven}`,             cls:'',       sub:'credit-adjusted' },
+      'Contracts':   { val:`${contracts}`,              cls:'',       sub:`$${totalCollateral.toLocaleString()} collateral` }
+    }
+  };
 }
 
-function buildStructural(market){
-  const{ticker,spot,dailyBars}=market;
-  // Worker path first
-  if(market.structural&&market.nmr){
-    const ws=market.structural,nmr=market.nmr;
-    return{ticker,spot,high2y:ws.high2y||null,low2y:ws.low2y||null,range2y:ws.range2y||null,
-      fibs:ws.fibs||market.fibs||{},sma20daily:ws.sma20||market.sma20||null,sma200daily:ws.sma200||market.sma200||null,
-      weeklyMAs:ws.weeklyMAs||market.weeklyMAs||{},nearestFib:ws.nearestFib||null,nearestMA:ws.nearestWeeklyMA||null,
-      dominantAnchor:ws.dominantAnchor||market.dominantAnchor||null,
-      wholesale:nmr.wholesale,fair:nmr.fair,retail:nmr.retail,
-      location:nmr.location||'UNAVAILABLE',locationDetail:nmr.locationDetail||'',
-      dailyBarsCount:ws.dailyBarsCount||dailyBars.length,weeklyBarsCount:ws.weeklyBarsCount||0,_source:'worker'};
-  }
-  // Client fallback
-  if(!spot||!Array.isArray(dailyBars)||dailyBars.length<50)throw new Error('STRUCTURAL_DATA_UNAVAILABLE');
-  const bars2y=dailyBars.slice(-520);
-  const weekly=resampleWeekly(bars2y);
-  const highs=bars2y.map(b=>b.h).filter(Number.isFinite);
-  const lows=bars2y.map(b=>b.l).filter(Number.isFinite);
-  const wc=weekly.map(b=>b.c).filter(Number.isFinite);
-  const dc=bars2y.map(b=>b.c).filter(Number.isFinite);
-  if(!highs.length||wc.length<20)throw new Error('STRUCTURAL_DATA_UNAVAILABLE');
-  const high2y=Math.max(...highs),low2y=Math.min(...lows),range2y=high2y-low2y;
-  if(!(range2y>0))throw new Error('STRUCTURAL_DATA_INVALID');
-  const fibs={r236:r2(high2y-0.236*range2y),r382:r2(high2y-0.382*range2y),r500:r2(high2y-0.500*range2y),r618:r2(high2y-0.618*range2y),r786:r2(high2y-0.786*range2y)};
-  const weeklyMAs={w20:sma(wc,20),w50:sma(wc,50),w100:sma(wc,100),w200:sma(wc,200)};
-  const sma20daily=sma(dc,20),sma200daily=sma(dc,200);
-  const nearestFib=nearestLev(spot,fibs),nearestMA=nearestLev(spot,weeklyMAs);
-  const wsCands=[fibs.r618,sma200daily].filter(Number.isFinite);
-  const wholesale=wsCands.length?r2(Math.min(...wsCands)):fibs.r618;
-  const fair=fibs.r500,retail=fibs.r382;
-  let location='NEUTRAL',locationDetail='';
-  if(!Number.isFinite(wholesale)){location='UNAVAILABLE';}
-  else if(spot<=wholesale){location='WHOLESALE';locationDetail=`spot <= $${wholesale}`;}
-  else if(spot<=fair){location='ACCUMULATION';locationDetail=`wholesale < spot <= fair $${fair}`;}
-  else if(spot<=retail){location='NEUTRAL';locationDetail=`fair < spot <= retail $${retail}`;}
-  else{location='DISTRIBUTION';locationDetail=`spot > retail $${retail}`;}
-  return{ticker,spot,high2y,low2y,range2y,fibs,sma20daily,sma200daily,weeklyMAs,nearestFib,nearestMA,
-    wholesale,fair,retail,location,locationDetail,dailyBarsCount:bars2y.length,weeklyBarsCount:weekly.length,_source:'client'};
+function evalBPS(market, structural, aum) {
+  const { ticker, spot, hv30, iv, vix } = market;
+  const { fair, sma20daily, location }  = structural || {};
+  const regime = getRegime(vix);
+
+  if (!(spot>0)||!(hv30>0)||!(iv>0)||!(vix>=0))
+    return { structure:'BPS', verdict:'UNAVAILABLE', reason:'Missing core inputs' };
+
+  const width    = getSpreadWidth(spot);
+  const trend    = sma20daily ? (spot > sma20daily ? 'BULL' : 'BEAR') : 'UNKNOWN';
+  const volRatio = iv / hv30;
+  const volState = volRatio >= 1.15 ? 'RICH' : volRatio < 0.90 ? 'CHEAP' : 'FAIR';
+
+  const placed = placeShortStrike(spot, iv, DTE);
+  if (!placed) return { structure:'BPS', verdict:'UNAVAILABLE', reason:'Strike placement failed' };
+
+  const { shortK, em } = placed;
+  const longK      = shortK - width;
+  const minRoR     = regime?.minRoR ?? 0.13;
+  const minCredit  = minCreditBPS(width, minRoR);
+  const breakeven  = r2(shortK - minCredit);
+
+  const pTrue   = probAbove(spot, shortK, hv30, DTE) ?? 0;
+  const pMarket = probAbove(spot, shortK, iv,   DTE) ?? 0;
+  const edgePP  = r2((pTrue - pMarket) * 100);
+  const popPct  = r2(pMarket * 100);
+
+  const collateralPerContract = r2(width * 100);
+  const maxLossPerContract    = r2((width - minCredit) * 100);
+  const evPerContract         = expectedValue(pMarket, minCredit, maxLossPerContract);
+  const capitalEfficiency     = safeEfficiency(evPerContract, collateralPerContract);
+
+  const budget          = r2((aum||100000) * (regime?.bpsPct ?? 0.03));
+  const contracts       = Math.max(1, Math.floor(budget / Math.max(maxLossPerContract,1)) || 1);
+  const totalCollateral = r2(contracts * collateralPerContract);
+  const expiry          = nextFriday(DTE);
+  const capitalDeployedPct = aum > 0 ? r2((totalCollateral/aum)*100) : 0;
+
+  const structuralNote = !(fair>0)
+    ? 'Fair unavailable'
+    : breakeven <= fair
+      ? `Breakeven $${breakeven} ≤ fair $${fair}`
+      : `Breakeven $${breakeven} above fair $${fair}`;
+
+  return {
+    structure:'BPS', verdict:'SCANNED',
+    quality: qualityLabel(popPct, edgePP),
+    ticker, dte:DTE, expiry,
+    shortStrike:shortK, longStrike:longK, width, expectedMove:em,
+    minCredit, breakeven, contracts,
+    collateralPerContract, totalCollateral, maxLossPerContract,
+    pTrue, pMarket, edgePP, popPct,
+    evPerContract, capitalEfficiency,
+    regime:regime?.label||'UNKNOWN', trend, volState,
+    location:location||'UNAVAILABLE', capitalDeployedPct,
+    why:[
+      regime?.allowBPS ? `Regime allows BPS (${regime.label})` : `Regime disfavors BPS (${regime?.label||'UNKNOWN'})`,
+      `Trend: ${trend}`, `Vol state: ${volState}`, structuralNote
+    ],
+    brokerOrder:[
+      `Sell to Open ${contracts} ${ticker} ${expFmt(expiry)} ${shortK}P`,
+      `Buy  to Open ${contracts} ${ticker} ${expFmt(expiry)} ${longK}P`,
+      `Net credit target: $${minCredit.toFixed(2)} / spread`
+    ],
+    execLevels:{
+      'Short Strike':{ val:`$${shortK}`,               cls:'strike', sub:'short put' },
+      'Long Strike': { val:`$${longK}`,                cls:'strike', sub:'hedge leg' },
+      'Min Credit':  { val:`$${minCredit.toFixed(2)}`, cls:'credit', sub:`${(minRoR*100).toFixed(0)}% RoR floor` },
+      'Contracts':   { val:`${contracts}`,             cls:'',       sub:`$${totalCollateral.toLocaleString()} collateral` }
+    }
+  };
 }
 
-// ── VSIM ENGINE ─────────────────────────────────────────────────────────────
-const VSIM_REG=[
-  {maxVix:14,label:'NO FEAR',       allowCSP:false,allowBPS:false,minRoR:0.20,cspCap:0.10,bpsCap:0.02},
-  {maxVix:18,label:'FEAR COOLING',  allowCSP:true, allowBPS:false,minRoR:0.20,cspCap:0.10,bpsCap:0.02},
-  {maxVix:22,label:'FEAR BUILDING', allowCSP:true, allowBPS:true, minRoR:0.16,cspCap:0.10,bpsCap:0.02},
-  {maxVix:30,label:'FEAR ELEVATED', allowCSP:true, allowBPS:true, minRoR:0.13,cspCap:0.10,bpsCap:0.02},
-  {maxVix:45,label:'HEAVY FEAR',    allowCSP:true, allowBPS:true, minRoR:0.10,cspCap:0.075,bpsCap:0.02},
-  {maxVix:999,label:'PANIC',        allowCSP:false,allowBPS:true, minRoR:0.10,cspCap:0.05,bpsCap:0.02},
-];
-const VSIM_WHEEL=new Set(['NVDL','TQQQ','TSLL','HOOD','SOFI','IBIT','SPY','QQQ','NVDA','AAPL','MSFT','AMZN','TSLA','META','AMD','PLTR']);
+function evalShares(market, structural, aum) {
+  const { ticker, spot, hv30, iv, vix } = market;
+  const { wholesale, fair, sma20daily, location } = structural || {};
+  const regime = getRegime(vix);
 
-function vsimCalc({market,structural,config}){
-  const{ticker,spot,hv30,vix}=market;
-  const{wholesale,fair,location,sma20daily}=structural;
-  const{iv,credit,aum=100000,positions=[]}=config;
-  const dte=14;
-  if(vix==null)return mkBlock('VSIM',ticker,'VIX_UNAVAILABLE');
-  if(!hv30||hv30<=0)return mkBlock('VSIM',ticker,'HV30_MISSING');
-  if(!iv||iv<=0)return mkBlock('VSIM',ticker,'IV_MISSING');
-  const regime=VSIM_REG.find(r=>vix<r.maxVix)||VSIM_REG[VSIM_REG.length-1];
-  const trend=sma20daily?(spot>sma20daily?'BULL':'BEAR'):null;
-  const volRatio=iv/hv30;
-  const vol=volRatio>=1.15?'RICH':volRatio<0.90?'CHEAP':'FAIR';
-  const strategy=(!regime.allowCSP||vol!=='RICH'||trend!=='BULL'||!VSIM_WHEEL.has(ticker))?'BPS':'CSP';
-  if(strategy==='CSP'&&!regime.allowCSP)return mkRejected('VSIM',ticker,[`CSP_BLOCKED_${regime.label}`],{regime:regime.label});
-  if(strategy==='BPS'&&!regime.allowBPS)return mkRejected('VSIM',ticker,[`BPS_BLOCKED_${regime.label}`],{regime:regime.label});
-  const{shortK}=placeStrike(spot,iv,dte);
-  const longK=strategy==='BPS'?shortK-5:null;
-  const breakeven=r2(shortK-credit);
-  const exp=expiryDate(dte);
-  if(!Number.isFinite(wholesale)||!Number.isFinite(fair))return mkRejected('VSIM',ticker,['STRUCTURAL_DATA_UNAVAILABLE'],{location});
-  if(strategy==='CSP'&&breakeven>wholesale)return mkRejected('VSIM',ticker,[`NMR_CSP_BE_$${breakeven}>WS_$${wholesale}`],{breakeven,wholesale,location});
-  if(strategy==='BPS'&&breakeven>fair)return mkRejected('VSIM',ticker,[`NMR_BPS_BE_$${breakeven}>FAIR_$${fair}`],{breakeven,fair,location});
-  let maxLossPerCt,collateral,ror,wheelLoss;
-  if(strategy==='CSP'){maxLossPerCt=r2((shortK-credit)*100);collateral=r2(shortK*100);ror=r2((credit/shortK)*100);wheelLoss=Math.max(0,spot-shortK-credit);}
-  else{maxLossPerCt=r2((5-credit)*100);collateral=r2(5*100);ror=maxLossPerCt>0?r2((credit/(maxLossPerCt/100))*100):0;wheelLoss=maxLossPerCt/100;}
-  const pTrue=probAbove(spot,shortK,hv30,dte);
-  const pMarket=probAbove(spot,shortK,iv,dte);
-  if(!pTrue||!pMarket)return mkBlock('VSIM',ticker,'PROB_ENGINE_FAILED');
-  const edgePP=r2((pTrue-pMarket)*100),popPct=r2(pMarket*100);
-  const ev=r2(pTrue*credit-(1-pTrue)*wheelLoss);
-  const evLabel=strategy==='CSP'?'Wheel-adjusted EV':'EV';
-  const fails=[];
-  if(edgePP<5)fails.push(`EDGE_${edgePP.toFixed(1)}pp<5pp`);
-  if(popPct<75)fails.push(`POP_${popPct.toFixed(1)}%<75%`);
-  if(ev<=0)fails.push(`EV_${ev.toFixed(2)}_NOT_POSITIVE`);
-  const vsimMinReq=calcMinCredit(strategy,shortK,5,regime.minRoR);
-  if(ror<regime.minRoR*100)fails.push(`ROR_${ror.toFixed(1)}%<${(regime.minRoR*100).toFixed(1)}% — need $${vsimMinReq.toFixed(2)} min`);
-  const capPct=strategy==='CSP'?regime.cspCap:regime.bpsCap;
-  const budget=r2(aum*capPct);
-  const contracts=Math.max(0,Math.floor(budget/maxLossPerCt));
-  if(contracts<1)fails.push('NON_EXECUTABLE_SIZING');
-  const exT=(positions||[]).filter(p=>p.ticker===ticker).reduce((s,p)=>s+(+p.collateral||0),0);
-  const exA=(positions||[]).reduce((s,p)=>s+(+p.collateral||0),0);
-  const totalColl=r2(collateral*contracts);
-  const tickerConc=r2(((exT+totalColl)/aum)*100);
-  const totalDeploy=r2(((exA+totalColl)/aum)*100);
-  if(tickerConc>30)fails.push(`TICKER_CONC_${tickerConc.toFixed(1)}%>30%`);
-  if(fails.length)return mkRejected('VSIM',ticker,fails,{edgePP,popPct,ror,ev,minReq:vsimMinReq,credit,regime:regime.label,location,trend,vol});
-  const brokerOrder=strategy==='CSP'
-    ?[`Sell to Open ${contracts} ${ticker} ${expFmt(exp)} ${shortK}P @ $${credit.toFixed(2)} limit`]
-    :[`Sell to Open ${contracts} ${ticker} ${expFmt(exp)} ${shortK}P`,`Buy to Open  ${contracts} ${ticker} ${expFmt(exp)} ${longK}P`,`Net credit: $${credit.toFixed(2)} / spread`];
-  return mkApproved('VSIM',ticker,{strategy,expiry:exp,dte,shortStrike:shortK,longStrike:longK,width:longK?5:null,
-    credit,expectedFill:credit,maxLossPerContract:maxLossPerCt,collateralPerContract:collateral,
-    contracts,totalCollateral:totalColl,totalMaxLoss:r2(maxLossPerCt*contracts),totalCredit:r2(credit*contracts*100),
-    ror,pTrue:r4(pTrue),pMarket:r4(pMarket),edgePP,popPct,ev,evLabel,
-    capitalEfficiency:ev>0&&collateral>0?r4(ev/collateral):0,liqScore:null,
-    regime:regime.label,trend,volState:vol,nmrLocation:location,
-    minReq:vsimMinReq,
-    capitalDeployedPct:totalDeploy,tickerConcentrationPct:tickerConc,brokerOrder});
+  if (!(spot>0)||!(hv30>0)||!(iv>0)||!(vix>=0))
+    return { structure:'SHARES', verdict:'UNAVAILABLE', reason:'Missing core inputs' };
+
+  const trend  = sma20daily ? (spot > sma20daily ? 'BULL' : 'BEAR') : 'UNKNOWN';
+  const placed = placeShortStrike(spot, iv, DTE);
+  if (!placed) return { structure:'SHARES', verdict:'UNAVAILABLE', reason:'Strike placement failed' };
+
+  const { shortK, em } = placed;
+  const pTrue   = probAbove(spot, shortK, hv30, DTE) ?? 0;
+  const pMarket = probAbove(spot, shortK, iv,   DTE) ?? 0;
+  const edgePP  = r2((pTrue - pMarket) * 100);
+  const popPct  = r2(pMarket * 100);
+
+  const budget    = r2((aum||100000) * (regime?.sharePct ?? 0.10));
+  const shares    = Math.max(1, Math.floor(budget / spot) || 1);
+  const totalCost = r2(shares * spot);
+
+  const downsidePerShare = Math.max(0, spot - (wholesale || spot));
+  const upsidePerShare   = Math.max(0, (fair || spot) - spot);
+  const evPerShare       = r2(pMarket * upsidePerShare - (1-pMarket) * downsidePerShare);
+  const evPerContract    = r2(evPerShare * shares);
+  const capitalEfficiency = safeEfficiency(evPerContract, totalCost);
+  const capitalDeployedPct = aum > 0 ? r2((totalCost/aum)*100) : 0;
+
+  const structuralNote = !(wholesale>0)
+    ? 'Wholesale unavailable'
+    : spot <= wholesale
+      ? `Spot $${spot} ≤ wholesale $${wholesale}`
+      : `Spot $${spot} above wholesale $${wholesale}`;
+
+  return {
+    structure:'SHARES', verdict:'SCANNED',
+    quality: qualityLabel(popPct, edgePP),
+    ticker, entryPrice:spot,
+    buyLevel:wholesale||spot, shares, totalCost,
+    expectedMove:em, pTrue, pMarket, edgePP, popPct,
+    evPerContract, capitalEfficiency,
+    regime:regime?.label||'UNKNOWN', trend,
+    volState: iv/hv30 >= 1.15 ? 'RICH' : iv/hv30 < 0.90 ? 'CHEAP' : 'FAIR',
+    location:location||'UNAVAILABLE', capitalDeployedPct,
+    why:[
+      regime?.allowShares ? `Regime allows shares (${regime.label})` : `Regime disfavors shares (${regime?.label||'UNKNOWN'})`,
+      `Trend: ${trend}`, structuralNote, `Fair: ${fair ?? 'N/A'}`
+    ],
+    brokerOrder:[
+      `Buy ${shares} shares ${ticker} @ $${(wholesale||spot).toFixed(2)} or better`,
+      `Current spot: $${spot.toFixed(2)}`
+    ],
+    execLevels:{
+      'Buy Level':   { val:`$${(wholesale||spot).toFixed(2)}`, cls:'shares', sub:'target acquisition' },
+      'Current Spot':{ val:`$${spot.toFixed(2)}`,              cls:'',       sub:'live market' },
+      'Shares':      { val:`${shares}`,                        cls:'shares', sub:`${((regime?.sharePct??0.10)*100).toFixed(1)}% AUM` },
+      'Total Cost':  { val:`$${totalCost.toLocaleString()}`,   cls:'',       sub:'capital deployed' }
+    }
+  };
 }
 
-// ── CROS ENGINE ─────────────────────────────────────────────────────────────
-const CROS_UNIV=['NVDL','TQQQ','TSLL','HOOD','SOFI','IBIT','SPY','QQQ','NVDA','AAPL'];
-const CROS_DRO=['IBIT'];
-function crosLiq(bid,ask,volume,oi){
-  bid=+bid||0;ask=+ask||bid;volume=+volume||0;oi=+oi||0;
-  const mid=(bid+ask)/2,sp=mid>0?(ask-bid)/mid:1;
-  const ls=r2(0.4*Math.max(0,1-sp/0.20)+0.3*Math.min(1,volume/500)+0.3*Math.min(1,oi/2000));
-  return{liqScore:ls,expectedFill:r2(Math.max(bid,mid-(ask-bid)*0.5)),execValid:sp<=0.25&&volume>=50&&oi>=100&&ls>=0.35};
-}
-function crosCalc({market,structural,config}){
-  const{ticker,spot,hv30,vix}=market;
-  const{wholesale,fair,location,sma20daily}=structural;
-  const{iv,credit,bid=0,ask=0,volume=0,oi=0,aum=100000,positions=[]}=config;
-  const dte=7;
-  if(!spot||spot<=0)return mkBlock('CROS',ticker,'SPOT_MISSING');
-  if(!hv30||hv30<=0)return mkBlock('CROS',ticker,'HV30_MISSING');
-  if(!iv||iv<=0)return mkBlock('CROS',ticker,'IV_MISSING');
-  if(sma20daily==null)return mkBlock('CROS',ticker,'SMA20_MISSING');
-  if(!CROS_UNIV.includes(ticker))return mkRejected('CROS',ticker,['NOT_IN_APPROVED_UNIVERSE'],{});
-  if(vix==null)return mkBlock('CROS',ticker,'VIX_UNAVAILABLE');
-  if(vix>=45)return mkBlock('CROS',ticker,`VIX_${vix}_ABOVE_BLOCK_45`);
-  const macroMult=vix>=24?0.5:1;
-  const regime=vix<18?'FEAR COOLING':vix<22?'FEAR BUILDING':vix<30?'FEAR ELEVATED':'HEAVY FEAR';
-  const trend=spot>sma20daily?'BULL':'BEAR';
-  const volRatio=iv/hv30;
-  const vol=volRatio>=1.15?'RICH':volRatio<0.90?'CHEAP':'FAIR';
-  if(vol==='CHEAP')return mkRejected('CROS',ticker,['VOL_CHEAP'],{ivHvRatio:r2(volRatio)});
-  const dro=CROS_DRO.includes(ticker);
-  const strategy=dro?'BPS':(vol==='RICH'&&trend==='BULL'?'CSP':'BPS');
-  const{shortK}=placeStrike(spot,iv,dte);
-  const longK=strategy==='BPS'?shortK-5:null;
-  const exp=expiryDate(dte);
-  if(credit<0.15)return mkRejected('CROS',ticker,['CREDIT_BELOW_FLOOR'],{credit});
-  if(!Number.isFinite(wholesale)||!Number.isFinite(fair))return mkRejected('CROS',ticker,['STRUCTURAL_DATA_UNAVAILABLE'],{location});
-  const breakeven=r2(shortK-credit);
-  if(strategy==='CSP'&&breakeven>wholesale)return mkRejected('CROS',ticker,[`NMR_CSP_BE>WHOLESALE`],{breakeven,wholesale});
-  if(strategy==='BPS'&&breakeven>fair)return mkRejected('CROS',ticker,[`NMR_BPS_BE>FAIR`],{breakeven,fair});
-  let maxLossPerCt,collateral,ror,wheelLoss;
-  if(strategy==='CSP'){maxLossPerCt=r2((shortK-credit)*100);collateral=r2(shortK*100);ror=r2((credit/shortK)*100);wheelLoss=Math.max(0,spot-shortK-credit);}
-  else{maxLossPerCt=r2((5-credit)*100);collateral=r2(5*100);ror=maxLossPerCt>0?r2((credit/(maxLossPerCt/100))*100):0;wheelLoss=maxLossPerCt/100;}
-  const liq=crosLiq(bid,ask,volume,oi);
-  if(!liq.execValid)return mkRejected('CROS',ticker,[`LIQUIDITY_FAIL_score=${liq.liqScore}`],{liqScore:liq.liqScore,strategy});
-  const pTrue=probAbove(spot,shortK,hv30,dte);
-  const pMarket=probAbove(spot,shortK,iv,dte);
-  if(!pTrue||!pMarket)return mkBlock('CROS',ticker,'PROB_ENGINE_FAILED');
-  const edgePP=r2((pTrue-pMarket)*100),popPct=r2(pMarket*100);
-  const ev=r2(pTrue*credit-(1-pTrue)*wheelLoss);
-  const evLabel=strategy==='CSP'?'Wheel-adjusted EV':'EV';
-  const minRoR=vix<22?16:vix<30?13:10;
-  const fails=[];
-  if(edgePP<2)fails.push(`EDGE_${edgePP.toFixed(1)}pp<2pp`);
-  if(popPct<70)fails.push(`POP_${popPct.toFixed(1)}%<70%`);
-  if(ev<=0)fails.push(`EV_${ev.toFixed(2)}_NOT_POSITIVE`);
-  const crosMinReq=calcMinCredit(strategy,shortK,5,minRoR/100);
-  if(ror<minRoR)fails.push(`ROR_${ror.toFixed(1)}%<${minRoR}% — need $${crosMinReq.toFixed(2)} min`);
-  if(fails.length)return mkRejected('CROS',ticker,fails,{edgePP,popPct,ror,ev,minReq:crosMinReq,credit,strategy,trend,vol,regime});
-  const baseRisk=r2(aum*0.02);
-  const edgeMult=edgePP<2?0:edgePP<4?0.25:edgePP<7?0.50:edgePP<10?0.75:1;
-  const adjRisk=r2(baseRisk*edgeMult*macroMult);
-  const contracts=Math.max(0,Math.floor(adjRisk/maxLossPerCt));
-  if(contracts<1)return mkRejected('CROS',ticker,['NON_EXECUTABLE_SETUP'],{edgeMult,adjRisk,maxLossPerCt});
-  const exT=(positions||[]).filter(p=>p.ticker===ticker).reduce((s,p)=>s+(+p.collateral||0),0);
-  const exA=(positions||[]).reduce((s,p)=>s+(+p.collateral||0),0);
-  const totalColl=r2(collateral*contracts);
-  const tickerConc=r2(((exT+totalColl)/aum)*100);
-  const totalDeploy=r2(((exA+totalColl)/aum)*100);
-  const expFails=[];
-  if(tickerConc>20)expFails.push(`TICKER_CONC_${tickerConc.toFixed(1)}%>20%`);
-  if(totalDeploy>70)expFails.push(`TOTAL_DEPLOY_${totalDeploy.toFixed(1)}%>70%`);
-  if(expFails.length)return mkRejected('CROS',ticker,expFails,{tickerConc,totalDeploy});
-  const brokerOrder=strategy==='CSP'
-    ?[`Sell to Open ${contracts} ${ticker} ${expFmt(exp)} ${shortK}P @ $${credit.toFixed(2)} limit`]
-    :[`Sell to Open ${contracts} ${ticker} ${expFmt(exp)} ${shortK}P`,`Buy to Open  ${contracts} ${ticker} ${expFmt(exp)} ${longK}P`,`Net credit: $${credit.toFixed(2)} / spread`];
-  return mkApproved('CROS',ticker,{strategy,expiry:exp,dte,shortStrike:shortK,longStrike:longK,width:longK?5:null,
-    credit,expectedFill:liq.expectedFill,maxLossPerContract:maxLossPerCt,collateralPerContract:collateral,
-    contracts,totalCollateral:totalColl,totalMaxLoss:r2(maxLossPerCt*contracts),totalCredit:r2(credit*contracts*100),
-    ror,pTrue:r4(pTrue),pMarket:r4(pMarket),edgePP,popPct,ev,evLabel,
-    capitalEfficiency:ev>0&&collateral>0?r4(ev/collateral):0,liqScore:liq.liqScore,
-    regime,trend,volState:vol,nmrLocation:location,
-    minReq:crosMinReq,
-    capitalDeployedPct:totalDeploy,tickerConcentrationPct:tickerConc,brokerOrder});
-}
-
-// ── HYBRID ENGINE ───────────────────────────────────────────────────────────
-const HYBRID_UNIV=['NVDL','TQQQ','TSLL','HOOD','SOFI','IBIT','SPY','QQQ','NVDA','AAPL'];
-const HYBRID_DRO=['IBIT'];
-const HYBRID_REG=[
-  {maxVix:14,label:'NO FEAR',       allowCSP:false,allowBPS:false,minRoR:0.20,sizeMult:0},
-  {maxVix:18,label:'FEAR COOLING',  allowCSP:true, allowBPS:false,minRoR:0.20,sizeMult:0.75},
-  {maxVix:22,label:'FEAR BUILDING', allowCSP:true, allowBPS:true, minRoR:0.16,sizeMult:1},
-  {maxVix:30,label:'FEAR ELEVATED', allowCSP:true, allowBPS:true, minRoR:0.13,sizeMult:1},
-  {maxVix:45,label:'HEAVY FEAR',    allowCSP:true, allowBPS:true, minRoR:0.10,sizeMult:1},
-  {maxVix:999,label:'PANIC',        allowCSP:false,allowBPS:true, minRoR:0.10,sizeMult:0.5},
-];
-function hLiq(bid,ask,volume,oi){
-  bid=+bid||0;ask=+ask||bid;volume=+volume||0;oi=+oi||0;
-  const mid=(bid+ask)/2,sp=mid>0?(ask-bid)/mid:1;
-  const ls=r2(0.4*Math.max(0,1-sp/0.20)+0.3*Math.min(1,volume/500)+0.3*Math.min(1,oi/2000));
-  return{liqScore:ls,expectedFill:r2(Math.max(bid,mid-(ask-bid)*0.5)),execValid:sp<=0.25&&volume>=50&&oi>=100&&ls>=0.35};
-}
-function hEval(strategy,dte,spot,hv30,iv,credit,structural,liqData,regime){
-  const{wholesale,fair,location}=structural;
-  const exp=expiryDate(dte);
-  const inc=spot<25?0.5:spot<500?1:5;
-  const shortK=Math.round((spot-emv(spot,iv,dte))/inc)*inc;
-  const longK=strategy==='BPS'?shortK-5:null;
-  if(credit<0.15)return{pass:false,reason:'CREDIT_BELOW_FLOOR',strategy,dte};
-  let maxLossPerCt,collateral,ror,wheelLoss;
-  if(strategy==='CSP'){maxLossPerCt=r2((shortK-credit)*100);collateral=r2(shortK*100);ror=r2((credit/shortK)*100);wheelLoss=Math.max(0,spot-shortK-credit);}
-  else{maxLossPerCt=r2((5-credit)*100);collateral=r2(5*100);ror=maxLossPerCt>0?r2((credit/(maxLossPerCt/100))*100):0;wheelLoss=maxLossPerCt/100;}
-  if(!Number.isFinite(wholesale)||!Number.isFinite(fair))return{pass:false,reason:'STRUCTURAL_DATA_UNAVAILABLE',strategy,dte};
-  const be=r2(shortK-credit);
-  if(strategy==='CSP'&&be>wholesale)return{pass:false,reason:`NMR_CSP_BE>WS`,strategy,dte};
-  if(strategy==='BPS'&&be>fair)return{pass:false,reason:`NMR_BPS_BE>FAIR`,strategy,dte};
-  const liq=hLiq(liqData.bid,liqData.ask,liqData.volume,liqData.oi);
-  if(!liq.execValid)return{pass:false,reason:`LIQUIDITY_FAIL`,strategy,dte};
-  const pTrue=probAbove(spot,shortK,hv30,dte);
-  const pMarket=probAbove(spot,shortK,iv,dte);
-  if(!pTrue||!pMarket)return{pass:false,reason:'PROB_FAIL',strategy,dte};
-  const edgePP=r2((pTrue-pMarket)*100),popPct=r2(pMarket*100);
-  const ev=r2(pTrue*credit-(1-pTrue)*wheelLoss);
-  const minRoR=regime.minRoR*100;
-  if(edgePP<5)return{pass:false,reason:`EDGE_${edgePP.toFixed(1)}pp<5pp`,strategy,dte};
-  if(popPct<75)return{pass:false,reason:`POP_${popPct.toFixed(1)}%<75%`,strategy,dte};
-  if(ev<=0)return{pass:false,reason:`EV_${ev.toFixed(2)}<0`,strategy,dte};
-  if(ror<minRoR)return{pass:false,reason:`ROR_${ror.toFixed(1)}%<${minRoR.toFixed(1)}%`,strategy,dte};
-  const score=r4(pTrue*0.40+clamp(ror/50,0,1)*0.35+clamp(ev/0.50,0,1)*0.25);
-  const ce=ev>0&&collateral>0?r4(ev/collateral):0;
-  return{pass:true,strategy,dte,exp,shortK,longK,maxLossPerCt,collateral,ror,wheelLoss,
-    prob:{pTrue,pMarket,edgePP,popPct},ev,score,capEff:ce,liq,nmrLocation:location};
-}
-function hybridCalc({market,structural,config}){
-  const{ticker,spot,hv30,vix}=market;
-  const{sma20daily,location}=structural;
-  const{iv,credit,bid=0,ask=0,volume=0,oi=0,aum=100000,positions=[]}=config;
-  const liqData={bid,ask,volume,oi};
-  if(!spot||spot<=0)return mkBlock('HYBRID',ticker,'SPOT_MISSING');
-  if(!hv30||hv30<=0)return mkBlock('HYBRID',ticker,'HV30_MISSING');
-  if(!iv||iv<=0)return mkBlock('HYBRID',ticker,'IV_MISSING');
-  if(sma20daily==null)return mkBlock('HYBRID',ticker,'SMA20_MISSING');
-  if(!HYBRID_UNIV.includes(ticker))return mkRejected('HYBRID',ticker,['NOT_IN_APPROVED_UNIVERSE'],{});
-  if(vix==null)return mkBlock('HYBRID',ticker,'VIX_UNAVAILABLE');
-  const regime=HYBRID_REG.find(r=>vix<r.maxVix)||HYBRID_REG[HYBRID_REG.length-1];
-  if(!regime.allowCSP&&!regime.allowBPS)return mkBlock('HYBRID',ticker,`ALL_SELLING_BLOCKED_${regime.label}`);
-  const trend=spot>sma20daily?'BULL':'BEAR';
-  const volRatio=iv/hv30;
-  const vol=volRatio>=1.15?'RICH':volRatio<0.90?'CHEAP':'FAIR';
-  if(vol==='CHEAP')return mkRejected('HYBRID',ticker,['VOL_CHEAP'],{volRatio:r2(volRatio)});
-  const dro=HYBRID_DRO.includes(ticker);
-  const structs=[];
-  if(!dro&&regime.allowCSP&&vol==='RICH'&&trend==='BULL')structs.push('CSP');
-  if(regime.allowBPS&&(vol==='RICH'||(vol==='FAIR'&&trend==='BULL')))structs.push('BPS');
-  if(dro&&!structs.includes('BPS'))structs.push('BPS');
-  if(!structs.length)return mkRejected('HYBRID',ticker,['NO_VALID_SETUP'],{trend,vol,regime:regime.label});
-  const tenors=[7,14,21];
-  const allCands=[];
-  for(const s of structs)for(const d of tenors)allCands.push(hEval(s,d,spot,hv30,iv,credit,structural,liqData,regime));
-  const passing=allCands.filter(c=>c.pass);
-  if(!passing.length)return mkRejected('HYBRID',ticker,allCands.map(c=>`${c.strategy}-${c.dte}DTE:${c.reason}`),{trend,vol});
-  const byS={};
-  passing.forEach(c=>{if(!byS[c.strategy])byS[c.strategy]=[];byS[c.strategy].push(c);});
-  const winners=[];
-  for(const cands of Object.values(byS)){
-    const base=cands.find(c=>c.dte===14)||cands[0];
-    let best=base;
-    for(const ch of cands){if(ch.dte===14)continue;if(ch.score-best.score>0.03)best=ch;}
-    winners.push(best);
-  }
-  winners.sort((a,b)=>b.capEff-a.capEff);
-  const W=winners[0];
-  const perTradeBudget=r2(aum*0.03*regime.sizeMult);
-  const hardCap=W.collateral>0?Math.floor(perTradeBudget/W.collateral):0;
-  let contracts;
-  if(W.wheelLoss<=0){contracts=hardCap;}
-  else{const b_h=credit/W.wheelLoss;const f_h=b_h>0?Math.max(0,(b_h*W.prob.pTrue-(1-W.prob.pTrue))/b_h):0;contracts=Math.max(0,Math.min(Math.floor(aum*Math.min(f_h*0.5,0.10)/W.wheelLoss),hardCap));}
-  if(contracts<1)return mkRejected('HYBRID',ticker,['NON_EXECUTABLE_SETUP'],{capEff:W.capEff,dte:W.dte});
-  const totalColl=r2(W.collateral*contracts);
-  const exT=(positions||[]).filter(p=>p.ticker===ticker).reduce((s,p)=>s+(+p.collateral||0),0);
-  const exA=(positions||[]).reduce((s,p)=>s+(+p.collateral||0),0);
-  const tickerConc=r2(((exT+totalColl)/aum)*100);
-  const totalDeploy=r2(((exA+totalColl)/aum)*100);
-  const expFails=[];
-  if(tickerConc>10)expFails.push(`TICKER_CONC_${tickerConc.toFixed(1)}%>10%`);
-  if(totalDeploy>40)expFails.push(`TOTAL_DEPLOY_${totalDeploy.toFixed(1)}%>40%`);
-  if(expFails.length)return mkRejected('HYBRID',ticker,expFails,{tickerConc,totalDeploy});
-  const runnerUp=winners[1];
-  const selectionReason=runnerUp?`${W.strategy}(capEff=${W.capEff.toExponential(2)}) > ${runnerUp.strategy}(capEff=${runnerUp.capEff.toExponential(2)})`:`${W.strategy} only valid structure`;
-  const brokerOrder=W.strategy==='CSP'
-    ?[`Sell to Open ${contracts} ${ticker} ${expFmt(W.exp)} ${W.shortK}P @ $${credit.toFixed(2)} limit`]
-    :[`Sell to Open ${contracts} ${ticker} ${expFmt(W.exp)} ${W.shortK}P`,`Buy to Open  ${contracts} ${ticker} ${expFmt(W.exp)} ${W.longK}P`,`Net credit: $${credit.toFixed(2)} / spread`];
-  return mkApproved('HYBRID',ticker,{strategy:W.strategy,expiry:W.exp,dte:W.dte,shortStrike:W.shortK,longStrike:W.longK,width:W.longK?5:null,
-    credit,expectedFill:W.liq.expectedFill,maxLossPerContract:W.maxLossPerCt,collateralPerContract:W.collateral,
-    contracts,totalCollateral:totalColl,totalMaxLoss:r2(W.maxLossPerCt*contracts),totalCredit:r2(credit*contracts*100),
-    ror:W.ror,pTrue:r4(W.prob.pTrue),pMarket:r4(W.prob.pMarket),edgePP:W.prob.edgePP,popPct:W.prob.popPct,
-    ev:W.ev,evLabel:W.strategy==='CSP'?'Wheel-adjusted EV':'EV',capitalEfficiency:W.capEff,liqScore:W.liq.liqScore,
-    regime:regime.label,trend,volState:vol,nmrLocation:location,
-    capitalDeployedPct:totalDeploy,tickerConcentrationPct:tickerConc,selectionReason,brokerOrder});
-}
-
-// ── CONDUCTOR ───────────────────────────────────────────────────────────────
-function conductorScore(t){
-  return r4(0.35*clamp(t.edgePP/20,0,1)+0.30*clamp((t.capitalEfficiency||0)/0.005,0,1)
-    +0.20*clamp((t.popPct-70)/25,0,1)+0.15*(t.liqScore!=null?clamp(t.liqScore,0,1):0.5)
-    -clamp(t.capitalDeployedPct/40,0,0.3));
-}
-function conductor(results){
-  const approved=results.filter(r=>r.verdict==='APPROVED');
-  if(!approved.length)return{finalVerdict:'NO TRADE',winningEngine:null,losers:results.map(r=>({engine:r.engine,verdict:r.verdict,reason:r.verdict==='BLOCK'?r.reason:(r.reasons||[]).slice(0,2).join('; ')})),brokerOrder:[]};
-  const scored=approved.map(t=>({...t,conductorScore:conductorScore(t)}));
-  scored.sort((a,b)=>b.conductorScore-a.conductorScore);
-  const winner=scored[0];
-  const whyChosen=[];
-  if(scored.length>1){
-    const run=scored[1];
-    if(winner.capitalEfficiency>run.capitalEfficiency)whyChosen.push(`Higher capital efficiency (${winner.capitalEfficiency.toExponential(2)} vs ${run.capitalEfficiency.toExponential(2)})`);
-    if(winner.edgePP>run.edgePP)whyChosen.push(`Edge +${winner.edgePP.toFixed(1)}pp vs +${run.edgePP.toFixed(1)}pp`);
-    if(winner.liqScore!=null&&run.liqScore!=null&&winner.liqScore>run.liqScore)whyChosen.push('Better liquidity');
-    if(winner.capitalDeployedPct<run.capitalDeployedPct)whyChosen.push(`Lower deployment (${winner.capitalDeployedPct.toFixed(1)}% vs ${run.capitalDeployedPct.toFixed(1)}%)`);
-    if(!whyChosen.length)whyChosen.push(`Highest conductor score (${winner.conductorScore.toFixed(3)})`);
-  }else{whyChosen.push('Only engine producing approved ticket');whyChosen.push(`Edge +${winner.edgePP.toFixed(1)}pp · POP ${winner.popPct.toFixed(1)}% · EV $${winner.ev.toFixed(2)}`);}
-  const losers=results.filter(r=>r.engine!==winner.engine).map(r=>{
-    if(r.verdict!=='APPROVED')return{engine:r.engine,verdict:r.verdict,reason:r.verdict==='BLOCK'?r.reason:(r.reasons||[]).slice(0,2).join('; ')};
-    return{engine:r.engine,verdict:'RANKED_BELOW',reason:`Lower score (capEff=${r.capitalEfficiency?.toExponential(2)})`};
+// ============================================================
+//  RANKING
+// ============================================================
+function conduct(results) {
+  const scanned = results.filter(r => r.verdict === 'SCANNED');
+  if (!scanned.length) return null;
+  scanned.sort((a,b) => {
+    if ((b.capitalEfficiency||0) !== (a.capitalEfficiency||0)) return (b.capitalEfficiency||0)-(a.capitalEfficiency||0);
+    if ((b.edgePP||0) !== (a.edgePP||0)) return (b.edgePP||0)-(a.edgePP||0);
+    return (b.popPct||0)-(a.popPct||0);
   });
-  return{finalVerdict:'APPROVED',winningEngine:winner.engine,winningStrategy:winner.strategy,conductorScore:winner.conductorScore,whyChosen,losers,brokerOrder:winner.brokerOrder,winnerTicket:winner};
+  return scanned[0];
 }
 
-// ── RENDER ──────────────────────────────────────────────────────────────────
-function setStatus(msg,cls=''){const el=document.getElementById('status');el.textContent=msg;el.className='status '+cls;}
-function updateVixPill(vix){
-  const el=document.getElementById('vix-pill');
-  if(!vix){el.textContent='VIX -';el.className='vix-pill';return;}
-  el.textContent=`VIX ${vix.toFixed(1)}`;
-  el.className='vix-pill '+(vix<24?'allow':vix<45?'warn':'block');
+// ============================================================
+//  RENDER
+// ============================================================
+function setStatus(msg, cls = '') {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = `status ${cls}`;
 }
-function renderDataStrip(m){
-  const f=(l,v,c='')=>`<div class="d-item"><div class="lbl">${l}</div><div class="val ${c}">${v}</div></div>`;
-  let h='';
-  h+=f('Ticker',m.ticker,'ok');
-  h+=f('Spot',  m.spot   ?`$${m.spot.toFixed(2)}`        :'MISSING', m.spot   ?'ok':'err');
-  h+=f('HV30',  m.hv30   ?`${(m.hv30*100).toFixed(1)}%`  :'MISSING', m.hv30   ?'ok':'err');
-  h+=f('VIX',   m.vix    ?m.vix.toFixed(1)               :'MISSING', m.vix    ?'ok':'err');
-  h+=f('IV',    m.iv     ?`${(m.iv*100).toFixed(1)}%`    :'MISSING', m.iv     ?'ok':'err');
-  h+=f('IV/HV', m.iv&&m.hv30?(m.iv/m.hv30).toFixed(2)   :'--',      m.iv&&m.hv30&&m.iv/m.hv30>=1.15?'ok':'warn');
-  h+=f('IV src',m.option_source,                                      m.option_source!=='unavailable'?'ok':'warn');
-  h+=f('Bid/Ask',m.bid?`$${m.bid.toFixed(2)} / $${m.ask.toFixed(2)}`:'--',     m.bid?'ok':'warn');
-  h+=f('Mid',   m.mid    ?`$${m.mid.toFixed(2)}`         :'--',      m.mid    ?'ok':'warn');
-  h+=f('Volume',m.volume||0,                                          (m.volume||0)>=50?'ok':'warn');
-  h+=f('OI',    m.oi    ||0,                                          (m.oi||0)>=100?'ok':'warn');
-  if(m.greeks){
-    h+=f('Delta',m.greeks.delta?.toFixed(4)??'--','ok');
-    h+=f('Gamma',m.greeks.gamma?.toFixed(5)??'--','ok');
-    h+=f('Theta',m.greeks.theta?.toFixed(4)??'--','ok');
-    h+=f('Vega', m.greeks.vega?.toFixed(4)??'--', 'ok');
-  }else{h+=f('Greeks','unavailable','warn');}
-  if(m.option_contract_ticker)h+=f('Contract',m.option_contract_ticker,'ok');
-  if(m.option_atm_strike)h+=f('ATM strike',`$${m.option_atm_strike}`,'ok');
-  if(m.option_expiry)h+=f('Expiry',m.option_expiry,'ok');
-  h+=f('SMA20', m.sma20  ?`$${m.sma20.toFixed(2)}` :'--', m.sma20 ?'ok':'warn');
-  h+=f('SMA200',m.sma200 ?`$${m.sma200.toFixed(2)}`:'--', m.sma200?'ok':'warn');
-  h+=f('NMR WS',m.nmr?.wholesale?`$${m.nmr.wholesale.toFixed(2)}`:'--',m.nmr?.wholesale?'ok':'warn');
-  h+=f('NMR Fair',m.nmr?.fair?`$${m.nmr.fair.toFixed(2)}`:'--',       m.nmr?.fair?'ok':'warn');
-  h+=f('Location',m.location||'UNAVAILABLE',
-    m.location==='WHOLESALE'||m.location==='ACCUMULATION'?'ok':m.location==='NEUTRAL'?'warn':'err');
-  h+=f('Bars',`${m.dailyBars.length}d`,m.dailyBars.length>=200?'ok':'warn');
-  h+=f('Struct src',m.structural?'worker':'client',m.structural?'ok':'warn');
-  document.getElementById('data-grid').innerHTML=h;
-  document.getElementById('data-strip').classList.add('visible');
+
+function updateVix(vix) {
+  const el = document.getElementById('vix-pill');
+  if (!(vix >= 0)) { el.textContent='VIX —'; el.className='vix-pill'; return; }
+  el.textContent = `VIX ${vix.toFixed(1)}`;
+  el.className = `vix-pill ${vix<24?'allow':vix<45?'warn':'block'}`;
 }
-function renderStructural(s){
-  const f=(l,p)=>`<div class="slevel"><span class="sn">${l}</span><span class="sp">${Number.isFinite(p)?'$'+p.toFixed(2):'--'}</span></div>`;
-  const loc=s.location||'UNAVAILABLE';
-  document.getElementById('struct-grid').innerHTML=`
-    <div class="ssect"><div class="slbl">Fibs (from 2Y High)</div>
-      ${f('r236',s.fibs?.r236)}${f('r382 Retail',s.fibs?.r382)}${f('r500 Fair',s.fibs?.r500)}${f('r618 Wholesale',s.fibs?.r618)}${f('r786 Panic',s.fibs?.r786)}
-    </div>
-    <div class="ssect"><div class="slbl">NMR Levels</div>
-      ${f('Retail',s.retail)}${f('Fair',s.fair)}${f('Wholesale',s.wholesale)}${f('2Y High',s.high2y)}${f('2Y Low',s.low2y)}
-      <div class="loc-badge loc-${loc}">${loc}</div>
-    </div>
-    <div class="ssect"><div class="slbl">Weekly MAs</div>
-      ${f('W20',s.weeklyMAs?.w20)}${f('W50',s.weeklyMAs?.w50)}${f('W100',s.weeklyMAs?.w100)}${f('W200',s.weeklyMAs?.w200)}
-    </div>
-    <div class="ssect"><div class="slbl">Daily</div>
-      ${f('SMA20',s.sma20daily)}${f('SMA200',s.sma200daily)}${f('Spot',s.spot)}
-      <div style="font-size:11px;color:var(--dim);margin-top:8px">${s.dailyBarsCount||0}d ${s.weeklyBarsCount||0}w src:${s._source||'?'}</div>
-    </div>`;
-  document.getElementById('struct-panel').classList.add('visible');
+
+function renderMarketBar(m, s) {
+  const f = (l,v,c='') =>
+    `<div class="m-item"><div class="lbl">${l}</div><div class="val ${c}">${v}</div></div>`;
+
+  const locCls = s.location==='WHOLESALE'||s.location==='ACCUMULATION' ? 'ok'
+               : s.location==='NEUTRAL' ? 'warn' : 'err';
+
+  let h = '';
+  h += f('Spot',      `$${m.spot.toFixed(2)}`,                          'ok');
+  h += f('HV30',      m.hv30 ? `${(m.hv30*100).toFixed(1)}%`  : '—',   m.hv30?'ok':'warn');
+  h += f('IV',        m.iv   ? `${(m.iv*100).toFixed(1)}%`    : '—',   m.iv?'ok':'warn');
+  h += f('IV/HV',     m.iv&&m.hv30 ? (m.iv/m.hv30).toFixed(2) : '—',  m.iv&&m.hv30&&m.iv/m.hv30>=1.15?'ok':'warn');
+  h += f('SMA20',     m.sma20  ? `$${m.sma20.toFixed(2)}`   : '—',     m.sma20?'ok':'dim');
+  h += f('Wholesale', s.wholesale ? `$${s.wholesale.toFixed(2)}` : '—', '');
+  h += f('Fair',      s.fair      ? `$${s.fair.toFixed(2)}`      : '—', '');
+  h += f('Location',  s.location  || '—',                               locCls);
+
+  const bar = document.getElementById('market-bar');
+  bar.innerHTML = h;
+  bar.classList.add('on');
 }
-function renderEngineCard(engine,result){
-  const card=document.getElementById('card-'+engine.toLowerCase());
-  const vb=document.getElementById('vbadge-'+engine.toLowerCase());
-  vb.textContent=result.verdict;vb.className='vbadge '+result.verdict.toLowerCase();
-  card.className='engine-card '+result.verdict.toLowerCase();
-  let body='';
-  if(result.verdict==='APPROVED'){
-    const t=result;
-    body+=`<div class="ticket-top"><span class="t-strat">${t.strategy}</span><span class="t-strikes">$${t.shortStrike}${t.longStrike?'/$'+t.longStrike:''}</span><span class="t-exp">${t.expiry} (${t.dte}DTE)</span></div>`;
-    if(t.trend)body+=`<span class="tag ${t.trend}">${t.trend}</span>`;
-    if(t.volState)body+=`<span class="tag ${t.volState}">${t.volState}</span>`;
-    if(t.nmrLocation)body+=`<span class="tag">${t.nmrLocation}</span>`;
-    body+='<div class="divider"></div>';
-    body+=`<div class="metrics-grid">
-      <div class="met"><div class="lbl">Contracts</div><div class="val">${t.contracts}x</div></div>
-      <div class="met"><div class="lbl">Credit</div><div class="val">$${t.credit?.toFixed(2)}</div></div>
-      <div class="met"><div class="lbl">RoR</div><div class="val g">${t.ror?.toFixed(1)}%</div></div>
-      <div class="met"><div class="lbl">Edge</div><div class="val g">+${t.edgePP?.toFixed(1)}pp</div></div>
-      <div class="met"><div class="lbl">POP</div><div class="val">${t.popPct?.toFixed(1)}%</div></div>
-      <div class="met"><div class="lbl">${t.evLabel||'EV'}</div><div class="val ${t.ev>0?'g':'r'}">$${t.ev?.toFixed(2)}</div></div>
-      <div class="met"><div class="lbl">CapEff</div><div class="val a">${t.capitalEfficiency?.toExponential(2)}</div></div>
-      <div class="met"><div class="lbl">Deploy</div><div class="val">${t.capitalDeployedPct?.toFixed(1)}%</div></div>
-    </div>`;
-    if(t.liqScore!=null)body+=`<div style="font-size:11px;color:var(--dim)">Liq: ${t.liqScore}</div>`;
-    if(t.minReq!=null){
-      const clears=t.credit>=t.minReq;
-      body+=`<div style="font-size:11px;font-family:var(--mono);margin-top:6px;padding:5px 8px;border-radius:3px;background:rgba(255,255,255,.03)">
-        Min credit: <span style="color:var(--dim)">$${t.minReq.toFixed(2)}</span> &nbsp;|&nbsp;
-        Actual: <span style="color:${clears?'var(--green)':'var(--red)'}">$${t.credit?.toFixed(2)}</span> &nbsp;
-        <span style="color:${clears?'var(--green)':'var(--red)'};font-weight:700">${clears?'CLEARS':'FAILS'} RoR floor</span>
-      </div>`;
-    }
-    if(t.selectionReason)body+=`<div style="font-size:10px;color:var(--dim);margin-top:4px">${t.selectionReason}</div>`;
-    const g=window._mkt?.greeks;
-    if(g)body+=`<div class="greeks-row">d ${g.delta?.toFixed(3)??'--'}  g ${g.gamma?.toFixed(5)??'--'}  t ${g.theta?.toFixed(4)??'--'}  v ${g.vega?.toFixed(4)??'--'}</div>`;
-    body+=`<div class="broker-box">${(t.brokerOrder||[]).map(l=>`<div class="broker-line">${l}</div>`).join('')}</div>`;
-  }else if(result.verdict==='REJECTED'){
-    body+=`<div class="reject-list">${(result.reasons||[]).map(r=>`<div class="reject-item">x ${r}</div>`).join('')}</div>`;
-    if(result.debug&&Object.keys(result.debug).length){
-      const dbg=result.debug;
-      // Show credit vs min required prominently if present
-      if(dbg.minReq!=null||dbg.credit!=null){
-        const actual=dbg.credit,needed=dbg.minReq;
-        body+=`<div style="font-family:var(--mono);font-size:12px;margin-top:8px;padding:8px;border-radius:3px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2)">`;
-        if(actual!=null)body+=`<span style="color:var(--dim)">Actual credit: </span><span style="color:var(--red);font-weight:700">$${(+actual).toFixed(2)}</span>&nbsp;&nbsp;`;
-        if(needed!=null)body+=`<span style="color:var(--dim)">Min required: </span><span style="color:var(--amber);font-weight:700">$${(+needed).toFixed(2)}</span>`;
-        if(actual!=null&&needed!=null)body+=`&nbsp;&nbsp;<span style="color:var(--red)">deficit: $${((+needed)-(+actual)).toFixed(2)}</span>`;
-        body+=`</div>`;
-      }
-      body+=`<div class="debug-row">${Object.entries(dbg).filter(([k,v])=>typeof v==='number'&&k!=='minReq'&&k!=='credit').map(([k,v])=>`<div class="debug-item"><div class="lbl">${k}</div><div class="val">${v.toFixed?v.toFixed(2):v}</div></div>`).join('')}</div>`;
-    }
-  }else{body+=`<div style="color:var(--red);font-family:var(--mono);font-size:12px;padding:8px 0">blocked: ${result.reason}</div>`;}
-  card.querySelector('.card-body').innerHTML=body;
-}
-function renderConductor(decision){
-  const card=document.getElementById('conductor-card');
-  const verd=document.getElementById('cond-verdict');
-  const ok=decision.finalVerdict==='APPROVED';
-  verd.textContent=ok?'APPROVED':'NO TRADE';
-  verd.className='cond-verdict '+(ok?'approved':'no-trade');
-  card.className='conductor-card '+(ok?'winner':'no-trade');
-  const body=document.getElementById('cond-body');
-  if(!ok){
-    body.outerHTML=`<div class="no-trade-msg" id="cond-body">No engine produced an approved ticket.<div class="no-trade-reasons">${(decision.losers||[]).map(l=>`<div class="no-trade-reason">${l.engine}: ${l.reason||l.verdict}</div>`).join('')}</div></div>`;
+
+function renderCards(results, winner) {
+  const container = document.getElementById('cards');
+  container.innerHTML = '';
+
+  const scanned = [...results].filter(r => r.verdict==='SCANNED');
+  if (!scanned.length) {
+    container.innerHTML = `<div class="empty">No structures could be computed. Check VIX regime or data availability.</div>`;
     return;
   }
-  const t=decision.winnerTicket;
-  const loserRows=(decision.losers||[]).map(l=>`<div class="loser-row"><span class="loser-eng">${l.engine}</span><span style="font-size:10px;padding:2px 6px;border-radius:2px;background:${l.verdict==='RANKED_BELOW'?'rgba(245,158,11,.1)':'rgba(239,68,68,.1)'};color:${l.verdict==='RANKED_BELOW'?'var(--amber)':'var(--red)'};font-family:var(--mono)">${l.verdict}</span><span style="font-size:12px;color:var(--dim)">${l.reason||''}</span></div>`).join('');
-  document.getElementById('cond-body').outerHTML=`<div class="cond-body" id="cond-body">
-    <div>
-      <div class="csect">Winner</div>
-      <div class="winner-eng">${decision.winningEngine}</div>
-      <div class="winner-sub">${decision.winningStrategy} ${t.dte}DTE score ${decision.conductorScore?.toFixed(3)}</div>
-      <div class="csect">Why chosen</div>
-      ${(decision.whyChosen||[]).map(w=>`<div class="why-item">${w}</div>`).join('')}
-    </div>
-    <div>
-      <div class="csect">Other engines</div>${loserRows}
-    </div>
-    <div class="cond-order">
-      <div class="csect">Broker Order</div>
-      <div class="final-order">${(decision.brokerOrder||[]).map(l=>`<div class="final-order-line">${l}</div>`).join('')}</div>
-    </div>
-  </div>`;
+
+  scanned.sort((a,b) => {
+    if ((b.capitalEfficiency||0)!==(a.capitalEfficiency||0)) return (b.capitalEfficiency||0)-(a.capitalEfficiency||0);
+    if ((b.edgePP||0)!==(a.edgePP||0)) return (b.edgePP||0)-(a.edgePP||0);
+    return (b.popPct||0)-(a.popPct||0);
+  });
+
+  scanned.forEach((r, idx) => {
+    const isWinner = (r === winner);
+    const stClass  = `st-${r.structure.toLowerCase()}`;
+    const qClass   = qualityClass(r.quality);
+
+    const execHTML = Object.entries(r.execLevels||{}).map(([k,v]) =>
+      `<div class="elev">
+         <div class="lbl">${k}</div>
+         <div class="val ${v.cls||''}">${v.val}</div>
+         <div class="sub">${v.sub}</div>
+       </div>`
+    ).join('');
+
+    const orderHTML = (r.brokerOrder||[]).map(l =>
+      `<div class="order-line">${l}</div>`
+    ).join('');
+
+    const whyHTML = (r.why||[]).map(x => `• ${x}`).join('<br>');
+
+    const edgeCls  = (r.edgePP||0)>=5?'g':(r.edgePP||0)>=0?'a':'r';
+    const evCls    = (r.evPerContract||0)>=0?'g':'r';
+    const edgeSign = (r.edgePP||0)>=0?'+':'';
+
+    const html = `
+      <div class="card ${isWinner?'winner':''}">
+        <div class="card-head">
+          <span class="struct-tag ${stClass}">${r.structure}</span>
+          <span class="qual-tag ${qClass}">${r.quality}</span>
+          <span class="rank-tag ${isWinner?'':'not-winner'}">${isWinner?'▶ RANK #1':`RANK #${idx+1}`}</span>
+        </div>
+        <div class="card-body">
+          <div class="exec">
+            <div class="exec-title">Execution Levels</div>
+            <div class="exec-levels">${execHTML}</div>
+          </div>
+          <div class="metrics">
+            <div class="met"><div class="lbl">POP</div><div class="val">${r.popPct?.toFixed(1)??'—'}%</div></div>
+            <div class="met"><div class="lbl">Edge</div><div class="val ${edgeCls}">${edgeSign}${r.edgePP?.toFixed(1)??'—'}pp</div></div>
+            <div class="met"><div class="lbl">EV</div><div class="val ${evCls}">$${r.evPerContract?.toFixed(2)??'—'}</div></div>
+            <div class="met"><div class="lbl">Cap Eff</div><div class="val a">${r.capitalEfficiency?.toExponential(2)??'—'}</div></div>
+            <div class="met"><div class="lbl">Deploy</div><div class="val">${r.capitalDeployedPct?.toFixed(1)??'—'}%</div></div>
+            <div class="met"><div class="lbl">Regime</div><div class="val">${r.regime||'—'}</div></div>
+          </div>
+          <div class="why">${whyHTML}</div>
+          <div class="order">${orderHTML}</div>
+        </div>
+      </div>`;
+
+    container.insertAdjacentHTML('beforeend', html);
+  });
 }
 
-// ── MAIN RUN ─────────────────────────────────────────────────────────────────
-async function runAll(){
-  const ticker=document.getElementById('ticker').value.trim().toUpperCase();
-  if(!ticker){setStatus('Enter a ticker.','err');return;}
-  const manualCredit=+document.getElementById('credit').value||0;
-  const aum=+document.getElementById('aum').value||100000;
-  document.getElementById('run-btn').disabled=true;
-  document.getElementById('run-btn').textContent='RUNNING...';
-  ['vsim','cros','hybrid'].forEach(e=>{
-    document.getElementById('vbadge-'+e).textContent='...';
-    document.getElementById('vbadge-'+e).className='vbadge idle';
-    document.getElementById('card-'+e).querySelector('.card-body').innerHTML='<div class="idle-msg">Running...</div>';
-  });
-  try{
-    setStatus(`Fetching ${ticker} from /v1/market...`,'running');
-    const market=await fetchMarketData(ticker);
-    window._mkt=market;
-    updateVixPill(market.vix);
-    renderDataStrip(market);
-    let structural;
-    try{
-      structural=buildStructural(market);
-      renderStructural(structural);
-    }catch(se){
-      setStatus(`Structural unavailable (${se.message}) - NMR gates will block`,'running');
-      structural={ticker,spot:market.spot,wholesale:null,fair:null,retail:null,
-        location:'UNAVAILABLE',locationDetail:se.message,
-        sma20daily:market.sma20||null,sma200daily:market.sma200||null,
-        fibs:market.fibs||{},weeklyMAs:market.weeklyMAs||{},
-        dailyBarsCount:market.dailyBars.length,weeklyBarsCount:0,high2y:null,low2y:null,range2y:null};
+// ============================================================
+//  MAIN
+// ============================================================
+async function runAll() {
+  const ticker = document.getElementById('ticker').value.trim().toUpperCase();
+  if (!/^[A-Z0-9.\-]{1,8}$/.test(ticker)) { setStatus('Invalid ticker.','err'); return; }
+
+  const aum    = +document.getElementById('aum').value || 100000;
+  const runBtn = document.getElementById('run-btn');
+  const cards  = document.getElementById('cards');
+  const mbar   = document.getElementById('market-bar');
+
+  runBtn.disabled    = true;
+  runBtn.textContent = 'SCANNING...';
+  runBtn.classList.add('scanning');
+  cards.innerHTML = `<div class="empty">Fetching ${ticker} data...</div>`;
+  mbar.classList.remove('on');
+
+  try {
+    setStatus(`Fetching ${ticker} from conductor...`, 'running');
+    const market     = await fetchMarketData(ticker);
+    const structural = getStructural(market);
+
+    updateVix(market.vix);
+    renderMarketBar(market, structural);
+
+    setStatus('Evaluating CSP · BPS · SHARES...', 'running');
+
+    const csp    = evalCSP(market, structural, aum);
+    const bps    = evalBPS(market, structural, aum);
+    const shares = evalShares(market, structural, aum);
+
+    const results = [csp, bps, shares];
+    const winner  = conduct(results);
+
+    renderCards(results, winner);
+
+    if (winner) {
+      setStatus(
+        `${winner.structure} ranked #1 — POP ${winner.popPct?.toFixed(1)||'—'}% · Edge ${winner.edgePP?.toFixed(1)||'—'}pp · Regime ${winner.regime}`,
+        'done'
+      );
+    } else {
+      setStatus('Scan complete — no structures qualified.', 'done');
     }
-    setStatus(`Running engines...`,'running');
-    const credit=manualCredit>0?manualCredit:(market.mid||0);
-    if(!credit)setStatus(`Warning: credit is zero - enter manually or check option quote`,'running');
-    const payload={market,structural,config:{iv:market.iv,credit,bid:market.bid,ask:market.ask,volume:market.volume,oi:market.oi,aum,positions:[]}};
-    const vsimResult=vsimCalc(payload);
-    const crosResult=crosCalc(payload);
-    const hybridResult=hybridCalc(payload);
-    renderEngineCard('VSIM',vsimResult);
-    renderEngineCard('CROS',crosResult);
-    renderEngineCard('HYBRID',hybridResult);
-    const decision=conductor([vsimResult,crosResult,hybridResult]);
-    renderConductor(decision);
-    const n=[vsimResult,crosResult,hybridResult].filter(r=>r.verdict==='APPROVED').length;
-    setStatus(`Done - ${n}/3 approved - ${decision.finalVerdict}`,'done');
-  }catch(e){
-    setStatus(`Error: ${e.message}`,'err');
+
+  } catch (e) {
     console.error(e);
-  }finally{
-    document.getElementById('run-btn').disabled=false;
-    document.getElementById('run-btn').textContent='Run';
+    cards.innerHTML = `<div class="empty">Error: ${e.message}</div>`;
+    setStatus(`Error: ${e.message}`, 'err');
+  } finally {
+    runBtn.disabled = false;
+    runBtn.textContent = '▶ SCAN';
+    runBtn.classList.remove('scanning');
   }
 }
 
-document.getElementById('ticker').addEventListener('keydown',e=>{if(e.key==='Enter')runAll();});
-document.getElementById('aum').addEventListener('input',e=>{
-  document.getElementById('aum-note').textContent=`AUM $${(+e.target.value||0).toLocaleString()}`;
+// keyboard trigger
+document.getElementById('ticker').addEventListener('keydown', e => {
+  if (e.key === 'Enter') runAll();
+});
+
+// auto-uppercase ticker
+document.getElementById('ticker').addEventListener('input', e => {
+  const pos = e.target.selectionStart;
+  e.target.value = e.target.value.toUpperCase();
+  e.target.setSelectionRange(pos, pos);
 });
 </script>
 </body>
