@@ -1,1157 +1,538 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NUVO CONDUCTOR</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#07080d;
-  --surface:#0e1018;
-  --surface2:#13181f;
-  --border:#1a2030;
-  --border2:#242e42;
-  --text:#b8c4d8;
-  --dim:#48566a;
-  --bright:#e8edf5;
-  --green:#22c55e;
-  --green-dim:rgba(34,197,94,.08);
-  --red:#ef4444;
-  --red-dim:rgba(239,68,68,.08);
-  --amber:#f59e0b;
-  --amber-dim:rgba(245,158,11,.08);
-  --cyan:#06b6d4;
-  --cyan-dim:rgba(6,182,212,.08);
-  --blue:#3b82f6;
+  --bg:#07080d;--surface:#0e1018;--border:#1e2535;
+  --text:#c8d0e0;--dim:#5a657a;--bright:#e8edf5;
+  --green:#22c55e;--red:#ef4444;--amber:#f59e0b;--cyan:#06b6d4;
   --mono:'JetBrains Mono','Fira Code',monospace;
   --ui:'DM Sans','Inter',system-ui,sans-serif;
 }
-
 *{box-sizing:border-box;margin:0;padding:0}
-
-body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:var(--ui);
-  font-size:14px;
-  min-height:100vh;
-  padding:0 0 100px;
-  -webkit-font-smoothing:antialiased;
-}
-
-/* noise overlay */
-body::before{
-  content:'';
-  position:fixed;
-  inset:0;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events:none;
-  z-index:0;
-  opacity:.4;
-}
-
-/* ── HEADER ── */
-.header{
-  border-bottom:1px solid var(--border);
-  padding:0 28px;
-  display:flex;
-  align-items:stretch;
-  gap:0;
-  position:sticky;
-  top:0;
-  background:rgba(7,8,13,.92);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
-  z-index:100;
-  height:52px;
-}
-
-.header-left{
-  display:flex;
-  align-items:center;
-  gap:16px;
-  padding-right:24px;
-  border-right:1px solid var(--border);
-}
-
-.logo{
-  font-family:var(--mono);
-  font-size:11px;
-  letter-spacing:4px;
-  color:var(--amber);
-  font-weight:700;
-}
-.logo-sep{color:var(--dim);margin:0 4px;font-weight:300}
-
-.header-mid{
-  display:flex;
-  align-items:center;
-  padding:0 20px;
-  flex:1;
-  gap:20px;
-}
-
-.subhead{
-  font-family:var(--mono);
-  font-size:10px;
-  color:var(--dim);
-  letter-spacing:1.5px;
-  text-transform:uppercase;
-}
-
-.header-tag{
-  font-family:var(--mono);
-  font-size:9px;
-  padding:2px 7px;
-  border-radius:2px;
-  letter-spacing:1.5px;
-  background:var(--amber-dim);
-  border:1px solid rgba(245,158,11,.2);
-  color:var(--amber);
-}
-
-.header-right{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding-left:20px;
-  border-left:1px solid var(--border);
-}
-
-.vix-pill{
-  font-family:var(--mono);
-  font-size:11px;
-  padding:5px 12px;
-  border:1px solid var(--border2);
-  border-radius:3px;
-  color:var(--dim);
-  letter-spacing:1px;
-  transition:all .3s ease;
-}
-.vix-pill.allow{border-color:rgba(34,197,94,.4);color:var(--green);background:var(--green-dim)}
-.vix-pill.warn{border-color:rgba(245,158,11,.4);color:var(--amber);background:var(--amber-dim)}
-.vix-pill.block{border-color:rgba(239,68,68,.4);color:var(--red);background:var(--red-dim)}
-
-/* ── MAIN ── */
-.main{
-  max-width:1000px;
-  margin:0 auto;
-  padding:28px 24px;
-  position:relative;
-  z-index:1;
-}
-
-/* ── SCAN PANEL ── */
-.scan-panel{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:6px;
-  padding:20px 22px;
-  margin-bottom:14px;
-  display:flex;
-  align-items:flex-end;
-  gap:14px;
-  flex-wrap:wrap;
-}
-
-.field{
-  display:flex;
-  flex-direction:column;
-  gap:7px;
-}
-.field label{
-  font-family:var(--mono);
-  font-size:9px;
-  letter-spacing:2px;
-  text-transform:uppercase;
-  color:var(--dim);
-}
-
-.field input{
-  background:var(--bg);
-  border:1px solid var(--border2);
-  color:var(--bright);
-  padding:10px 14px;
-  border-radius:4px;
-  font-family:var(--mono);
-  outline:none;
-  transition:border-color .15s,box-shadow .15s;
-}
-.field input:focus{
-  border-color:var(--amber);
-  box-shadow:0 0 0 3px rgba(245,158,11,.1);
-}
-.field input.ticker{
-  width:130px;
-  font-size:20px;
-  font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:3px;
-}
-.field input.sm{
-  width:150px;
-  font-size:14px;
-  font-weight:500;
-}
-
-.run-btn{
-  background:var(--amber);
-  color:#000;
-  border:none;
-  padding:11px 36px;
-  border-radius:4px;
-  font-family:var(--mono);
-  font-size:11px;
-  font-weight:700;
-  letter-spacing:2.5px;
-  text-transform:uppercase;
-  cursor:pointer;
-  transition:opacity .15s,transform .1s;
-  white-space:nowrap;
-}
-.run-btn:hover{opacity:.9;transform:translateY(-1px)}
-.run-btn:active{transform:translateY(0)}
-.run-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
-
-/* scanning animation */
-@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
-.run-btn.scanning{animation:pulse 1s ease-in-out infinite}
-
-/* ── STATUS ── */
-.status{
-  font-family:var(--mono);
-  font-size:11px;
-  color:var(--dim);
-  min-height:18px;
-  margin:0 2px 16px;
-  letter-spacing:.5px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.status::before{
-  content:'';
-  display:block;
-  width:5px;
-  height:5px;
-  border-radius:50%;
-  background:var(--dim);
-  flex-shrink:0;
-  transition:background .3s;
-}
-.status.running{color:var(--amber)}
-.status.running::before{background:var(--amber);animation:pulse .8s ease-in-out infinite}
-.status.done{color:var(--green)}
-.status.done::before{background:var(--green)}
-.status.err{color:var(--red)}
-.status.err::before{background:var(--red)}
-
-/* ── MARKET BAR ── */
-.market-bar{
-  display:none;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:6px;
-  padding:12px 18px;
-  margin-bottom:16px;
-  flex-wrap:wrap;
-  gap:0;
-  align-items:stretch;
-}
-.market-bar.on{display:flex}
-
-.m-item{
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-  padding:4px 16px 4px 0;
-  margin-right:16px;
-  border-right:1px solid var(--border);
-}
-.m-item:last-child{border-right:none}
-
-.m-item .lbl{
-  font-family:var(--mono);
-  font-size:9px;
-  color:var(--dim);
-  text-transform:uppercase;
-  letter-spacing:1px;
-}
-.m-item .val{
-  font-family:var(--mono);
-  font-size:13px;
-  font-weight:600;
-  color:var(--bright);
-}
-.m-item .val.ok{color:var(--green)}
-.m-item .val.warn{color:var(--amber)}
-.m-item .val.err{color:var(--red)}
-.m-item .val.dim{color:var(--dim)}
-
-/* ── CARDS ── */
-.cards{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-
-@keyframes slideIn{
-  from{opacity:0;transform:translateY(8px)}
-  to{opacity:1;transform:translateY(0)}
-}
-
-.card{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:6px;
-  overflow:hidden;
-  animation:slideIn .25s ease forwards;
-}
-.card:nth-child(2){animation-delay:.06s;opacity:0}
-.card:nth-child(3){animation-delay:.12s;opacity:0}
-.card.winner{
-  border-color:rgba(245,158,11,.5);
-  box-shadow:0 0 0 1px rgba(245,158,11,.1), 0 4px 24px rgba(245,158,11,.06);
-}
-
-.card-head{
-  padding:12px 18px;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  border-bottom:1px solid var(--border);
-  background:rgba(0,0,0,.15);
-}
-
-.struct-tag{
-  font-family:var(--mono);
-  font-size:10px;
-  font-weight:700;
-  letter-spacing:2px;
-  padding:4px 10px;
-  border-radius:3px;
-}
-.st-csp{
-  background:var(--green-dim);
-  color:var(--green);
-  border:1px solid rgba(34,197,94,.25);
-}
-.st-bps{
-  background:var(--cyan-dim);
-  color:var(--cyan);
-  border:1px solid rgba(6,182,212,.25);
-}
-.st-shares{
-  background:var(--amber-dim);
-  color:var(--amber);
-  border:1px solid rgba(245,158,11,.25);
-}
-
-.rank-tag{
-  font-family:var(--mono);
-  font-size:9px;
-  color:var(--amber);
-  letter-spacing:1.5px;
-  text-transform:uppercase;
-  margin-left:auto;
-}
-.rank-tag.not-winner{color:var(--dim)}
-
-.qual-tag{
-  font-family:var(--mono);
-  font-size:9px;
-  font-weight:700;
-  letter-spacing:1.5px;
-  padding:3px 8px;
-  border-radius:3px;
-}
-.qual-prime{
-  color:var(--green);
-  background:var(--green-dim);
-  border:1px solid rgba(34,197,94,.25);
-}
-.qual-spec{
-  color:var(--amber);
-  background:var(--amber-dim);
-  border:1px solid rgba(245,158,11,.2);
-}
-.qual-aggro{
-  color:var(--red);
-  background:var(--red-dim);
-  border:1px solid rgba(239,68,68,.2);
-}
-
-.card-body{padding:18px}
-
-/* exec box */
-.exec{
-  background:rgba(0,0,0,.2);
-  border:1px solid var(--border);
-  border-radius:5px;
-  padding:16px;
-  margin-bottom:14px;
-}
-.exec-title{
-  font-family:var(--mono);
-  font-size:9px;
-  letter-spacing:2px;
-  text-transform:uppercase;
-  color:var(--dim);
-  margin-bottom:14px;
-}
-.exec-levels{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(155px,1fr));
-  gap:14px;
-}
+body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px;min-height:100vh;padding:0 0 80px}
+.header{border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;background:var(--bg);z-index:100}
+.logo{font-family:var(--mono);font-size:11px;letter-spacing:3px;color:var(--amber)}
+.logo span{color:var(--dim)}
+.vix-pill{margin-left:auto;font-family:var(--mono);font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:3px;color:var(--dim)}
+.vix-pill.allow{border-color:var(--green);color:var(--green)}
+.vix-pill.warn{border-color:var(--amber);color:var(--amber)}
+.vix-pill.block{border-color:var(--red);color:var(--red)}
+.main{max-width:900px;margin:0 auto;padding:28px 24px}
+.input-row{display:flex;gap:12px;align-items:flex-end;margin-bottom:20px;flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim)}
+.field input{background:var(--surface);border:1px solid var(--border);color:var(--bright);padding:10px 14px;border-radius:4px;font-family:var(--mono);font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:2px;width:120px;outline:none;transition:border-color .15s}
+.field input:focus{border-color:var(--amber)}
+.field input.sm{font-size:14px;font-weight:400;letter-spacing:0;width:130px;text-transform:none}
+.run-btn{background:var(--amber);color:#000;border:none;padding:12px 36px;border-radius:4px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;text-transform:uppercase;align-self:flex-end}
+.run-btn:hover{opacity:.9}.run-btn:disabled{opacity:.4;cursor:not-allowed}
+.status{font-size:11px;font-family:var(--mono);color:var(--dim);min-height:20px;margin-bottom:20px}
+.status.running{color:var(--amber)}.status.done{color:var(--green)}.status.err{color:var(--red)}
+.mbar{display:none;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px 18px;margin-bottom:20px;flex-wrap:wrap;gap:20px}
+.mbar.on{display:flex}
+.ms{display:flex;flex-direction:column;gap:2px}
+.ms .l{font-size:10px;color:var(--dim)}
+.ms .v{font-family:var(--mono);font-size:12px;color:var(--bright)}
+.ms .v.ok{color:var(--green)}.ms .v.w{color:var(--amber)}.ms .v.e{color:var(--red)}
+.cards{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;opacity:.5}
+.card.active{opacity:1}
+.card.winner{border-color:var(--amber);border-width:2px}
+.card.no-trade{border-color:var(--red)}
+.card-head{padding:14px 20px;display:flex;align-items:center;gap:10px}
+.struct-tag{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1px;padding:4px 10px;border-radius:3px}
+.st-csp{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.st-bps{background:rgba(6,182,212,.15);color:var(--cyan);border:1px solid rgba(6,182,212,.3)}
+.st-shares{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.st-notrade{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.card-verdict{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1px;padding:3px 8px;border-radius:2px}
+.cv-pass{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.cv-fail{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.winner-tag{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--amber);letter-spacing:1px}
+.card-body{padding:0 20px 20px}
+.exec{background:rgba(0,0,0,.3);border-radius:6px;padding:16px 20px;margin-bottom:14px}
+.exec-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+.exec-levels{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
 .elev{display:flex;flex-direction:column;gap:4px}
-.elev .lbl{
-  font-family:var(--mono);
-  font-size:9px;
-  color:var(--dim);
-  text-transform:uppercase;
-  letter-spacing:.8px;
-}
-.elev .val{
-  font-family:var(--mono);
-  font-size:22px;
-  font-weight:700;
-  color:var(--bright);
-  line-height:1;
-}
+.elev .lbl{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.elev .val{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--bright)}
 .elev .val.strike{color:var(--amber)}
 .elev .val.credit{color:var(--green)}
-.elev .val.shares{color:var(--cyan)}
-.elev .sub{
-  font-family:var(--mono);
-  font-size:10px;
-  color:var(--dim);
-  margin-top:2px;
-}
-
-/* metrics row */
-.metrics{
-  display:flex;
-  gap:0;
-  flex-wrap:wrap;
-  margin-bottom:14px;
-  border:1px solid var(--border);
-  border-radius:5px;
-  overflow:hidden;
-}
-.met{
-  display:flex;
-  flex-direction:column;
-  gap:3px;
-  padding:10px 14px;
-  border-right:1px solid var(--border);
-  flex:1;
-  min-width:80px;
-}
-.met:last-child{border-right:none}
-.met .lbl{
-  font-family:var(--mono);
-  font-size:9px;
-  color:var(--dim);
-  text-transform:uppercase;
-  letter-spacing:.8px;
-}
-.met .val{
-  font-family:var(--mono);
-  font-size:13px;
-  font-weight:600;
-  color:var(--bright);
-}
-.met .val.g{color:var(--green)}
-.met .val.a{color:var(--amber)}
-.met .val.r{color:var(--red)}
-
-/* why notes */
-.why{
-  font-family:var(--mono);
-  font-size:10px;
-  color:var(--dim);
-  line-height:1.75;
-  margin-bottom:14px;
-  padding:10px 12px;
-  background:rgba(0,0,0,.12);
-  border-radius:4px;
-  border-left:2px solid var(--border2);
-}
-
-/* order block */
-.order{
-  background:rgba(34,197,94,.04);
-  border:1px solid rgba(34,197,94,.18);
-  border-radius:4px;
-  padding:12px 16px;
-}
-.order-line{
-  font-family:var(--mono);
-  font-size:12px;
-  color:var(--green);
-  line-height:1.85;
-}
-
-/* empty / error states */
-.empty{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:6px;
-  padding:40px 24px;
-  color:var(--dim);
-  font-family:var(--mono);
-  text-align:center;
-  font-size:12px;
-  letter-spacing:.5px;
-}
-
-/* regime blocker banner */
-.regime-banner{
-  background:rgba(245,158,11,.06);
-  border:1px solid rgba(245,158,11,.2);
-  border-radius:5px;
-  padding:10px 14px;
-  margin-bottom:12px;
-  font-family:var(--mono);
-  font-size:10px;
-  color:var(--amber);
-  letter-spacing:.5px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.regime-banner::before{content:'⚠'}
-
-/* ── RESPONSIVE ── */
-@media(max-width:640px){
-  .main{padding:18px 14px}
-  .header{padding:0 16px;height:auto;min-height:52px;flex-wrap:wrap}
-  .header-mid{padding:8px 0}
-  .exec-levels{grid-template-columns:1fr 1fr}
-  .metrics{flex-wrap:wrap}
-  .met{min-width:70px}
-}
+.elev .val.shares{color:var(--amber)}
+.elev .sub{font-size:11px;color:var(--dim)}
+.metrics{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:14px}
+.met{display:flex;flex-direction:column;gap:2px}
+.met .lbl{font-size:10px;color:var(--dim)}
+.met .val{font-family:var(--mono);font-size:14px;color:var(--bright)}
+.met .val.g{color:var(--green)}.met .val.a{color:var(--amber)}.met .val.r{color:var(--red)}
+.order{background:var(--bg);border:1px solid rgba(34,197,94,.3);border-radius:4px;padding:12px 16px}
+.order-line{font-family:var(--mono);font-size:13px;color:var(--green);line-height:1.8}
+.reject-reason{font-family:var(--mono);font-size:11px;color:var(--red);margin-top:8px;line-height:1.6}
+.idle-msg{color:var(--dim);font-size:12px;text-align:center;padding:24px}
 </style>
 </head>
 <body>
-
-<!-- ── HEADER ── -->
 <div class="header">
-  <div class="header-left">
-    <div class="logo">NUVO<span class="logo-sep">//</span>CONDUCTOR</div>
-  </div>
-  <div class="header-mid">
-    <div class="subhead">CSP · BPS · SHARES · 7 DTE RANK ENGINE</div>
-    <div class="header-tag">v1.0</div>
-  </div>
-  <div class="header-right">
-    <div class="vix-pill" id="vix-pill">VIX —</div>
-  </div>
+  <div class="logo">NUVO<span> // </span>CONDUCTOR</div>
+  <div class="vix-pill" id="vix-pill">VIX —</div>
 </div>
-
-<!-- ── MAIN ── -->
 <div class="main">
-
-  <!-- scan input -->
-  <div class="scan-panel">
-    <div class="field">
-      <label>Ticker</label>
-      <input id="ticker" class="ticker" value="NVDA" maxlength="8" autocomplete="off" spellcheck="false" />
-    </div>
-    <div class="field">
-      <label>AUM ($)</label>
-      <input id="aum" class="sm" type="number" value="100000" min="1000" />
-    </div>
-    <button class="run-btn" id="run-btn" onclick="runAll()">▶ SCAN</button>
+  <div class="input-row">
+    <div class="field"><label>Ticker</label><input id="ticker" value="SOFI" maxlength="8"></div>
+    <div class="field"><label>AUM ($)</label><input class="sm" id="aum" type="number" value="100000"></div>
+    <button class="run-btn" id="run-btn" onclick="runAll()">&#9654; SCAN</button>
   </div>
-
-  <!-- status -->
   <div class="status" id="status">Enter ticker and press SCAN.</div>
-
-  <!-- market bar -->
-  <div class="market-bar" id="market-bar"></div>
-
-  <!-- cards -->
-  <div class="cards" id="cards">
-    <div class="empty">No scan yet — enter a ticker and press SCAN.</div>
-  </div>
-
+  <div class="mbar" id="mbar"></div>
+  <div class="cards" id="cards"></div>
 </div>
 
 <script>
 // ============================================================
-//  CONFIG
+// QUANT CORE
 // ============================================================
-const WORKER = 'https://conductor.yulgutierrez.workers.dev';
-const DTE    = 7;
-
-// ============================================================
-//  MATH UTILS
-// ============================================================
-const r2 = n => Math.round((+n || 0) * 100)   / 100;
+const r2 = n => Math.round((+n || 0) * 100) / 100;
 const r4 = n => Math.round((+n || 0) * 10000) / 10000;
+const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
 
 function normCDF(x) {
-  const a1 =  0.319381530, a2 = -0.356563782, a3 = 1.781477937;
-  const a4 = -1.821255978, a5 =  1.330274429, p  = 0.2316419;
-  const sign = x < 0 ? -1 : 1;
-  const z    = Math.abs(x);
-  const t    = 1 / (1 + p * z);
-  const poly = a1*t + a2*t*t + a3*t*t*t + a4*t*t*t*t + a5*t*t*t*t*t;
-  const pdf  = Math.exp(-0.5*z*z) / Math.sqrt(2*Math.PI);
-  const cdf  = 1 - pdf * poly;
-  return sign === 1 ? cdf : 1 - cdf;
+  const a1=0.319381530,a2=-0.356563782,a3=1.781477937,a4=-1.821255978,a5=1.330274429,p=0.2316419;
+  const sign=x<0?-1:1,z=Math.abs(x),t=1/(1+p*z);
+  const poly=a1*t+a2*t*t+a3*t*t*t+a4*t*t*t*t+a5*t*t*t*t*t;
+  const pdf=Math.exp(-0.5*z*z)/Math.sqrt(2*Math.PI);
+  const cdf=1-pdf*poly;
+  return sign===1?cdf:1-cdf;
 }
 
-function probAbove(spot, strike, vol, dte = DTE) {
-  if (!(spot>0)||!(strike>0)||!(vol>0)||!(dte>0)) return null;
-  const T = dte/365;
-  const denom = vol * Math.sqrt(T);
-  if (!(denom>0)) return null;
-  const d2 = (Math.log(spot/strike) - 0.5*vol*vol*T) / denom;
+function expectedMove(spot,iv,dte=7){
+  if(!(spot>0)||!(iv>0)||!(dte>0))return null;
+  return r2(spot*iv*Math.sqrt(dte/365));
+}
+
+function probAbove(spot,strike,vol,dte=7){
+  if(!(spot>0)||!(strike>0)||!(vol>0)||!(dte>0))return null;
+  const T=dte/365,denom=vol*Math.sqrt(T);
+  if(!(denom>0))return null;
+  const d2=(Math.log(spot/strike)-0.5*vol*vol*T)/denom;
   return r4(normCDF(d2));
 }
 
-function expectedMove(spot, iv, dte = DTE) {
-  if (!(spot>0)||!(iv>0)||!(dte>0)) return null;
-  return r2(spot * iv * Math.sqrt(dte/365));
-}
-
-function strikeIncrement(spot) {
-  if (spot < 25)  return 0.5;
-  if (spot < 500) return 1;
+function strikeIncrement(spot){
+  if(spot<25)return 0.5;
+  if(spot<500)return 1;
   return 5;
 }
 
-function placeShortStrike(spot, iv, dte = DTE) {
-  const em = expectedMove(spot, iv, dte);
-  if (em == null) return null;
-  const inc    = strikeIncrement(spot);
-  const shortK = Math.round((spot - em) / inc) * inc;
-  return { shortK, em };
+function placeShortStrike(spot,iv,dte=7){
+  const em=expectedMove(spot,iv,dte);
+  if(em==null)return null;
+  const inc=strikeIncrement(spot);
+  const shortK=Math.round((spot-em)/inc)*inc;
+  return{shortK,em};
 }
 
-function nextFriday(dte = DTE) {
-  const d = new Date();
-  d.setDate(d.getDate() + Math.max(dte, 1));
-  const dow = d.getDay();
-  if (dow !== 5) d.setDate(d.getDate() + ((5 - dow + 7) % 7));
+function nextFriday(dte=7){
+  const d=new Date();d.setDate(d.getDate()+Math.max(dte,1));
+  const dow=d.getDay();if(dow!==5)d.setDate(d.getDate()+((5-dow+7)%7));
   return d.toISOString().slice(0,10);
 }
 
-function expFmt(ds) {
-  return new Date(ds + 'T12:00:00')
-    .toLocaleDateString('en-US', { month:'short', day:'2-digit' })
-    .replace(',','').toUpperCase();
+function expFmt(ds){
+  return new Date(ds+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'2-digit'}).replace(',','').toUpperCase();
 }
 
-function minCreditCSP(strike, minRoR)   { return r2(strike * minRoR); }
-function minCreditBPS(width,  minRoR)   { return r2((width * minRoR) / (1 + minRoR)); }
-
-function expectedValue(pop, credit, maxLoss) {
-  return r2(pop * credit * 100 - (1-pop) * maxLoss);
+function minCreditCSP(strike,minRoR,dte){return Math.max(0.15,r2(strike*minRoR*(dte/365)));}
+function minCreditBPS(width,minRoR,dte){
+  const scaled=minRoR*(dte/365);
+  return Math.max(0.15, r2((width*scaled)/(1+scaled)));
 }
 
-function safeEfficiency(ev, capital) {
-  if (!(capital>0)) return 0;
-  return r4(ev / capital);
+function expectedValue(pTrue,credit,maxLoss){
+  // Uses model probability (HV30-based), not market-implied
+  return r2(pTrue*credit*100-(1-pTrue)*maxLoss);
 }
 
-function getSpreadWidth(spot) {
-  if (spot < 25)  return 2;
-  if (spot < 75)  return 3;
-  if (spot < 200) return 5;
-  if (spot < 500) return 10;
-  return 20;
+function efficiency(ev,capital){
+  if(!(capital>0))return null;
+  return r4(ev/capital);
 }
 
-function qualityLabel(popPct, edgePP) {
-  if (popPct >= 80 && edgePP >= 5) return 'PRIME';
-  if (popPct >= 70 && edgePP >= 0) return 'SPECULATIVE';
-  return 'AGGRESSIVE';
-}
-
-function qualityClass(q) {
-  if (q === 'PRIME')       return 'qual-prime';
-  if (q === 'SPECULATIVE') return 'qual-spec';
-  return 'qual-aggro';
-}
-
-// ============================================================
-//  REGIMES
-// ============================================================
-const REGIMES = [
-  { maxVix:14,  label:'NO FEAR',       minRoR:0.20, cspPct:0.05,  bpsPct:0.03, sharePct:0.05, allowCSP:false, allowBPS:false, allowShares:false },
-  { maxVix:18,  label:'FEAR COOLING',  minRoR:0.20, cspPct:0.10,  bpsPct:0.03, sharePct:0.05, allowCSP:true,  allowBPS:false, allowShares:false },
-  { maxVix:22,  label:'FEAR BUILDING', minRoR:0.16, cspPct:0.10,  bpsPct:0.03, sharePct:0.07, allowCSP:true,  allowBPS:true,  allowShares:false },
-  { maxVix:30,  label:'FEAR ELEVATED', minRoR:0.13, cspPct:0.10,  bpsPct:0.03, sharePct:0.10, allowCSP:true,  allowBPS:true,  allowShares:true  },
-  { maxVix:45,  label:'HEAVY FEAR',    minRoR:0.10, cspPct:0.075, bpsPct:0.03, sharePct:0.10, allowCSP:true,  allowBPS:true,  allowShares:true  },
-  { maxVix:999, label:'PANIC',         minRoR:0.10, cspPct:0.05,  bpsPct:0.03, sharePct:0.10, allowCSP:false, allowBPS:true,  allowShares:true  },
+const REGIMES=[
+  {maxVix:14, label:'NO FEAR',       allowCSP:false,allowBPS:false,allowShares:false,minRoR:0.20,cspPct:0.05, bpsPct:0.03,sharePct:0.05},
+  {maxVix:18, label:'FEAR COOLING',  allowCSP:true, allowBPS:false,allowShares:false,minRoR:0.20,cspPct:0.10, bpsPct:0.03,sharePct:0.05},
+  {maxVix:22, label:'FEAR BUILDING', allowCSP:true, allowBPS:true, allowShares:false,minRoR:0.16,cspPct:0.10, bpsPct:0.03,sharePct:0.07},
+  {maxVix:30, label:'FEAR ELEVATED', allowCSP:true, allowBPS:true, allowShares:true, minRoR:0.13,cspPct:0.10, bpsPct:0.03,sharePct:0.10},
+  {maxVix:45, label:'HEAVY FEAR',    allowCSP:true, allowBPS:true, allowShares:true, minRoR:0.10,cspPct:0.075,bpsPct:0.03,sharePct:0.10},
+  {maxVix:999,label:'PANIC',         allowCSP:false,allowBPS:true, allowShares:true, minRoR:0.10,cspPct:0.05, bpsPct:0.03,sharePct:0.10},
 ];
 
-function getRegime(vix) {
-  if (!(vix >= 0)) return null;
-  return REGIMES.find(r => vix < r.maxVix) || REGIMES[REGIMES.length-1];
+function getRegime(vix){
+  if(!(vix>=0))return null;
+  return REGIMES.find(r=>vix<r.maxVix)||REGIMES[REGIMES.length-1];
 }
 
-// ============================================================
-//  FETCH
-// ============================================================
-async function fetchMarketData(ticker) {
-  const upper      = ticker.toUpperCase().trim();
-  const controller = new AbortController();
-  const timeout    = setTimeout(() => controller.abort(), 15000);
-
-  try {
-    const res = await fetch(
-      `${WORKER}/v1/market?ticker=${encodeURIComponent(upper)}&bust=${Date.now()}`,
-      { signal: controller.signal }
-    );
-    if (!res.ok) throw new Error(`HTTP_${res.status}`);
-    const d = await res.json();
-    if (d.error) throw new Error(d.error);
-    if (!(d.spot > 0)) throw new Error('SPOT_MISSING');
-
-    let hv30 = +(d.hv30 || 0);
-    if (hv30 > 1) hv30 = hv30 / 100;
-
-    return {
-      ticker   : upper,
-      spot     : d.spot,
-      hv30     : hv30 || null,
-      vix      : d.vix  || null,
-      iv       : d.iv   || null,
-      sma20    : d.sma20   || null,
-      sma200   : d.sma200  || null,
-      nmr      : d.nmr        || null,
-      structural: d.structural || null,
-      bars     : Array.isArray(d.bars) ? d.bars : []
-    };
-  } finally {
-    clearTimeout(timeout);
-  }
+function validateInputs(market,structural,aum){
+  if(!(aum>0))return'AUM_MISSING';
+  if(!(market?.spot>0))return'SPOT_MISSING';
+  if(!(market?.hv30>0))return'HV30_MISSING';
+  if(!(market?.iv>0))return'IV_MISSING';
+  if(!(market?.vix>=0))return'VIX_MISSING';
+  if(!structural)return'STRUCTURAL_MISSING';
+  return null;
 }
 
-function getStructural(market) {
-  if (market.structural && market.nmr) {
-    const ws  = market.structural;
-    const nmr = market.nmr;
-    return {
-      wholesale  : nmr.wholesale ?? null,
-      fair       : nmr.fair      ?? null,
-      retail     : nmr.retail    ?? null,
-      location   : nmr.location  || 'UNAVAILABLE',
-      sma20daily : ws.sma20  || market.sma20  || null,
-      sma200daily: ws.sma200 || market.sma200 || null
-    };
-  }
-  return {
-    wholesale  : null, fair: null, retail: null,
-    location   : 'UNAVAILABLE',
-    sma20daily : market.sma20  || null,
-    sma200daily: market.sma200 || null
-  };
-}
-
-// ============================================================
-//  EVALUATORS
-// ============================================================
-function evalCSP(market, structural, aum) {
-  const { ticker, spot, hv30, iv, vix } = market;
-  const { wholesale, sma20daily, location } = structural || {};
-  const regime = getRegime(vix);
-
-  if (!(spot>0)||!(hv30>0)||!(iv>0)||!(vix>=0))
-    return { structure:'CSP', verdict:'UNAVAILABLE', reason:'Missing core inputs' };
-
-  const trend    = sma20daily ? (spot > sma20daily ? 'BULL' : 'BEAR') : 'UNKNOWN';
-  const volRatio = iv / hv30;
-  const volState = volRatio >= 1.15 ? 'RICH' : volRatio < 0.90 ? 'CHEAP' : 'FAIR';
-
-  const placed = placeShortStrike(spot, iv, DTE);
-  if (!placed) return { structure:'CSP', verdict:'UNAVAILABLE', reason:'Strike placement failed' };
-
-  const { shortK, em } = placed;
-  const minRoR     = regime?.minRoR ?? 0.13;
-  const minCredit  = minCreditCSP(shortK, minRoR);
-  const breakeven  = r2(shortK - minCredit);
-
-  const pTrue   = probAbove(spot, shortK, hv30, DTE) ?? 0;
-  const pMarket = probAbove(spot, shortK, iv,   DTE) ?? 0;
-  const edgePP  = r2((pTrue - pMarket) * 100);
-  const popPct  = r2(pMarket * 100);
-
-  const collateralPerContract = r2(shortK * 100);
-  const maxLossPerContract    = r2((shortK - minCredit) * 100);
-  const evPerContract         = expectedValue(pMarket, minCredit, maxLossPerContract);
-  const capitalEfficiency     = safeEfficiency(evPerContract, collateralPerContract);
-
-  const budget          = r2((aum||100000) * (regime?.cspPct ?? 0.10));
-  const contracts       = Math.max(1, Math.floor(budget / collateralPerContract) || 1);
-  const totalCollateral = r2(contracts * collateralPerContract);
-  const expiry          = nextFriday(DTE);
-  const capitalDeployedPct = aum > 0 ? r2((totalCollateral/aum)*100) : 0;
-
-  const structuralNote = !(wholesale>0)
-    ? 'Wholesale unavailable'
-    : breakeven <= wholesale
-      ? `Breakeven $${breakeven} ≤ wholesale $${wholesale}`
-      : `Breakeven $${breakeven} above wholesale $${wholesale}`;
-
-  return {
-    structure:'CSP', verdict:'SCANNED',
-    quality: qualityLabel(popPct, edgePP),
-    ticker, dte:DTE, expiry,
-    shortStrike:shortK, expectedMove:em,
-    minCredit, breakeven, contracts,
-    collateralPerContract, totalCollateral, maxLossPerContract,
-    pTrue, pMarket, edgePP, popPct,
-    evPerContract, capitalEfficiency,
-    regime:regime?.label||'UNKNOWN', trend, volState,
-    location:location||'UNAVAILABLE', capitalDeployedPct,
-    why:[
-      regime?.allowCSP ? `Regime allows CSP (${regime.label})` : `Regime disfavors CSP (${regime?.label||'UNKNOWN'})`,
-      `Trend: ${trend}`, `Vol state: ${volState}`, structuralNote
-    ],
-    brokerOrder:[
-      `Sell to Open ${contracts} ${ticker} ${expFmt(expiry)} ${shortK}P @ $${minCredit.toFixed(2)} limit`
-    ],
+// ── CSP ──────────────────────────────────────────────────────────────────────
+function evalCSP(market,structural,aum){
+  const fail=validateInputs(market,structural,aum);
+  if(fail)return{structure:'CSP',verdict:'BLOCK',reason:fail};
+  const{ticker,spot,hv30,iv,vix}=market;
+  const{wholesale,sma20daily,location}=structural;
+  const regime=getRegime(vix);
+  const dte=7;
+  if(!regime?.allowCSP)return{structure:'CSP',verdict:'REJECTED',reason:`REGIME_BLOCK_${regime?.label||'UNKNOWN'}`};
+  const trend=sma20daily?(spot>sma20daily?'BULL':'BEAR'):'UNKNOWN';
+  const volRatio=iv/hv30;
+  const volState=volRatio>=1.15?'RICH':volRatio<0.90?'CHEAP':'FAIR';
+  if(trend!=='BULL')return{structure:'CSP',verdict:'REJECTED',reason:`TREND_${trend} — CSP requires BULL`};
+  if(volState!=='RICH')return{structure:'CSP',verdict:'REJECTED',reason:`VOL_${volState} — CSP requires RICH`};
+  const placed=placeShortStrike(spot,iv,dte);
+  if(!placed)return{structure:'CSP',verdict:'BLOCK',reason:'STRIKE_PLACEMENT_FAILED'};
+  const{shortK,em}=placed;
+  const minCredit=minCreditCSP(shortK,regime.minRoR,dte);
+  const breakeven=r2(shortK-minCredit);
+  if(!(wholesale>0))return{structure:'CSP',verdict:'REJECTED',reason:'NMR_WHOLESALE_UNAVAILABLE'};
+  if(breakeven>wholesale)return{structure:'CSP',verdict:'REJECTED',reason:`Breakeven $${breakeven} > wholesale $${wholesale}`};
+  const pTrue=probAbove(spot,shortK,hv30,dte);
+  const pMarket=probAbove(spot,shortK,iv,dte);
+  if(pTrue==null||pMarket==null)return{structure:'CSP',verdict:'BLOCK',reason:'PROBABILITY_FAILED'};
+  const edgePP=r2((pTrue-pMarket)*100);
+  const popPct=r2(pMarket*100);
+  if(popPct<80)return{structure:'CSP',verdict:'REJECTED',reason:`POP ${popPct.toFixed(1)}% below 80%`};
+  if(edgePP<5)return{structure:'CSP',verdict:'REJECTED',reason:`Edge ${edgePP.toFixed(1)}pp below 5pp`};
+  const collateralPerContract=r2(shortK*100);
+  const maxLossPerContract=r2((shortK-minCredit)*100);
+  const evPerContract=expectedValue(pTrue,minCredit,maxLossPerContract);
+  // Normalize by max risk (credit-adjusted), not full collateral
+  const eff=efficiency(evPerContract,maxLossPerContract);
+  if(!(eff>0))return{structure:'CSP',verdict:'REJECTED',reason:'NON_POSITIVE_EFFICIENCY'};
+  const budget=r2(aum*regime.cspPct);
+  const contracts=Math.max(1,Math.floor(budget/collateralPerContract));
+  const totalCollateral=r2(contracts*collateralPerContract);
+  const expiry=nextFriday(dte);
+  const capitalDeployedPct=r2((totalCollateral/aum)*100);
+  return{
+    structure:'CSP',verdict:'APPROVED',ticker,dte,expiry,
+    shortStrike:shortK,expectedMove:em,minCredit,breakeven,
+    contracts,collateralPerContract,totalCollateral,maxLossPerContract,
+    pTrue,pMarket,edgePP,popPct,evPerContract,capitalEfficiency:eff,
+    regime:regime.label,trend,volState,location,capitalDeployedPct,
+    brokerOrder:[`Sell to Open ${contracts} ${ticker} ${expFmt(expiry)} ${shortK}P @ $${minCredit.toFixed(2)} limit`],
     execLevels:{
-      'Short Strike':{ val:`$${shortK}`,               cls:'strike', sub:'1σ placement' },
-      'Min Credit':  { val:`$${minCredit.toFixed(2)}`, cls:'credit', sub:`${(minRoR*100).toFixed(0)}% RoR floor` },
-      'Breakeven':   { val:`$${breakeven}`,             cls:'',       sub:'credit-adjusted' },
-      'Contracts':   { val:`${contracts}`,              cls:'',       sub:`$${totalCollateral.toLocaleString()} collateral` }
+      'Short Strike':{val:`$${shortK}`,cls:'strike',sub:'1σ placement'},
+      'Min Credit':{val:`$${minCredit.toFixed(2)}`,cls:'credit',sub:`${(regime.minRoR*100).toFixed(0)}% RoR floor`},
+      'Breakeven':{val:`$${breakeven}`,cls:'',sub:'credit-adjusted'},
+      'Contracts':{val:`${contracts}`,cls:'',sub:`$${totalCollateral.toLocaleString()} collateral`},
     }
   };
 }
 
-function evalBPS(market, structural, aum) {
-  const { ticker, spot, hv30, iv, vix } = market;
-  const { fair, sma20daily, location }  = structural || {};
-  const regime = getRegime(vix);
-
-  if (!(spot>0)||!(hv30>0)||!(iv>0)||!(vix>=0))
-    return { structure:'BPS', verdict:'UNAVAILABLE', reason:'Missing core inputs' };
-
-  const width    = getSpreadWidth(spot);
-  const trend    = sma20daily ? (spot > sma20daily ? 'BULL' : 'BEAR') : 'UNKNOWN';
-  const volRatio = iv / hv30;
-  const volState = volRatio >= 1.15 ? 'RICH' : volRatio < 0.90 ? 'CHEAP' : 'FAIR';
-
-  const placed = placeShortStrike(spot, iv, DTE);
-  if (!placed) return { structure:'BPS', verdict:'UNAVAILABLE', reason:'Strike placement failed' };
-
-  const { shortK, em } = placed;
-  const longK      = shortK - width;
-  const minRoR     = regime?.minRoR ?? 0.13;
-  const minCredit  = minCreditBPS(width, minRoR);
-  const breakeven  = r2(shortK - minCredit);
-
-  const pTrue   = probAbove(spot, shortK, hv30, DTE) ?? 0;
-  const pMarket = probAbove(spot, shortK, iv,   DTE) ?? 0;
-  const edgePP  = r2((pTrue - pMarket) * 100);
-  const popPct  = r2(pMarket * 100);
-
-  const collateralPerContract = r2(width * 100);
-  const maxLossPerContract    = r2((width - minCredit) * 100);
-  const evPerContract         = expectedValue(pMarket, minCredit, maxLossPerContract);
-  const capitalEfficiency     = safeEfficiency(evPerContract, collateralPerContract);
-
-  const budget          = r2((aum||100000) * (regime?.bpsPct ?? 0.03));
-  const contracts       = Math.max(1, Math.floor(budget / Math.max(maxLossPerContract,1)) || 1);
-  const totalCollateral = r2(contracts * collateralPerContract);
-  const expiry          = nextFriday(DTE);
-  const capitalDeployedPct = aum > 0 ? r2((totalCollateral/aum)*100) : 0;
-
-  const structuralNote = !(fair>0)
-    ? 'Fair unavailable'
-    : breakeven <= fair
-      ? `Breakeven $${breakeven} ≤ fair $${fair}`
-      : `Breakeven $${breakeven} above fair $${fair}`;
-
-  return {
-    structure:'BPS', verdict:'SCANNED',
-    quality: qualityLabel(popPct, edgePP),
-    ticker, dte:DTE, expiry,
-    shortStrike:shortK, longStrike:longK, width, expectedMove:em,
-    minCredit, breakeven, contracts,
-    collateralPerContract, totalCollateral, maxLossPerContract,
-    pTrue, pMarket, edgePP, popPct,
-    evPerContract, capitalEfficiency,
-    regime:regime?.label||'UNKNOWN', trend, volState,
-    location:location||'UNAVAILABLE', capitalDeployedPct,
-    why:[
-      regime?.allowBPS ? `Regime allows BPS (${regime.label})` : `Regime disfavors BPS (${regime?.label||'UNKNOWN'})`,
-      `Trend: ${trend}`, `Vol state: ${volState}`, structuralNote
-    ],
+// ── BPS ──────────────────────────────────────────────────────────────────────
+function evalBPS(market,structural,aum){
+  const fail=validateInputs(market,structural,aum);
+  if(fail)return{structure:'BPS',verdict:'BLOCK',reason:fail};
+  const{ticker,spot,hv30,iv,vix}=market;
+  const{fair,sma20daily,location}=structural;
+  const regime=getRegime(vix);
+  const dte=7,width=5;
+  if(!regime?.allowBPS)return{structure:'BPS',verdict:'REJECTED',reason:`REGIME_BLOCK_${regime?.label||'UNKNOWN'}`};
+  const trend=sma20daily?(spot>sma20daily?'BULL':'BEAR'):'UNKNOWN';
+  const volRatio=iv/hv30;
+  const volState=volRatio>=1.15?'RICH':volRatio<0.90?'CHEAP':'FAIR';
+  if(volState==='CHEAP')return{structure:'BPS',verdict:'REJECTED',reason:'VOL_CHEAP — no premium edge'};
+  const placed=placeShortStrike(spot,iv,dte);
+  if(!placed)return{structure:'BPS',verdict:'BLOCK',reason:'STRIKE_PLACEMENT_FAILED'};
+  const{shortK,em}=placed;
+  const longK=shortK-width;
+  const minCredit=minCreditBPS(width,regime.minRoR,dte);
+  const breakeven=r2(shortK-minCredit);
+  if(!(fair>0))return{structure:'BPS',verdict:'REJECTED',reason:'NMR_FAIR_UNAVAILABLE'};
+  if(breakeven>fair)return{structure:'BPS',verdict:'REJECTED',reason:`Breakeven $${breakeven} > fair $${fair}`};
+  const pTrue=probAbove(spot,shortK,hv30,dte);
+  const pMarket=probAbove(spot,shortK,iv,dte);
+  if(pTrue==null||pMarket==null)return{structure:'BPS',verdict:'BLOCK',reason:'PROBABILITY_FAILED'};
+  const edgePP=r2((pTrue-pMarket)*100);
+  const popPct=r2(pMarket*100);
+  if(popPct<80)return{structure:'BPS',verdict:'REJECTED',reason:`POP ${popPct.toFixed(1)}% below 80%`};
+  if(edgePP<5)return{structure:'BPS',verdict:'REJECTED',reason:`Edge ${edgePP.toFixed(1)}pp below 5pp`};
+  const collateralPerContract=r2(width*100);
+  const maxLossPerContract=r2((width-minCredit)*100);
+  const evPerContract=expectedValue(pTrue,minCredit,maxLossPerContract);
+  // BPS: normalize by max risk (width - credit per contract)
+  const eff=efficiency(evPerContract,maxLossPerContract);
+  if(!(eff>0))return{structure:'BPS',verdict:'REJECTED',reason:'NON_POSITIVE_EFFICIENCY'};
+  const budget=r2(aum*regime.bpsPct);
+  const contracts=Math.max(1,Math.floor(budget/maxLossPerContract));
+  const totalCollateral=r2(contracts*collateralPerContract);
+  const expiry=nextFriday(dte);
+  const capitalDeployedPct=r2((totalCollateral/aum)*100);
+  return{
+    structure:'BPS',verdict:'APPROVED',ticker,dte,expiry,
+    shortStrike:shortK,longStrike:longK,width,expectedMove:em,minCredit,breakeven,
+    contracts,collateralPerContract,totalCollateral,maxLossPerContract,
+    pTrue,pMarket,edgePP,popPct,evPerContract,capitalEfficiency:eff,
+    regime:regime.label,trend,volState,location,capitalDeployedPct,
     brokerOrder:[
       `Sell to Open ${contracts} ${ticker} ${expFmt(expiry)} ${shortK}P`,
-      `Buy  to Open ${contracts} ${ticker} ${expFmt(expiry)} ${longK}P`,
-      `Net credit target: $${minCredit.toFixed(2)} / spread`
+      `Buy to Open  ${contracts} ${ticker} ${expFmt(expiry)} ${longK}P`,
+      `Net credit target: $${minCredit.toFixed(2)} / spread`,
     ],
     execLevels:{
-      'Short Strike':{ val:`$${shortK}`,               cls:'strike', sub:'short put' },
-      'Long Strike': { val:`$${longK}`,                cls:'strike', sub:'hedge leg' },
-      'Min Credit':  { val:`$${minCredit.toFixed(2)}`, cls:'credit', sub:`${(minRoR*100).toFixed(0)}% RoR floor` },
-      'Contracts':   { val:`${contracts}`,             cls:'',       sub:`$${totalCollateral.toLocaleString()} collateral` }
+      'Short Strike':{val:`$${shortK}`,cls:'strike',sub:'sell put'},
+      'Long Strike':{val:`$${longK}`,cls:'strike',sub:'hedge leg'},
+      'Min Credit':{val:`$${minCredit.toFixed(2)}`,cls:'credit',sub:`${(regime.minRoR*100).toFixed(0)}% RoR floor`},
+      'Contracts':{val:`${contracts}`,cls:'',sub:`$${totalCollateral.toLocaleString()} collateral`},
     }
   };
 }
 
-function evalShares(market, structural, aum) {
-  const { ticker, spot, hv30, iv, vix } = market;
-  const { wholesale, fair, sma20daily, location } = structural || {};
-  const regime = getRegime(vix);
-
-  if (!(spot>0)||!(hv30>0)||!(iv>0)||!(vix>=0))
-    return { structure:'SHARES', verdict:'UNAVAILABLE', reason:'Missing core inputs' };
-
-  const trend  = sma20daily ? (spot > sma20daily ? 'BULL' : 'BEAR') : 'UNKNOWN';
-  const placed = placeShortStrike(spot, iv, DTE);
-  if (!placed) return { structure:'SHARES', verdict:'UNAVAILABLE', reason:'Strike placement failed' };
-
-  const { shortK, em } = placed;
-  const pTrue   = probAbove(spot, shortK, hv30, DTE) ?? 0;
-  const pMarket = probAbove(spot, shortK, iv,   DTE) ?? 0;
-  const edgePP  = r2((pTrue - pMarket) * 100);
-  const popPct  = r2(pMarket * 100);
-
-  const budget    = r2((aum||100000) * (regime?.sharePct ?? 0.10));
-  const shares    = Math.max(1, Math.floor(budget / spot) || 1);
-  const totalCost = r2(shares * spot);
-
-  const downsidePerShare = Math.max(0, spot - (wholesale || spot));
-  const upsidePerShare   = Math.max(0, (fair || spot) - spot);
-  const evPerShare       = r2(pMarket * upsidePerShare - (1-pMarket) * downsidePerShare);
-  const evPerContract    = r2(evPerShare * shares);
-  const capitalEfficiency = safeEfficiency(evPerContract, totalCost);
-  const capitalDeployedPct = aum > 0 ? r2((totalCost/aum)*100) : 0;
-
-  const structuralNote = !(wholesale>0)
-    ? 'Wholesale unavailable'
-    : spot <= wholesale
-      ? `Spot $${spot} ≤ wholesale $${wholesale}`
-      : `Spot $${spot} above wholesale $${wholesale}`;
-
-  return {
-    structure:'SHARES', verdict:'SCANNED',
-    quality: qualityLabel(popPct, edgePP),
-    ticker, entryPrice:spot,
-    buyLevel:wholesale||spot, shares, totalCost,
-    expectedMove:em, pTrue, pMarket, edgePP, popPct,
-    evPerContract, capitalEfficiency,
-    regime:regime?.label||'UNKNOWN', trend,
-    volState: iv/hv30 >= 1.15 ? 'RICH' : iv/hv30 < 0.90 ? 'CHEAP' : 'FAIR',
-    location:location||'UNAVAILABLE', capitalDeployedPct,
-    why:[
-      regime?.allowShares ? `Regime allows shares (${regime.label})` : `Regime disfavors shares (${regime?.label||'UNKNOWN'})`,
-      `Trend: ${trend}`, structuralNote, `Fair: ${fair ?? 'N/A'}`
-    ],
+// ── SHARES ───────────────────────────────────────────────────────────────────
+function evalShares(market,structural,aum){
+  const fail=validateInputs(market,structural,aum);
+  if(fail&&fail!=='HV30_MISSING'&&fail!=='IV_MISSING')
+    return{structure:'SHARES',verdict:'BLOCK',reason:fail};
+  const{ticker,spot,hv30,iv,vix}=market;
+  const{wholesale,fair,sma20daily,location}=structural;
+  const regime=getRegime(vix);
+  if(!regime?.allowShares)return{structure:'SHARES',verdict:'REJECTED',reason:`REGIME_BLOCK_${regime?.label||'UNKNOWN'}`};
+  if(!(wholesale>0)||!(fair>0))return{structure:'SHARES',verdict:'REJECTED',reason:'NMR_LEVELS_UNAVAILABLE'};
+  if(spot>wholesale)return{structure:'SHARES',verdict:'REJECTED',reason:`Spot $${spot} above wholesale $${wholesale}`};
+  const trend=sma20daily?(spot>sma20daily?'BULL':'BEAR'):'UNKNOWN';
+  if(!(hv30>0)||!(iv>0))return{structure:'SHARES',verdict:'BLOCK',reason:'VOL_INPUTS_REQUIRED'};
+  const dte=7;
+  const placed=placeShortStrike(spot,iv,dte);
+  if(!placed)return{structure:'SHARES',verdict:'BLOCK',reason:'STRIKE_PLACEMENT_FAILED'};
+  const{shortK,em}=placed;
+  const pTrue=probAbove(spot,shortK,hv30,dte);
+  const pMarket=probAbove(spot,shortK,iv,dte);
+  if(pTrue==null||pMarket==null)return{structure:'SHARES',verdict:'BLOCK',reason:'PROBABILITY_FAILED'};
+  const edgePP=r2((pTrue-pMarket)*100);
+  const popPct=r2(pMarket*100);
+  if(popPct<80)return{structure:'SHARES',verdict:'REJECTED',reason:`POP ${popPct.toFixed(1)}% below 80%`};
+  if(edgePP<5)return{structure:'SHARES',verdict:'REJECTED',reason:`Edge ${edgePP.toFixed(1)}pp below 5pp`};
+  const budget=r2(aum*regime.sharePct);
+  const shares=Math.max(1,Math.floor(budget/spot));
+  const totalCost=r2(shares*spot);
+  // EV uses pTrue (model probability) for consistency with CSP/BPS
+  const upside=Math.min(em,Math.max(0,fair-spot));       // expected gain if above wholesale
+  const downside=Math.max(0,spot-wholesale);              // impairment if spot falls to wholesale
+  const evPerShare=r2(pTrue*upside-(1-pTrue)*downside);
+  const evTotal=r2(evPerShare*shares);
+  // Normalize shares by downside risk (spot - wholesale) × shares, not full notional
+  const maxSharesRisk=r2(Math.max(spot-wholesale,1)*shares);
+  const eff=efficiency(evTotal,maxSharesRisk);
+  if(!(eff>0))return{structure:'SHARES',verdict:'REJECTED',reason:'NON_POSITIVE_EFFICIENCY'};
+  const capitalDeployedPct=r2((totalCost/aum)*100);
+  return{
+    structure:'SHARES',verdict:'APPROVED',ticker,
+    entryPrice:spot,buyLevel:wholesale,shares,totalCost,expectedMove:em,
+    pTrue,pMarket,edgePP,popPct,evPerContract:evTotal,capitalEfficiency:eff,
+    regime:regime.label,trend,volState:iv/hv30>=1.15?'RICH':iv/hv30<0.90?'CHEAP':'FAIR',
+    location,capitalDeployedPct,
     brokerOrder:[
-      `Buy ${shares} shares ${ticker} @ $${(wholesale||spot).toFixed(2)} or better`,
-      `Current spot: $${spot.toFixed(2)}`
+      `Buy ${shares} shares ${ticker} @ $${wholesale.toFixed(2)} or better`,
+      `Current spot: $${spot.toFixed(2)}`,
     ],
     execLevels:{
-      'Buy Level':   { val:`$${(wholesale||spot).toFixed(2)}`, cls:'shares', sub:'target acquisition' },
-      'Current Spot':{ val:`$${spot.toFixed(2)}`,              cls:'',       sub:'live market' },
-      'Shares':      { val:`${shares}`,                        cls:'shares', sub:`${((regime?.sharePct??0.10)*100).toFixed(1)}% AUM` },
-      'Total Cost':  { val:`$${totalCost.toLocaleString()}`,   cls:'',       sub:'capital deployed' }
+      'Buy Level':{val:`$${wholesale.toFixed(2)}`,cls:'shares',sub:'wholesale max'},
+      'Current Spot':{val:`$${spot.toFixed(2)}`,cls:'',sub:'live market'},
+      'Shares':{val:`${shares}`,cls:'shares',sub:`${(regime.sharePct*100).toFixed(1)}% AUM`},
+      'Total Cost':{val:`$${totalCost.toLocaleString()}`,cls:'',sub:'capital deployed'},
     }
   };
 }
 
-// ============================================================
-//  RANKING
-// ============================================================
-function conduct(results) {
-  const scanned = results.filter(r => r.verdict === 'SCANNED');
-  if (!scanned.length) return null;
-  scanned.sort((a,b) => {
-    if ((b.capitalEfficiency||0) !== (a.capitalEfficiency||0)) return (b.capitalEfficiency||0)-(a.capitalEfficiency||0);
-    if ((b.edgePP||0) !== (a.edgePP||0)) return (b.edgePP||0)-(a.edgePP||0);
-    return (b.popPct||0)-(a.popPct||0);
-  });
-  return scanned[0];
+// ── CONDUCTOR ────────────────────────────────────────────────────────────────
+function conduct(results){
+  const approved=results.filter(r=>r.verdict==='APPROVED');
+  if(!approved.length)return null;
+  approved.sort((a,b)=>b.capitalEfficiency-a.capitalEfficiency);
+  return approved[0];
 }
 
-// ============================================================
-//  RENDER
-// ============================================================
-function setStatus(msg, cls = '') {
-  const el = document.getElementById('status');
-  el.textContent = msg;
-  el.className = `status ${cls}`;
+// ── WORKER ───────────────────────────────────────────────────────────────────
+const WORKER='https://conductor.yulgutierrez.workers.dev';
+
+async function fetchMarketData(ticker){
+  const upper=ticker.toUpperCase().trim();
+  const ctrl=new AbortController();
+  const t=setTimeout(()=>ctrl.abort(),15000);
+  try{
+    const r=await fetch(`${WORKER}/v1/market?ticker=${encodeURIComponent(upper)}&bust=1`,{signal:ctrl.signal});
+    clearTimeout(t);
+    if(!r.ok)throw new Error(`HTTP_${r.status}`);
+    const d=await r.json();
+    if(d.error)throw new Error(d.error);
+    if(!(d.spot>0))throw new Error('SPOT_MISSING');
+    let hv30=+(d.hv30||0);if(hv30>1)hv30=hv30/100;
+    return{
+      ticker:upper,spot:d.spot,hv30:hv30||null,vix:d.vix||null,
+      iv:d.iv||null,greeks:d.greeks||null,
+      sma20:d.sma20||null,sma200:d.sma200||null,
+      nmr:d.nmr||null,structural:d.structural||null,
+      dailyBars:Array.isArray(d.bars)?d.bars:[],
+    };
+  }finally{clearTimeout(t);}
 }
 
-function updateVix(vix) {
-  const el = document.getElementById('vix-pill');
-  if (!(vix >= 0)) { el.textContent='VIX —'; el.className='vix-pill'; return; }
-  el.textContent = `VIX ${vix.toFixed(1)}`;
-  el.className = `vix-pill ${vix<24?'allow':vix<45?'warn':'block'}`;
+function getStructural(market){
+  if(market.structural&&market.nmr){
+    const ws=market.structural,nmr=market.nmr;
+    return{
+      wholesale:nmr.wholesale,fair:nmr.fair,retail:nmr.retail,
+      location:nmr.location||'UNAVAILABLE',
+      sma20daily:ws.sma20||market.sma20||null,
+      sma200daily:ws.sma200||market.sma200||null,
+    };
+  }
+  return{wholesale:null,fair:null,retail:null,location:'UNAVAILABLE',sma20daily:market.sma20||null,sma200daily:null};
 }
 
-function renderMarketBar(m, s) {
-  const f = (l,v,c='') =>
-    `<div class="m-item"><div class="lbl">${l}</div><div class="val ${c}">${v}</div></div>`;
-
-  const locCls = s.location==='WHOLESALE'||s.location==='ACCUMULATION' ? 'ok'
-               : s.location==='NEUTRAL' ? 'warn' : 'err';
-
-  let h = '';
-  h += f('Spot',      `$${m.spot.toFixed(2)}`,                          'ok');
-  h += f('HV30',      m.hv30 ? `${(m.hv30*100).toFixed(1)}%`  : '—',   m.hv30?'ok':'warn');
-  h += f('IV',        m.iv   ? `${(m.iv*100).toFixed(1)}%`    : '—',   m.iv?'ok':'warn');
-  h += f('IV/HV',     m.iv&&m.hv30 ? (m.iv/m.hv30).toFixed(2) : '—',  m.iv&&m.hv30&&m.iv/m.hv30>=1.15?'ok':'warn');
-  h += f('SMA20',     m.sma20  ? `$${m.sma20.toFixed(2)}`   : '—',     m.sma20?'ok':'dim');
-  h += f('Wholesale', s.wholesale ? `$${s.wholesale.toFixed(2)}` : '—', '');
-  h += f('Fair',      s.fair      ? `$${s.fair.toFixed(2)}`      : '—', '');
-  h += f('Location',  s.location  || '—',                               locCls);
-
-  const bar = document.getElementById('market-bar');
-  bar.innerHTML = h;
-  bar.classList.add('on');
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function setStatus(msg,cls=''){
+  const el=document.getElementById('status');
+  el.textContent=msg;el.className='status '+cls;
+}
+function updateVix(vix){
+  const el=document.getElementById('vix-pill');
+  if(!vix){el.textContent='VIX —';el.className='vix-pill';return;}
+  el.textContent=`VIX ${vix.toFixed(1)}`;
+  el.className='vix-pill '+(vix<24?'allow':vix<45?'warn':'block');
 }
 
-function renderCards(results, winner) {
-  const container = document.getElementById('cards');
-  container.innerHTML = '';
+function renderMarketBar(m,s){
+  const f=(l,v,c='')=>`<div class="ms"><div class="l">${l}</div><div class="v ${c}">${v}</div></div>`;
+  const sep='<div style="width:1px;background:var(--border);align-self:stretch"></div>';
+  let h='';
+  h+=f('Spot',`$${m.spot.toFixed(2)}`,'ok');
+  h+=f('HV30',m.hv30?`${(m.hv30*100).toFixed(1)}%`:'—',m.hv30?'ok':'w');
+  h+=f('IV',m.iv?`${(m.iv*100).toFixed(1)}%`:'—',m.iv?'ok':'w');
+  h+=f('IV/HV',m.iv&&m.hv30?(m.iv/m.hv30).toFixed(2):'—',m.iv&&m.hv30&&m.iv/m.hv30>=1.15?'ok':'w');
+  h+=sep;
+  h+=f('SMA20',m.sma20?`$${m.sma20.toFixed(2)}`:'—',m.sma20?'ok':'w');
+  h+=f('Wholesale',s.wholesale?`$${s.wholesale.toFixed(2)}`:'—');
+  h+=f('Fair',s.fair?`$${s.fair.toFixed(2)}`:'—');
+  h+=f('Location',s.location||'—',s.location==='WHOLESALE'||s.location==='ACCUMULATION'?'ok':s.location==='NEUTRAL'?'w':'e');
+  document.getElementById('mbar').innerHTML=h;
+  document.getElementById('mbar').classList.add('on');
+}
 
-  const scanned = [...results].filter(r => r.verdict==='SCANNED');
-  if (!scanned.length) {
-    container.innerHTML = `<div class="empty">No structures could be computed. Check VIX regime or data availability.</div>`;
-    return;
+function renderCards(results,winner){
+  const container=document.getElementById('cards');
+  container.innerHTML='';
+
+  if(winner){
+    const w=winner;
+    const stClass=`st-${w.structure.toLowerCase()}`;
+    let html=`<div class="card winner active">
+      <div class="card-head">
+        <span class="struct-tag ${stClass}">${w.structure}</span>
+        <span class="card-verdict cv-pass">APPROVED</span>
+        <span class="winner-tag">MOST CAPITAL EFFICIENT</span>
+      </div>
+      <div class="card-body">
+        <div class="exec">
+          <div class="exec-title">Execution Levels</div>
+          <div class="exec-levels">
+            ${Object.entries(w.execLevels).map(([k,v])=>`<div class="elev"><div class="lbl">${k}</div><div class="val ${v.cls}">${v.val}</div><div class="sub">${v.sub}</div></div>`).join('')}
+          </div>
+        </div>
+        <div class="metrics">
+          <div class="met"><div class="lbl">POP</div><div class="val">${w.popPct?.toFixed(1)??'—'}%</div></div>
+          <div class="met"><div class="lbl">Edge</div><div class="val g">+${w.edgePP?.toFixed(1)??'—'}pp</div></div>
+          <div class="met"><div class="lbl">EV</div><div class="val g">$${w.evPerContract?.toFixed(2)??'—'}</div></div>
+          <div class="met"><div class="lbl">CapEff</div><div class="val a">${w.capitalEfficiency?.toExponential(2)??'—'}</div></div>
+          <div class="met"><div class="lbl">Deploy</div><div class="val">${w.capitalDeployedPct?.toFixed(1)??'—'}%</div></div>
+          <div class="met"><div class="lbl">Regime</div><div class="val">${w.regime||'—'}</div></div>
+        </div>
+        <div class="order">${(w.brokerOrder||[]).map(l=>`<div class="order-line">${l}</div>`).join('')}</div>
+      </div>
+    </div>`;
+    container.innerHTML+=html;
+  }else{
+    container.innerHTML=`<div class="card no-trade active">
+      <div class="card-head"><span class="struct-tag st-notrade">NO TRADE</span><span class="card-verdict cv-fail">ALL GATES FAILED</span></div>
+      <div class="card-body" style="padding:20px">
+        ${results.map(r=>`<div class="reject-reason">✗ ${r.structure}: ${r.reason||'gated'}</div>`).join('')}
+      </div>
+    </div>`;
   }
 
-  scanned.sort((a,b) => {
-    if ((b.capitalEfficiency||0)!==(a.capitalEfficiency||0)) return (b.capitalEfficiency||0)-(a.capitalEfficiency||0);
-    if ((b.edgePP||0)!==(a.edgePP||0)) return (b.edgePP||0)-(a.edgePP||0);
-    return (b.popPct||0)-(a.popPct||0);
-  });
-
-  scanned.forEach((r, idx) => {
-    const isWinner = (r === winner);
-    const stClass  = `st-${r.structure.toLowerCase()}`;
-    const qClass   = qualityClass(r.quality);
-
-    const execHTML = Object.entries(r.execLevels||{}).map(([k,v]) =>
-      `<div class="elev">
-         <div class="lbl">${k}</div>
-         <div class="val ${v.cls||''}">${v.val}</div>
-         <div class="sub">${v.sub}</div>
-       </div>`
-    ).join('');
-
-    const orderHTML = (r.brokerOrder||[]).map(l =>
-      `<div class="order-line">${l}</div>`
-    ).join('');
-
-    const whyHTML = (r.why||[]).map(x => `• ${x}`).join('<br>');
-
-    const edgeCls  = (r.edgePP||0)>=5?'g':(r.edgePP||0)>=0?'a':'r';
-    const evCls    = (r.evPerContract||0)>=0?'g':'r';
-    const edgeSign = (r.edgePP||0)>=0?'+':'';
-
-    const html = `
-      <div class="card ${isWinner?'winner':''}">
-        <div class="card-head">
-          <span class="struct-tag ${stClass}">${r.structure}</span>
-          <span class="qual-tag ${qClass}">${r.quality}</span>
-          <span class="rank-tag ${isWinner?'':'not-winner'}">${isWinner?'▶ RANK #1':`RANK #${idx+1}`}</span>
-        </div>
-        <div class="card-body">
-          <div class="exec">
-            <div class="exec-title">Execution Levels</div>
-            <div class="exec-levels">${execHTML}</div>
-          </div>
-          <div class="metrics">
-            <div class="met"><div class="lbl">POP</div><div class="val">${r.popPct?.toFixed(1)??'—'}%</div></div>
-            <div class="met"><div class="lbl">Edge</div><div class="val ${edgeCls}">${edgeSign}${r.edgePP?.toFixed(1)??'—'}pp</div></div>
-            <div class="met"><div class="lbl">EV</div><div class="val ${evCls}">$${r.evPerContract?.toFixed(2)??'—'}</div></div>
-            <div class="met"><div class="lbl">Cap Eff</div><div class="val a">${r.capitalEfficiency?.toExponential(2)??'—'}</div></div>
-            <div class="met"><div class="lbl">Deploy</div><div class="val">${r.capitalDeployedPct?.toFixed(1)??'—'}%</div></div>
-            <div class="met"><div class="lbl">Regime</div><div class="val">${r.regime||'—'}</div></div>
-          </div>
-          <div class="why">${whyHTML}</div>
-          <div class="order">${orderHTML}</div>
-        </div>
+  results.filter(r=>r!==winner).forEach(r=>{
+    const stClass=`st-${r.structure.toLowerCase()}`;
+    const approved=r.verdict==='APPROVED';
+    let html=`<div class="card active">
+      <div class="card-head">
+        <span class="struct-tag ${stClass}">${r.structure}</span>
+        <span class="card-verdict ${approved?'cv-pass':'cv-fail'}">${r.verdict}</span>
+      </div>
+      <div class="card-body">`;
+    if(approved){
+      html+=`<div class="metrics">
+        ${Object.entries(r.execLevels).map(([k,v])=>`<div class="met"><div class="lbl">${k}</div><div class="val ${v.cls}">${v.val}</div></div>`).join('')}
+        <div class="met"><div class="lbl">POP</div><div class="val">${r.popPct?.toFixed(1)??'—'}%</div></div>
+        <div class="met"><div class="lbl">Edge</div><div class="val g">+${r.edgePP?.toFixed(1)??'—'}pp</div></div>
+        <div class="met"><div class="lbl">EV</div><div class="val g">$${r.evPerContract?.toFixed(2)??'—'}</div></div>
+        <div class="met"><div class="lbl">CapEff</div><div class="val a">${r.capitalEfficiency?.toExponential(2)??'—'}</div></div>
       </div>`;
-
-    container.insertAdjacentHTML('beforeend', html);
+    }else{
+      html+=`<div class="reject-reason">${r.reason||r.reasons?.join('<br>')||'gated'}</div>`;
+    }
+    html+=`</div></div>`;
+    container.innerHTML+=html;
   });
 }
 
-// ============================================================
-//  MAIN
-// ============================================================
-async function runAll() {
-  const ticker = document.getElementById('ticker').value.trim().toUpperCase();
-  if (!/^[A-Z0-9.\-]{1,8}$/.test(ticker)) { setStatus('Invalid ticker.','err'); return; }
-
-  const aum    = +document.getElementById('aum').value || 100000;
-  const runBtn = document.getElementById('run-btn');
-  const cards  = document.getElementById('cards');
-  const mbar   = document.getElementById('market-bar');
-
-  runBtn.disabled    = true;
-  runBtn.textContent = 'SCANNING...';
-  runBtn.classList.add('scanning');
-  cards.innerHTML = `<div class="empty">Fetching ${ticker} data...</div>`;
-  mbar.classList.remove('on');
-
-  try {
-    setStatus(`Fetching ${ticker} from conductor...`, 'running');
-    const market     = await fetchMarketData(ticker);
-    const structural = getStructural(market);
-
+// ── MAIN ─────────────────────────────────────────────────────────────────────
+async function runAll(){
+  const ticker=document.getElementById('ticker').value.trim().toUpperCase();
+  if(!/^[A-Z0-9.\-]{1,8}$/.test(ticker)){setStatus('Invalid ticker.','err');return;}
+  const aum=+document.getElementById('aum').value||100000;
+  document.getElementById('run-btn').disabled=true;
+  document.getElementById('run-btn').textContent='SCANNING...';
+  document.getElementById('cards').innerHTML='';
+  document.getElementById('mbar').classList.remove('on');
+  try{
+    setStatus(`Fetching ${ticker}...`,'running');
+    const market=await fetchMarketData(ticker);
+    const structural=getStructural(market);
     updateVix(market.vix);
-    renderMarketBar(market, structural);
-
-    setStatus('Evaluating CSP · BPS · SHARES...', 'running');
-
-    const csp    = evalCSP(market, structural, aum);
-    const bps    = evalBPS(market, structural, aum);
-    const shares = evalShares(market, structural, aum);
-
-    const results = [csp, bps, shares];
-    const winner  = conduct(results);
-
-    renderCards(results, winner);
-
-    if (winner) {
-      setStatus(
-        `${winner.structure} ranked #1 — POP ${winner.popPct?.toFixed(1)||'—'}% · Edge ${winner.edgePP?.toFixed(1)||'—'}pp · Regime ${winner.regime}`,
-        'done'
-      );
-    } else {
-      setStatus('Scan complete — no structures qualified.', 'done');
-    }
-
-  } catch (e) {
+    renderMarketBar(market,structural);
+    setStatus(`Running quant gates: CSP / BPS / SHARES...`,'running');
+    const csp=evalCSP(market,structural,aum);
+    const bps=evalBPS(market,structural,aum);
+    const shares=evalShares(market,structural,aum);
+    const results=[csp,bps,shares];
+    const winner=conduct(results);
+    renderCards(results,winner);
+    const n=results.filter(r=>r.verdict==='APPROVED').length;
+    setStatus(winner
+      ?`${winner.structure} selected — POP ${winner.popPct?.toFixed(1)||'—'}% · Edge +${winner.edgePP?.toFixed(1)||'—'}pp · ${n}/3 approved`
+      :`NO TRADE — no structure cleared all quant gates`
+    ,'done');
+  }catch(e){
+    setStatus(`Error: ${e.message}`,'err');
     console.error(e);
-    cards.innerHTML = `<div class="empty">Error: ${e.message}</div>`;
-    setStatus(`Error: ${e.message}`, 'err');
-  } finally {
-    runBtn.disabled = false;
-    runBtn.textContent = '▶ SCAN';
-    runBtn.classList.remove('scanning');
+  }finally{
+    document.getElementById('run-btn').disabled=false;
+    document.getElementById('run-btn').textContent='▶ SCAN';
   }
 }
 
-// keyboard trigger
-document.getElementById('ticker').addEventListener('keydown', e => {
-  if (e.key === 'Enter') runAll();
-});
-
-// auto-uppercase ticker
-document.getElementById('ticker').addEventListener('input', e => {
-  const pos = e.target.selectionStart;
-  e.target.value = e.target.value.toUpperCase();
-  e.target.setSelectionRange(pos, pos);
-});
+document.getElementById('ticker').addEventListener('keydown',e=>{if(e.key==='Enter')runAll();});
 </script>
 </body>
 </html>
