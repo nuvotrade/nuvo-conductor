@@ -138,6 +138,14 @@ function inc(spot) {
   return spot < 25 ? 0.5 : spot < 500 ? 1 : 5;
 }
 
+// Dynamic BPS spread width by price zone
+function spreadWidth(spot) {
+  if (spot < 25)  return 2;
+  if (spot < 75)  return 5;
+  if (spot < 200) return 10;
+  return 20;
+}
+
 // Next Friday from today + dte days
 function nextFriday(dte) {
   const d = new Date();
@@ -230,17 +238,18 @@ function evalCSP(spot, hv30, iv, vix, aum, dte=7) {
     ],
     levels: {
       'Short Strike': {val:`$${shortK}`, cls:'amber', sub:'1σ placement'},
-      'Min Credit':   {val:`$${minCred.toFixed(2)}`, cls:'green', sub:`${(reg.ror*100).toFixed(0)}% annualized floor`},
+      'Min Credit':   {val:`$${minCred.toFixed(2)}`, cls:'green', sub:`${(reg.ror*100).toFixed(0)}% 30D floor scaled to ${dte}DTE`},
       'Breakeven':    {val:`$${breakeven}`, cls:'', sub:'credit-adjusted'},
       'Contracts':    {val:`${contracts}`, cls:'', sub:`$${totalColl.toLocaleString()} collateral`},
     }
   };
 }
 
-function evalBPS(spot, hv30, iv, vix, aum, dte=7, width=5) {
+function evalBPS(spot, hv30, iv, vix, aum, dte=7) {
   const reg = regime(vix);
   const em = expectedMove(spot, iv, dte);
   const shortK = Math.round((spot - em) / inc(spot)) * inc(spot);
+  const width = spreadWidth(spot);  // dynamic: 2 for <$25, 5 for <$75, 10 for <$200
   const longK = shortK - width;
   const expiry = nextFriday(dte);
 
@@ -278,7 +287,7 @@ function evalBPS(spot, hv30, iv, vix, aum, dte=7, width=5) {
     levels: {
       'Short Strike': {val:`$${shortK}`, cls:'amber', sub:'sell put'},
       'Long Strike':  {val:`$${longK}`,  cls:'amber', sub:'hedge leg'},
-      'Min Credit':   {val:`$${minCred.toFixed(2)}`, cls:'green', sub:`${(reg.ror*100).toFixed(0)}% annualized floor`},
+      'Min Credit':   {val:`$${minCred.toFixed(2)}`, cls:'green', sub:`${(reg.ror*100).toFixed(0)}% 30D floor scaled to ${dte}DTE`},
       'Contracts':    {val:`${contracts}`, cls:'', sub:`$${totalColl.toLocaleString()} width collateral`},
     }
   };
@@ -297,17 +306,24 @@ function evalShares(spot, hv30, iv, vix, aum, nmr) {
   const edgePP = r2((pTrue - pMarket) * 100);
   const popPct = r2(pMarket * 100);
 
-  // Upside: min of expected move or distance to fair value
-  const upside = nmr?.fair ? Math.min(em, Math.max(0, nmr.fair - spot)) : em;
-  // Downside: distance to wholesale or 10% of spot as proxy
-  const downside = nmr?.wholesale ? Math.max(0, spot - nmr.wholesale) : spot * 0.10;
+  // Payoff model — same framework as CSP/BPS for ranking comparability
+  // Upside: capped at EM (same bound as options) or fair-spot if NMR available
+  const upside = nmr?.fair
+    ? Math.min(em, Math.max(0, nmr.fair - spot))
+    : em;
+  // Downside: EM as symmetric risk proxy, or spot-wholesale if NMR available
+  const downside = nmr?.wholesale
+    ? Math.max(em, Math.max(0, spot - nmr.wholesale))
+    : em;
 
   const budget = r2(aum * reg.sharePct);
   const shares = Math.max(1, Math.floor(budget / spot));
   const totalCost = r2(shares * spot);
 
+  // EV per share — same structure as options: pTrue × gain - (1-pTrue) × loss
   const evPerShare = r2(pTrue * upside - (1-pTrue) * downside);
   const evVal = r2(evPerShare * shares);
+  // Risk-at-loss = downside × shares (comparable to maxLoss in options)
   const riskAtLoss = r2(Math.max(downside, 0.01) * shares);
   const eff = capEff(evVal, riskAtLoss);
 
@@ -426,6 +442,7 @@ function renderCards(results) {
           </div>
         </div>
         <div class="metrics">
+          <div class="met"><div class="lbl">EM</div><div class="val a">$${r.em?.toFixed(2)??'—'}</div></div>
           <div class="met"><div class="lbl">POP</div><div class="val">${r.popPct?.toFixed(1)}%</div></div>
           <div class="met"><div class="lbl">Edge</div><div class="val ${r.edgePP>=5?'g':r.edgePP>=0?'a':'r'}">${r.edgePP>=0?'+':''}${r.edgePP?.toFixed(1)}pp</div></div>
           <div class="met"><div class="lbl">EV</div><div class="val ${r.evVal>=0?'g':'r'}">$${r.evVal?.toFixed(2)}</div></div>
