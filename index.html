@@ -32,47 +32,53 @@ body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px
 .run-btn:hover{opacity:.9}.run-btn:disabled{opacity:.4;cursor:not-allowed}
 .status{font-size:11px;font-family:var(--mono);color:var(--dim);min-height:20px;margin-bottom:20px}
 .status.running{color:var(--amber)}.status.done{color:var(--green)}.status.err{color:var(--red)}
+
+/* MARKET BAR */
 .mbar{display:none;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px 18px;margin-bottom:20px;flex-wrap:wrap;gap:20px}
 .mbar.on{display:flex}
 .ms{display:flex;flex-direction:column;gap:2px}
 .ms .l{font-size:10px;color:var(--dim)}
 .ms .v{font-family:var(--mono);font-size:12px;color:var(--bright)}
 .ms .v.ok{color:var(--green)}.ms .v.w{color:var(--amber)}.ms .v.e{color:var(--red)}
-.cards{display:flex;flex-direction:column;gap:14px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;opacity:.5}
-.card.active{opacity:1}
-.card.winner{border-color:var(--amber);border-width:2px}
-.card.no-trade{border-color:var(--red)}
+.msep{width:1px;background:var(--border);align-self:stretch}
+
+/* NMR REFERENCE BAR */
+.nmr-bar{display:none;background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.2);border-radius:6px;padding:10px 18px;margin-bottom:20px;flex-wrap:wrap;gap:20px;align-items:center}
+.nmr-bar.on{display:flex}
+.nmr-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--amber);margin-right:4px}
+.nmr-note{font-size:10px;color:var(--dim);margin-left:auto}
+
+/* CARDS */
+.cards{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.card.rank1{border-color:var(--amber);border-width:2px}
 .card-head{padding:14px 20px;display:flex;align-items:center;gap:10px}
 .struct-tag{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1px;padding:4px 10px;border-radius:3px}
 .st-csp{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
 .st-bps{background:rgba(6,182,212,.15);color:var(--cyan);border:1px solid rgba(6,182,212,.3)}
 .st-shares{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
-.st-notrade{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
-.card-verdict{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1px;padding:3px 8px;border-radius:2px}
-.cv-pass{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
-.cv-fail{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
-.winner-tag{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--amber);letter-spacing:1px}
+.rank-tag{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--amber);letter-spacing:1px}
 .card-body{padding:0 20px 20px}
+
+/* EXECUTION LEVELS */
 .exec{background:rgba(0,0,0,.3);border-radius:6px;padding:16px 20px;margin-bottom:14px}
 .exec-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
-.exec-levels{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
-.elev{display:flex;flex-direction:column;gap:4px}
-.elev .lbl{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.exec-levels{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.elev .lbl{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
 .elev .val{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--bright)}
-.elev .val.strike{color:var(--amber)}
-.elev .val.credit{color:var(--green)}
-.elev .val.shares{color:var(--amber)}
-.elev .sub{font-size:11px;color:var(--dim)}
+.elev .val.amber{color:var(--amber)}
+.elev .val.green{color:var(--green)}
+.elev .sub{font-size:11px;color:var(--dim);margin-top:2px}
+
+/* METRICS */
 .metrics{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:14px}
-.met{display:flex;flex-direction:column;gap:2px}
 .met .lbl{font-size:10px;color:var(--dim)}
 .met .val{font-family:var(--mono);font-size:14px;color:var(--bright)}
 .met .val.g{color:var(--green)}.met .val.a{color:var(--amber)}.met .val.r{color:var(--red)}
+
+/* ORDER */
 .order{background:var(--bg);border:1px solid rgba(34,197,94,.3);border-radius:4px;padding:12px 16px}
 .order-line{font-family:var(--mono);font-size:13px;color:var(--green);line-height:1.8}
-.reject-reason{font-family:var(--mono);font-size:11px;color:var(--red);margin-top:8px;line-height:1.6}
-.idle-msg{color:var(--dim);font-size:12px;text-align:center;padding:24px}
 </style>
 </head>
 <body>
@@ -88,451 +94,407 @@ body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px
   </div>
   <div class="status" id="status">Enter ticker and press SCAN.</div>
   <div class="mbar" id="mbar"></div>
+  <div class="nmr-bar" id="nmr-bar"></div>
   <div class="cards" id="cards"></div>
 </div>
 
 <script>
 // ============================================================
-// QUANT CORE
+// MATH ENGINE — pure computation, no structural gates
+// Structures ranked by EV / risk-at-loss
+// NMR shown as reference only, never blocks
+// pTrue (HV30) drives EV — pMarket (IV) measures edge only
 // ============================================================
-const r2 = n => Math.round((+n || 0) * 100) / 100;
-const r4 = n => Math.round((+n || 0) * 10000) / 10000;
-const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
+
+const r2 = n => Math.round((+n||0)*100)/100;
+const r4 = n => Math.round((+n||0)*10000)/10000;
 
 function normCDF(x) {
-  const a1=0.319381530,a2=-0.356563782,a3=1.781477937,a4=-1.821255978,a5=1.330274429,p=0.2316419;
-  const sign=x<0?-1:1,z=Math.abs(x),t=1/(1+p*z);
-  const poly=a1*t+a2*t*t+a3*t*t*t+a4*t*t*t*t+a5*t*t*t*t*t;
-  const pdf=Math.exp(-0.5*z*z)/Math.sqrt(2*Math.PI);
-  const cdf=1-pdf*poly;
-  return sign===1?cdf:1-cdf;
+  const a1=0.319381530, a2=-0.356563782, a3=1.781477937, a4=-1.821255978, a5=1.330274429;
+  const sign = x < 0 ? -1 : 1;
+  const z = Math.abs(x);
+  const t = 1 / (1 + 0.2316419 * z);
+  const poly = a1*t + a2*t*t + a3*t*t*t + a4*t*t*t*t + a5*t*t*t*t*t;
+  const pdf = Math.exp(-0.5*z*z) / Math.sqrt(2*Math.PI);
+  const cdf = 1 - pdf * poly;
+  return sign === 1 ? cdf : 1 - cdf;
 }
 
-function expectedMove(spot,iv,dte=7){
-  if(!(spot>0)||!(iv>0)||!(dte>0))return null;
-  return r2(spot*iv*Math.sqrt(dte/365));
-}
-
-function probAbove(spot,strike,vol,dte=7){
-  if(!(spot>0)||!(strike>0)||!(vol>0)||!(dte>0))return null;
-  const T=dte/365,denom=vol*Math.sqrt(T);
-  if(!(denom>0))return null;
-  const d2=(Math.log(spot/strike)-0.5*vol*vol*T)/denom;
+// P(underlying expires above strike)
+function probAbove(spot, strike, vol, dte) {
+  if (!(spot>0) || !(strike>0) || !(vol>0) || !(dte>0)) return null;
+  const T = dte / 365;
+  const d2 = (Math.log(spot/strike) - 0.5*vol*vol*T) / (vol*Math.sqrt(T));
   return r4(normCDF(d2));
 }
 
-function strikeIncrement(spot){
-  if(spot<25)return 0.5;
-  if(spot<500)return 1;
-  return 5;
+// 1σ expected move
+function expectedMove(spot, iv, dte) {
+  return r2(spot * iv * Math.sqrt(dte/365));
 }
 
-function placeShortStrike(spot,iv,dte=7){
-  const em=expectedMove(spot,iv,dte);
-  if(em==null)return null;
-  const inc=strikeIncrement(spot);
-  const shortK=Math.round((spot-em)/inc)*inc;
-  return{shortK,em};
+// Strike increment by price
+function inc(spot) {
+  return spot < 25 ? 0.5 : spot < 500 ? 1 : 5;
 }
 
-function nextFriday(dte=7){
-  const d=new Date();d.setDate(d.getDate()+Math.max(dte,1));
-  const dow=d.getDay();if(dow!==5)d.setDate(d.getDate()+((5-dow+7)%7));
+// Next Friday from today + dte days
+function nextFriday(dte) {
+  const d = new Date();
+  d.setDate(d.getDate() + Math.max(dte, 1));
+  const dow = d.getDay();
+  if (dow !== 5) d.setDate(d.getDate() + ((5-dow+7)%7));
   return d.toISOString().slice(0,10);
 }
 
-function expFmt(ds){
-  return new Date(ds+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'2-digit'}).replace(',','').toUpperCase();
+function expFmt(ds) {
+  return new Date(ds+'T12:00:00')
+    .toLocaleDateString('en-US',{month:'short',day:'2-digit'})
+    .replace(',','').toUpperCase();
 }
 
-function minCreditCSP(strike,minRoR,dte){return Math.max(0.15,r2(strike*minRoR*(dte/365)));}
-function minCreditBPS(width,minRoR,dte){
-  const scaled=minRoR*(dte/365);
-  return Math.max(0.15, r2((width*scaled)/(1+scaled)));
+// Min credit floors — DTE-scaled to annualized RoR, hard min $0.15
+const MIN_CREDIT = 0.15;
+function minCreditCSP(strike, rorAnnual, dte) {
+  return Math.max(MIN_CREDIT, r2(strike * rorAnnual * (dte/365)));
+}
+function minCreditBPS(width, rorAnnual, dte) {
+  const scaled = rorAnnual * (dte/365);
+  return Math.max(MIN_CREDIT, r2((width * scaled) / (1 + scaled)));
 }
 
-function expectedValue(pTrue,credit,maxLoss){
-  // Uses model probability (HV30-based), not market-implied
-  return r2(pTrue*credit*100-(1-pTrue)*maxLoss);
+// EV uses pTrue — model probability, not market-implied
+// gain/loss in dollars per contract or per position
+function ev(pTrue, gain, loss) {
+  return r2(pTrue * gain - (1-pTrue) * loss);
 }
 
-function efficiency(ev,capital){
-  if(!(capital>0))return null;
-  return r4(ev/capital);
+// Capital efficiency = EV / risk-at-loss (not full collateral)
+function capEff(evVal, riskAtLoss) {
+  if (!(riskAtLoss > 0)) return null;
+  return r4(evVal / riskAtLoss);
 }
 
-const REGIMES=[
-  {maxVix:14, label:'NO FEAR',       allowCSP:false,allowBPS:false,allowShares:false,minRoR:0.20,cspPct:0.05, bpsPct:0.03,sharePct:0.05},
-  {maxVix:18, label:'FEAR COOLING',  allowCSP:true, allowBPS:false,allowShares:false,minRoR:0.20,cspPct:0.10, bpsPct:0.03,sharePct:0.05},
-  {maxVix:22, label:'FEAR BUILDING', allowCSP:true, allowBPS:true, allowShares:false,minRoR:0.16,cspPct:0.10, bpsPct:0.03,sharePct:0.07},
-  {maxVix:30, label:'FEAR ELEVATED', allowCSP:true, allowBPS:true, allowShares:true, minRoR:0.13,cspPct:0.10, bpsPct:0.03,sharePct:0.10},
-  {maxVix:45, label:'HEAVY FEAR',    allowCSP:true, allowBPS:true, allowShares:true, minRoR:0.10,cspPct:0.075,bpsPct:0.03,sharePct:0.10},
-  {maxVix:999,label:'PANIC',         allowCSP:false,allowBPS:true, allowShares:true, minRoR:0.10,cspPct:0.05, bpsPct:0.03,sharePct:0.10},
+// ── REGIME — used only for sizing and min RoR, never to block ────────────────
+const REGIMES = [
+  {maxVix:14,  label:'NO FEAR',       ror:0.20, cspPct:0.05, bpsPct:0.03, sharePct:0.05},
+  {maxVix:18,  label:'FEAR COOLING',  ror:0.20, cspPct:0.10, bpsPct:0.03, sharePct:0.05},
+  {maxVix:22,  label:'FEAR BUILDING', ror:0.16, cspPct:0.10, bpsPct:0.03, sharePct:0.07},
+  {maxVix:30,  label:'FEAR ELEVATED', ror:0.13, cspPct:0.10, bpsPct:0.03, sharePct:0.10},
+  {maxVix:45,  label:'HEAVY FEAR',    ror:0.10, cspPct:0.075,bpsPct:0.03, sharePct:0.10},
+  {maxVix:999, label:'PANIC',         ror:0.10, cspPct:0.05, bpsPct:0.03, sharePct:0.10},
 ];
-
-function getRegime(vix){
-  if(!(vix>=0))return null;
-  return REGIMES.find(r=>vix<r.maxVix)||REGIMES[REGIMES.length-1];
+function regime(vix) {
+  if (vix == null) return REGIMES[3]; // default FEAR ELEVATED
+  return REGIMES.find(r=>vix<r.maxVix) || REGIMES[REGIMES.length-1];
 }
 
-function validateInputs(market,structural,aum){
-  if(!(aum>0))return'AUM_MISSING';
-  if(!(market?.spot>0))return'SPOT_MISSING';
-  if(!(market?.hv30>0))return'HV30_MISSING';
-  if(!(market?.iv>0))return'IV_MISSING';
-  if(!(market?.vix>=0))return'VIX_MISSING';
-  if(!structural)return'STRUCTURAL_MISSING';
-  return null;
-}
+// ============================================================
+// STRUCTURE EVALUATORS — math only, no blocking gates
+// ============================================================
 
-// ── CSP ──────────────────────────────────────────────────────────────────────
-function evalCSP(market,structural,aum){
-  const fail=validateInputs(market,structural,aum);
-  if(fail)return{structure:'CSP',verdict:'BLOCK',reason:fail};
-  const{ticker,spot,hv30,iv,vix}=market;
-  const{wholesale,sma20daily,location}=structural;
-  const regime=getRegime(vix);
-  const dte=7;
-  if(!regime?.allowCSP)return{structure:'CSP',verdict:'REJECTED',reason:`REGIME_BLOCK_${regime?.label||'UNKNOWN'}`};
-  const trend=sma20daily?(spot>sma20daily?'BULL':'BEAR'):'UNKNOWN';
-  const volRatio=iv/hv30;
-  const volState=volRatio>=1.15?'RICH':volRatio<0.90?'CHEAP':'FAIR';
-  if(trend!=='BULL')return{structure:'CSP',verdict:'REJECTED',reason:`TREND_${trend} — CSP requires BULL`};
-  if(volState!=='RICH')return{structure:'CSP',verdict:'REJECTED',reason:`VOL_${volState} — CSP requires RICH`};
-  const placed=placeShortStrike(spot,iv,dte);
-  if(!placed)return{structure:'CSP',verdict:'BLOCK',reason:'STRIKE_PLACEMENT_FAILED'};
-  const{shortK,em}=placed;
-  const minCredit=minCreditCSP(shortK,regime.minRoR,dte);
-  const breakeven=r2(shortK-minCredit);
-  if(!(wholesale>0))return{structure:'CSP',verdict:'REJECTED',reason:'NMR_WHOLESALE_UNAVAILABLE'};
-  if(breakeven>wholesale)return{structure:'CSP',verdict:'REJECTED',reason:`Breakeven $${breakeven} > wholesale $${wholesale}`};
-  const pTrue=probAbove(spot,shortK,hv30,dte);
-  const pMarket=probAbove(spot,shortK,iv,dte);
-  if(pTrue==null||pMarket==null)return{structure:'CSP',verdict:'BLOCK',reason:'PROBABILITY_FAILED'};
-  const edgePP=r2((pTrue-pMarket)*100);
-  const popPct=r2(pMarket*100);
-  if(popPct<80)return{structure:'CSP',verdict:'REJECTED',reason:`POP ${popPct.toFixed(1)}% below 80%`};
-  if(edgePP<5)return{structure:'CSP',verdict:'REJECTED',reason:`Edge ${edgePP.toFixed(1)}pp below 5pp`};
-  const collateralPerContract=r2(shortK*100);
-  const maxLossPerContract=r2((shortK-minCredit)*100);
-  const evPerContract=expectedValue(pTrue,minCredit,maxLossPerContract);
-  // Normalize by max risk (credit-adjusted), not full collateral
-  const eff=efficiency(evPerContract,maxLossPerContract);
-  if(!(eff>0))return{structure:'CSP',verdict:'REJECTED',reason:'NON_POSITIVE_EFFICIENCY'};
-  const budget=r2(aum*regime.cspPct);
-  const contracts=Math.max(1,Math.floor(budget/collateralPerContract));
-  const totalCollateral=r2(contracts*collateralPerContract);
-  const expiry=nextFriday(dte);
-  const capitalDeployedPct=r2((totalCollateral/aum)*100);
-  return{
-    structure:'CSP',verdict:'APPROVED',ticker,dte,expiry,
-    shortStrike:shortK,expectedMove:em,minCredit,breakeven,
-    contracts,collateralPerContract,totalCollateral,maxLossPerContract,
-    pTrue,pMarket,edgePP,popPct,evPerContract,capitalEfficiency:eff,
-    regime:regime.label,trend,volState,location,capitalDeployedPct,
-    brokerOrder:[`Sell to Open ${contracts} ${ticker} ${expFmt(expiry)} ${shortK}P @ $${minCredit.toFixed(2)} limit`],
-    execLevels:{
-      'Short Strike':{val:`$${shortK}`,cls:'strike',sub:'1σ placement'},
-      'Min Credit':{val:`$${minCredit.toFixed(2)}`,cls:'credit',sub:`${(regime.minRoR*100).toFixed(0)}% RoR floor`},
-      'Breakeven':{val:`$${breakeven}`,cls:'',sub:'credit-adjusted'},
-      'Contracts':{val:`${contracts}`,cls:'',sub:`$${totalCollateral.toLocaleString()} collateral`},
-    }
-  };
-}
+function evalCSP(spot, hv30, iv, vix, aum, dte=7) {
+  const reg = regime(vix);
+  const em = expectedMove(spot, iv, dte);
+  const shortK = Math.round((spot - em) / inc(spot)) * inc(spot);
+  const expiry = nextFriday(dte);
 
-// ── BPS ──────────────────────────────────────────────────────────────────────
-function evalBPS(market,structural,aum){
-  const fail=validateInputs(market,structural,aum);
-  if(fail)return{structure:'BPS',verdict:'BLOCK',reason:fail};
-  const{ticker,spot,hv30,iv,vix}=market;
-  const{fair,sma20daily,location}=structural;
-  const regime=getRegime(vix);
-  const dte=7,width=5;
-  if(!regime?.allowBPS)return{structure:'BPS',verdict:'REJECTED',reason:`REGIME_BLOCK_${regime?.label||'UNKNOWN'}`};
-  const trend=sma20daily?(spot>sma20daily?'BULL':'BEAR'):'UNKNOWN';
-  const volRatio=iv/hv30;
-  const volState=volRatio>=1.15?'RICH':volRatio<0.90?'CHEAP':'FAIR';
-  if(volState==='CHEAP')return{structure:'BPS',verdict:'REJECTED',reason:'VOL_CHEAP — no premium edge'};
-  const placed=placeShortStrike(spot,iv,dte);
-  if(!placed)return{structure:'BPS',verdict:'BLOCK',reason:'STRIKE_PLACEMENT_FAILED'};
-  const{shortK,em}=placed;
-  const longK=shortK-width;
-  const minCredit=minCreditBPS(width,regime.minRoR,dte);
-  const breakeven=r2(shortK-minCredit);
-  if(!(fair>0))return{structure:'BPS',verdict:'REJECTED',reason:'NMR_FAIR_UNAVAILABLE'};
-  if(breakeven>fair)return{structure:'BPS',verdict:'REJECTED',reason:`Breakeven $${breakeven} > fair $${fair}`};
-  const pTrue=probAbove(spot,shortK,hv30,dte);
-  const pMarket=probAbove(spot,shortK,iv,dte);
-  if(pTrue==null||pMarket==null)return{structure:'BPS',verdict:'BLOCK',reason:'PROBABILITY_FAILED'};
-  const edgePP=r2((pTrue-pMarket)*100);
-  const popPct=r2(pMarket*100);
-  if(popPct<80)return{structure:'BPS',verdict:'REJECTED',reason:`POP ${popPct.toFixed(1)}% below 80%`};
-  if(edgePP<5)return{structure:'BPS',verdict:'REJECTED',reason:`Edge ${edgePP.toFixed(1)}pp below 5pp`};
-  const collateralPerContract=r2(width*100);
-  const maxLossPerContract=r2((width-minCredit)*100);
-  const evPerContract=expectedValue(pTrue,minCredit,maxLossPerContract);
-  // BPS: normalize by max risk (width - credit per contract)
-  const eff=efficiency(evPerContract,maxLossPerContract);
-  if(!(eff>0))return{structure:'BPS',verdict:'REJECTED',reason:'NON_POSITIVE_EFFICIENCY'};
-  const budget=r2(aum*regime.bpsPct);
-  const contracts=Math.max(1,Math.floor(budget/maxLossPerContract));
-  const totalCollateral=r2(contracts*collateralPerContract);
-  const expiry=nextFriday(dte);
-  const capitalDeployedPct=r2((totalCollateral/aum)*100);
-  return{
-    structure:'BPS',verdict:'APPROVED',ticker,dte,expiry,
-    shortStrike:shortK,longStrike:longK,width,expectedMove:em,minCredit,breakeven,
-    contracts,collateralPerContract,totalCollateral,maxLossPerContract,
-    pTrue,pMarket,edgePP,popPct,evPerContract,capitalEfficiency:eff,
-    regime:regime.label,trend,volState,location,capitalDeployedPct,
-    brokerOrder:[
-      `Sell to Open ${contracts} ${ticker} ${expFmt(expiry)} ${shortK}P`,
-      `Buy to Open  ${contracts} ${ticker} ${expFmt(expiry)} ${longK}P`,
-      `Net credit target: $${minCredit.toFixed(2)} / spread`,
+  const pTrue   = probAbove(spot, shortK, hv30, dte);
+  const pMarket = probAbove(spot, shortK, iv,   dte);
+  if (!pTrue || !pMarket) return null;
+
+  const edgePP = r2((pTrue - pMarket) * 100);
+  const popPct = r2(pMarket * 100);
+
+  const minCred = minCreditCSP(shortK, reg.ror, dte);
+  const breakeven = r2(shortK - minCred);
+  const collateral = r2(shortK * 100);           // full assignment collateral
+  const maxLoss = r2((shortK - minCred) * 100);  // credit-adjusted loss
+
+  const evVal = ev(pTrue, minCred * 100, maxLoss);
+  const eff = capEff(evVal, maxLoss);            // normalized to risk-at-loss
+
+  const budget = r2(aum * reg.cspPct);
+  const contracts = Math.max(1, Math.floor(budget / collateral));
+  const totalColl = r2(contracts * collateral);
+
+  return {
+    structure: 'CSP', dte, expiry,
+    shortStrike: shortK, longStrike: null,
+    minCredit: minCred, breakeven,
+    collateral, maxLoss, contracts, totalColl,
+    em, pTrue, pMarket, edgePP, popPct, evVal, eff,
+    regime: reg.label,
+    brokerOrder: [
+      `Sell to Open ${contracts} ${expFmt(expiry)} ${shortK}P @ $${minCred.toFixed(2)} limit`
     ],
-    execLevels:{
-      'Short Strike':{val:`$${shortK}`,cls:'strike',sub:'sell put'},
-      'Long Strike':{val:`$${longK}`,cls:'strike',sub:'hedge leg'},
-      'Min Credit':{val:`$${minCredit.toFixed(2)}`,cls:'credit',sub:`${(regime.minRoR*100).toFixed(0)}% RoR floor`},
-      'Contracts':{val:`${contracts}`,cls:'',sub:`$${totalCollateral.toLocaleString()} collateral`},
+    levels: {
+      'Short Strike': {val:`$${shortK}`, cls:'amber', sub:'1σ placement'},
+      'Min Credit':   {val:`$${minCred.toFixed(2)}`, cls:'green', sub:`${(reg.ror*100).toFixed(0)}% annualized floor`},
+      'Breakeven':    {val:`$${breakeven}`, cls:'', sub:'credit-adjusted'},
+      'Contracts':    {val:`${contracts}`, cls:'', sub:`$${totalColl.toLocaleString()} collateral`},
     }
   };
 }
 
-// ── SHARES ───────────────────────────────────────────────────────────────────
-function evalShares(market,structural,aum){
-  const fail=validateInputs(market,structural,aum);
-  if(fail&&fail!=='HV30_MISSING'&&fail!=='IV_MISSING')
-    return{structure:'SHARES',verdict:'BLOCK',reason:fail};
-  const{ticker,spot,hv30,iv,vix}=market;
-  const{wholesale,fair,sma20daily,location}=structural;
-  const regime=getRegime(vix);
-  if(!regime?.allowShares)return{structure:'SHARES',verdict:'REJECTED',reason:`REGIME_BLOCK_${regime?.label||'UNKNOWN'}`};
-  if(!(wholesale>0)||!(fair>0))return{structure:'SHARES',verdict:'REJECTED',reason:'NMR_LEVELS_UNAVAILABLE'};
-  if(spot>wholesale)return{structure:'SHARES',verdict:'REJECTED',reason:`Spot $${spot} above wholesale $${wholesale}`};
-  const trend=sma20daily?(spot>sma20daily?'BULL':'BEAR'):'UNKNOWN';
-  if(!(hv30>0)||!(iv>0))return{structure:'SHARES',verdict:'BLOCK',reason:'VOL_INPUTS_REQUIRED'};
-  const dte=7;
-  const placed=placeShortStrike(spot,iv,dte);
-  if(!placed)return{structure:'SHARES',verdict:'BLOCK',reason:'STRIKE_PLACEMENT_FAILED'};
-  const{shortK,em}=placed;
-  const pTrue=probAbove(spot,shortK,hv30,dte);
-  const pMarket=probAbove(spot,shortK,iv,dte);
-  if(pTrue==null||pMarket==null)return{structure:'SHARES',verdict:'BLOCK',reason:'PROBABILITY_FAILED'};
-  const edgePP=r2((pTrue-pMarket)*100);
-  const popPct=r2(pMarket*100);
-  if(popPct<80)return{structure:'SHARES',verdict:'REJECTED',reason:`POP ${popPct.toFixed(1)}% below 80%`};
-  if(edgePP<5)return{structure:'SHARES',verdict:'REJECTED',reason:`Edge ${edgePP.toFixed(1)}pp below 5pp`};
-  const budget=r2(aum*regime.sharePct);
-  const shares=Math.max(1,Math.floor(budget/spot));
-  const totalCost=r2(shares*spot);
-  // EV uses pTrue (model probability) for consistency with CSP/BPS
-  const upside=Math.min(em,Math.max(0,fair-spot));       // expected gain if above wholesale
-  const downside=Math.max(0,spot-wholesale);              // impairment if spot falls to wholesale
-  const evPerShare=r2(pTrue*upside-(1-pTrue)*downside);
-  const evTotal=r2(evPerShare*shares);
-  // Normalize shares by downside risk (spot - wholesale) × shares, not full notional
-  const maxSharesRisk=r2(Math.max(spot-wholesale,1)*shares);
-  const eff=efficiency(evTotal,maxSharesRisk);
-  if(!(eff>0))return{structure:'SHARES',verdict:'REJECTED',reason:'NON_POSITIVE_EFFICIENCY'};
-  const capitalDeployedPct=r2((totalCost/aum)*100);
-  return{
-    structure:'SHARES',verdict:'APPROVED',ticker,
-    entryPrice:spot,buyLevel:wholesale,shares,totalCost,expectedMove:em,
-    pTrue,pMarket,edgePP,popPct,evPerContract:evTotal,capitalEfficiency:eff,
-    regime:regime.label,trend,volState:iv/hv30>=1.15?'RICH':iv/hv30<0.90?'CHEAP':'FAIR',
-    location,capitalDeployedPct,
-    brokerOrder:[
-      `Buy ${shares} shares ${ticker} @ $${wholesale.toFixed(2)} or better`,
-      `Current spot: $${spot.toFixed(2)}`,
+function evalBPS(spot, hv30, iv, vix, aum, dte=7, width=5) {
+  const reg = regime(vix);
+  const em = expectedMove(spot, iv, dte);
+  const shortK = Math.round((spot - em) / inc(spot)) * inc(spot);
+  const longK = shortK - width;
+  const expiry = nextFriday(dte);
+
+  const pTrue   = probAbove(spot, shortK, hv30, dte);
+  const pMarket = probAbove(spot, shortK, iv,   dte);
+  if (!pTrue || !pMarket) return null;
+
+  const edgePP = r2((pTrue - pMarket) * 100);
+  const popPct = r2(pMarket * 100);
+
+  const minCred = minCreditBPS(width, reg.ror, dte);
+  const breakeven = r2(shortK - minCred);
+  const maxLoss = r2((width - minCred) * 100);
+  const collateral = r2(width * 100);
+
+  const evVal = ev(pTrue, minCred * 100, maxLoss);
+  const eff = capEff(evVal, maxLoss);
+
+  const budget = r2(aum * reg.bpsPct);
+  const contracts = Math.max(1, Math.floor(budget / maxLoss));
+  const totalColl = r2(contracts * collateral);
+
+  return {
+    structure: 'BPS', dte, expiry, width,
+    shortStrike: shortK, longStrike: longK,
+    minCredit: minCred, breakeven,
+    collateral, maxLoss, contracts, totalColl,
+    em, pTrue, pMarket, edgePP, popPct, evVal, eff,
+    regime: reg.label,
+    brokerOrder: [
+      `Sell to Open ${contracts} ${expFmt(expiry)} ${shortK}P`,
+      `Buy to Open  ${contracts} ${expFmt(expiry)} ${longK}P`,
+      `Net credit target: $${minCred.toFixed(2)} / spread`,
     ],
-    execLevels:{
-      'Buy Level':{val:`$${wholesale.toFixed(2)}`,cls:'shares',sub:'wholesale max'},
-      'Current Spot':{val:`$${spot.toFixed(2)}`,cls:'',sub:'live market'},
-      'Shares':{val:`${shares}`,cls:'shares',sub:`${(regime.sharePct*100).toFixed(1)}% AUM`},
-      'Total Cost':{val:`$${totalCost.toLocaleString()}`,cls:'',sub:'capital deployed'},
+    levels: {
+      'Short Strike': {val:`$${shortK}`, cls:'amber', sub:'sell put'},
+      'Long Strike':  {val:`$${longK}`,  cls:'amber', sub:'hedge leg'},
+      'Min Credit':   {val:`$${minCred.toFixed(2)}`, cls:'green', sub:`${(reg.ror*100).toFixed(0)}% annualized floor`},
+      'Contracts':    {val:`${contracts}`, cls:'', sub:`$${totalColl.toLocaleString()} width collateral`},
     }
   };
 }
 
-// ── CONDUCTOR ────────────────────────────────────────────────────────────────
-function conduct(results){
-  const approved=results.filter(r=>r.verdict==='APPROVED');
-  if(!approved.length)return null;
-  approved.sort((a,b)=>b.capitalEfficiency-a.capitalEfficiency);
-  return approved[0];
+function evalShares(spot, hv30, iv, vix, aum, nmr) {
+  const reg = regime(vix);
+  const dte = 7;
+  const em = expectedMove(spot, iv, dte);
+  const refK = Math.round((spot - em) / inc(spot)) * inc(spot);
+
+  const pTrue   = probAbove(spot, refK, hv30, dte);
+  const pMarket = probAbove(spot, refK, iv,   dte);
+  if (!pTrue || !pMarket) return null;
+
+  const edgePP = r2((pTrue - pMarket) * 100);
+  const popPct = r2(pMarket * 100);
+
+  // Upside: min of expected move or distance to fair value
+  const upside = nmr?.fair ? Math.min(em, Math.max(0, nmr.fair - spot)) : em;
+  // Downside: distance to wholesale or 10% of spot as proxy
+  const downside = nmr?.wholesale ? Math.max(0, spot - nmr.wholesale) : spot * 0.10;
+
+  const budget = r2(aum * reg.sharePct);
+  const shares = Math.max(1, Math.floor(budget / spot));
+  const totalCost = r2(shares * spot);
+
+  const evPerShare = r2(pTrue * upside - (1-pTrue) * downside);
+  const evVal = r2(evPerShare * shares);
+  const riskAtLoss = r2(Math.max(downside, 0.01) * shares);
+  const eff = capEff(evVal, riskAtLoss);
+
+  return {
+    structure: 'SHARES', dte,
+    entryPrice: spot, shares, totalCost,
+    em, pTrue, pMarket, edgePP, popPct,
+    evVal, eff,
+    regime: reg.label,
+    brokerOrder: [
+      `Buy ${shares} shares @ market / limit $${spot.toFixed(2)}`,
+      `Position size: ${(reg.sharePct*100).toFixed(0)}% AUM — $${totalCost.toLocaleString()}`,
+    ],
+    levels: {
+      'Entry':      {val:`$${spot.toFixed(2)}`, cls:'amber', sub:'current spot'},
+      'Shares':     {val:`${shares}`, cls:'amber', sub:`${(reg.sharePct*100).toFixed(0)}% AUM`},
+      'Total Cost': {val:`$${totalCost.toLocaleString()}`, cls:'', sub:'capital deployed'},
+      'EV':         {val:`$${evVal.toFixed(2)}`, cls: evVal>=0?'green':'', sub:'model expected value'},
+    }
+  };
 }
 
 // ── WORKER ───────────────────────────────────────────────────────────────────
-const WORKER='https://conductor.yulgutierrez.workers.dev';
+const WORKER = 'https://conductor.yulgutierrez.workers.dev';
 
-async function fetchMarketData(ticker){
-  const upper=ticker.toUpperCase().trim();
-  const ctrl=new AbortController();
-  const t=setTimeout(()=>ctrl.abort(),15000);
-  try{
-    const r=await fetch(`${WORKER}/v1/market?ticker=${encodeURIComponent(upper)}&bust=1`,{signal:ctrl.signal});
+async function fetchMarket(ticker) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 15000);
+  try {
+    const r = await fetch(`${WORKER}/v1/market?ticker=${encodeURIComponent(ticker)}&bust=1`, {signal:ctrl.signal});
     clearTimeout(t);
-    if(!r.ok)throw new Error(`HTTP_${r.status}`);
-    const d=await r.json();
-    if(d.error)throw new Error(d.error);
-    if(!(d.spot>0))throw new Error('SPOT_MISSING');
-    let hv30=+(d.hv30||0);if(hv30>1)hv30=hv30/100;
-    return{
-      ticker:upper,spot:d.spot,hv30:hv30||null,vix:d.vix||null,
-      iv:d.iv||null,greeks:d.greeks||null,
-      sma20:d.sma20||null,sma200:d.sma200||null,
-      nmr:d.nmr||null,structural:d.structural||null,
-      dailyBars:Array.isArray(d.bars)?d.bars:[],
+    if (!r.ok) throw new Error(`HTTP_${r.status}`);
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    if (!(d.spot > 0)) throw new Error('SPOT_MISSING');
+    let hv30 = +(d.hv30||0); if (hv30>1) hv30=hv30/100;
+    return {
+      ticker, spot:d.spot, hv30:hv30||null, iv:d.iv||null, vix:d.vix||null,
+      sma20:d.sma20||null,
+      nmr: d.nmr || null,
+      structural: d.structural || null,
     };
-  }finally{clearTimeout(t);}
-}
-
-function getStructural(market){
-  if(market.structural&&market.nmr){
-    const ws=market.structural,nmr=market.nmr;
-    return{
-      wholesale:nmr.wholesale,fair:nmr.fair,retail:nmr.retail,
-      location:nmr.location||'UNAVAILABLE',
-      sma20daily:ws.sma20||market.sma20||null,
-      sma200daily:ws.sma200||market.sma200||null,
-    };
-  }
-  return{wholesale:null,fair:null,retail:null,location:'UNAVAILABLE',sma20daily:market.sma20||null,sma200daily:null};
+  } finally { clearTimeout(t); }
 }
 
 // ── RENDER ───────────────────────────────────────────────────────────────────
-function setStatus(msg,cls=''){
-  const el=document.getElementById('status');
-  el.textContent=msg;el.className='status '+cls;
-}
-function updateVix(vix){
-  const el=document.getElementById('vix-pill');
-  if(!vix){el.textContent='VIX —';el.className='vix-pill';return;}
-  el.textContent=`VIX ${vix.toFixed(1)}`;
-  el.className='vix-pill '+(vix<24?'allow':vix<45?'warn':'block');
+function setStatus(msg, cls='') {
+  const el = document.getElementById('status');
+  el.textContent = msg; el.className = 'status '+cls;
 }
 
-function renderMarketBar(m,s){
-  const f=(l,v,c='')=>`<div class="ms"><div class="l">${l}</div><div class="v ${c}">${v}</div></div>`;
-  const sep='<div style="width:1px;background:var(--border);align-self:stretch"></div>';
-  let h='';
-  h+=f('Spot',`$${m.spot.toFixed(2)}`,'ok');
-  h+=f('HV30',m.hv30?`${(m.hv30*100).toFixed(1)}%`:'—',m.hv30?'ok':'w');
-  h+=f('IV',m.iv?`${(m.iv*100).toFixed(1)}%`:'—',m.iv?'ok':'w');
-  h+=f('IV/HV',m.iv&&m.hv30?(m.iv/m.hv30).toFixed(2):'—',m.iv&&m.hv30&&m.iv/m.hv30>=1.15?'ok':'w');
-  h+=sep;
-  h+=f('SMA20',m.sma20?`$${m.sma20.toFixed(2)}`:'—',m.sma20?'ok':'w');
-  h+=f('Wholesale',s.wholesale?`$${s.wholesale.toFixed(2)}`:'—');
-  h+=f('Fair',s.fair?`$${s.fair.toFixed(2)}`:'—');
-  h+=f('Location',s.location||'—',s.location==='WHOLESALE'||s.location==='ACCUMULATION'?'ok':s.location==='NEUTRAL'?'w':'e');
-  document.getElementById('mbar').innerHTML=h;
+function updateVix(vix) {
+  const el = document.getElementById('vix-pill');
+  if (!vix) { el.textContent='VIX —'; el.className='vix-pill'; return; }
+  el.textContent = `VIX ${vix.toFixed(1)}`;
+  el.className = 'vix-pill ' + (vix<24?'allow':vix<45?'warn':'block');
+}
+
+function renderMarketBar(m) {
+  const f = (l,v,c='') => `<div class="ms"><div class="l">${l}</div><div class="v ${c}">${v}</div></div>`;
+  const sep = '<div class="msep"></div>';
+  const ivhv = m.iv&&m.hv30 ? (m.iv/m.hv30).toFixed(2) : '—';
+  const ivhvCls = m.iv&&m.hv30&&m.iv/m.hv30>=1.15 ? 'ok' : 'w';
+  let h = '';
+  h += f('Spot', `$${m.spot.toFixed(2)}`, 'ok');
+  h += f('HV30', m.hv30 ? `${(m.hv30*100).toFixed(1)}%` : '—', m.hv30?'ok':'w');
+  h += f('IV',   m.iv   ? `${(m.iv*100).toFixed(1)}%`   : '—', m.iv?'ok':'w');
+  h += f('IV/HV', ivhv, ivhvCls);
+  h += sep;
+  h += f('SMA20', m.sma20 ? `$${m.sma20.toFixed(2)}` : '—');
+  h += f('Trend', m.sma20 ? (m.spot>m.sma20?'BULL':'BEAR') : '—',
+          m.sma20 ? (m.spot>m.sma20?'ok':'w') : '');
+  document.getElementById('mbar').innerHTML = h;
   document.getElementById('mbar').classList.add('on');
 }
 
-function renderCards(results,winner){
-  const container=document.getElementById('cards');
-  container.innerHTML='';
+function renderNmrBar(nmr) {
+  if (!nmr) return;
+  const f = (l,v) => `<div class="ms"><div class="l">${l}</div><div class="v">${v}</div></div>`;
+  let h = '<span class="nmr-label">NMR Reference</span>';
+  h += f('Wholesale', nmr.wholesale ? `$${nmr.wholesale.toFixed(2)}` : '—');
+  h += f('Fair',      nmr.fair      ? `$${nmr.fair.toFixed(2)}`      : '—');
+  h += f('Retail',    nmr.retail    ? `$${nmr.retail.toFixed(2)}`    : '—');
+  h += f('Location',  nmr.location  || '—');
+  h += '<span class="nmr-note">Reference only — not a trading gate</span>';
+  document.getElementById('nmr-bar').innerHTML = h;
+  document.getElementById('nmr-bar').classList.add('on');
+}
 
-  if(winner){
-    const w=winner;
-    const stClass=`st-${w.structure.toLowerCase()}`;
-    let html=`<div class="card winner active">
+function renderCards(results) {
+  const container = document.getElementById('cards');
+  container.innerHTML = '';
+
+  results.forEach((r, i) => {
+    if (!r) return;
+    const rank = i + 1;
+    const stClass = `st-${r.structure.toLowerCase()}`;
+    const isTop = rank === 1;
+
+    let html = `<div class="card ${isTop?'rank1':''}">
       <div class="card-head">
-        <span class="struct-tag ${stClass}">${w.structure}</span>
-        <span class="card-verdict cv-pass">APPROVED</span>
-        <span class="winner-tag">MOST CAPITAL EFFICIENT</span>
+        <span class="struct-tag ${stClass}">${r.structure}</span>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--dim)">${r.regime}</span>
+        ${isTop ? '<span class="rank-tag">&#9654; RANK #1 — MOST EFFICIENT</span>' : `<span class="rank-tag" style="color:var(--dim)">RANK #${rank}</span>`}
       </div>
       <div class="card-body">
         <div class="exec">
           <div class="exec-title">Execution Levels</div>
           <div class="exec-levels">
-            ${Object.entries(w.execLevels).map(([k,v])=>`<div class="elev"><div class="lbl">${k}</div><div class="val ${v.cls}">${v.val}</div><div class="sub">${v.sub}</div></div>`).join('')}
+            ${Object.entries(r.levels).map(([k,v])=>`
+              <div class="elev">
+                <div class="lbl">${k}</div>
+                <div class="val ${v.cls}">${v.val}</div>
+                <div class="sub">${v.sub}</div>
+              </div>`).join('')}
           </div>
         </div>
         <div class="metrics">
-          <div class="met"><div class="lbl">POP</div><div class="val">${w.popPct?.toFixed(1)??'—'}%</div></div>
-          <div class="met"><div class="lbl">Edge</div><div class="val g">+${w.edgePP?.toFixed(1)??'—'}pp</div></div>
-          <div class="met"><div class="lbl">EV</div><div class="val g">$${w.evPerContract?.toFixed(2)??'—'}</div></div>
-          <div class="met"><div class="lbl">CapEff</div><div class="val a">${w.capitalEfficiency?.toExponential(2)??'—'}</div></div>
-          <div class="met"><div class="lbl">Deploy</div><div class="val">${w.capitalDeployedPct?.toFixed(1)??'—'}%</div></div>
-          <div class="met"><div class="lbl">Regime</div><div class="val">${w.regime||'—'}</div></div>
+          <div class="met"><div class="lbl">POP</div><div class="val">${r.popPct?.toFixed(1)}%</div></div>
+          <div class="met"><div class="lbl">Edge</div><div class="val ${r.edgePP>=5?'g':r.edgePP>=0?'a':'r'}">${r.edgePP>=0?'+':''}${r.edgePP?.toFixed(1)}pp</div></div>
+          <div class="met"><div class="lbl">EV</div><div class="val ${r.evVal>=0?'g':'r'}">$${r.evVal?.toFixed(2)}</div></div>
+          <div class="met"><div class="lbl">CapEff</div><div class="val a">${r.eff?.toExponential(2)??'—'}</div></div>
+          <div class="met"><div class="lbl">pTrue</div><div class="val">${((r.pTrue||0)*100).toFixed(1)}%</div></div>
+          <div class="met"><div class="lbl">pMarket</div><div class="val">${((r.pMarket||0)*100).toFixed(1)}%</div></div>
         </div>
-        <div class="order">${(w.brokerOrder||[]).map(l=>`<div class="order-line">${l}</div>`).join('')}</div>
+        <div class="order">
+          ${(r.brokerOrder||[]).map(l=>`<div class="order-line">${l}</div>`).join('')}
+        </div>
       </div>
     </div>`;
-    container.innerHTML+=html;
-  }else{
-    container.innerHTML=`<div class="card no-trade active">
-      <div class="card-head"><span class="struct-tag st-notrade">NO TRADE</span><span class="card-verdict cv-fail">ALL GATES FAILED</span></div>
-      <div class="card-body" style="padding:20px">
-        ${results.map(r=>`<div class="reject-reason">✗ ${r.structure}: ${r.reason||'gated'}</div>`).join('')}
-      </div>
-    </div>`;
-  }
-
-  results.filter(r=>r!==winner).forEach(r=>{
-    const stClass=`st-${r.structure.toLowerCase()}`;
-    const approved=r.verdict==='APPROVED';
-    let html=`<div class="card active">
-      <div class="card-head">
-        <span class="struct-tag ${stClass}">${r.structure}</span>
-        <span class="card-verdict ${approved?'cv-pass':'cv-fail'}">${r.verdict}</span>
-      </div>
-      <div class="card-body">`;
-    if(approved){
-      html+=`<div class="metrics">
-        ${Object.entries(r.execLevels).map(([k,v])=>`<div class="met"><div class="lbl">${k}</div><div class="val ${v.cls}">${v.val}</div></div>`).join('')}
-        <div class="met"><div class="lbl">POP</div><div class="val">${r.popPct?.toFixed(1)??'—'}%</div></div>
-        <div class="met"><div class="lbl">Edge</div><div class="val g">+${r.edgePP?.toFixed(1)??'—'}pp</div></div>
-        <div class="met"><div class="lbl">EV</div><div class="val g">$${r.evPerContract?.toFixed(2)??'—'}</div></div>
-        <div class="met"><div class="lbl">CapEff</div><div class="val a">${r.capitalEfficiency?.toExponential(2)??'—'}</div></div>
-      </div>`;
-    }else{
-      html+=`<div class="reject-reason">${r.reason||r.reasons?.join('<br>')||'gated'}</div>`;
-    }
-    html+=`</div></div>`;
-    container.innerHTML+=html;
+    container.innerHTML += html;
   });
 }
 
 // ── MAIN ─────────────────────────────────────────────────────────────────────
-async function runAll(){
-  const ticker=document.getElementById('ticker').value.trim().toUpperCase();
-  if(!/^[A-Z0-9.\-]{1,8}$/.test(ticker)){setStatus('Invalid ticker.','err');return;}
-  const aum=+document.getElementById('aum').value||100000;
-  document.getElementById('run-btn').disabled=true;
-  document.getElementById('run-btn').textContent='SCANNING...';
-  document.getElementById('cards').innerHTML='';
+async function runAll() {
+  const ticker = document.getElementById('ticker').value.trim().toUpperCase();
+  if (!/^[A-Z0-9.\-]{1,8}$/.test(ticker)) { setStatus('Invalid ticker.','err'); return; }
+  const aum = +document.getElementById('aum').value || 100000;
+
+  document.getElementById('run-btn').disabled = true;
+  document.getElementById('run-btn').textContent = 'SCANNING...';
+  document.getElementById('cards').innerHTML = '';
   document.getElementById('mbar').classList.remove('on');
-  try{
-    setStatus(`Fetching ${ticker}...`,'running');
-    const market=await fetchMarketData(ticker);
-    const structural=getStructural(market);
-    updateVix(market.vix);
-    renderMarketBar(market,structural);
-    setStatus(`Running quant gates: CSP / BPS / SHARES...`,'running');
-    const csp=evalCSP(market,structural,aum);
-    const bps=evalBPS(market,structural,aum);
-    const shares=evalShares(market,structural,aum);
-    const results=[csp,bps,shares];
-    const winner=conduct(results);
-    renderCards(results,winner);
-    const n=results.filter(r=>r.verdict==='APPROVED').length;
-    setStatus(winner
-      ?`${winner.structure} selected — POP ${winner.popPct?.toFixed(1)||'—'}% · Edge +${winner.edgePP?.toFixed(1)||'—'}pp · ${n}/3 approved`
-      :`NO TRADE — no structure cleared all quant gates`
-    ,'done');
-  }catch(e){
-    setStatus(`Error: ${e.message}`,'err');
+  document.getElementById('nmr-bar').classList.remove('on');
+
+  try {
+    setStatus(`Fetching ${ticker}...`, 'running');
+    const m = await fetchMarket(ticker);
+    updateVix(m.vix);
+    renderMarketBar(m);
+    renderNmrBar(m.nmr);
+
+    const {spot, hv30, iv, vix} = m;
+    if (!hv30) throw new Error('HV30 unavailable');
+    if (!iv)   throw new Error('IV unavailable');
+
+    setStatus(`Computing CSP · BPS · Shares...`, 'running');
+
+    // Evaluate all three — no structure blocked
+    const csp    = evalCSP(spot, hv30, iv, vix, aum);
+    const bps    = evalBPS(spot, hv30, iv, vix, aum);
+    const shares = evalShares(spot, hv30, iv, vix, aum, m.nmr);
+
+    // Rank by capital efficiency (EV / risk-at-loss)
+    const ranked = [csp, bps, shares]
+      .filter(r => r !== null)
+      .sort((a,b) => (b.eff||0) - (a.eff||0));
+
+    renderCards(ranked);
+
+    const top = ranked[0];
+    setStatus(
+      `${top.structure} ranks #1 — CapEff ${top.eff?.toExponential(2)} · POP ${top.popPct?.toFixed(1)}% · Edge ${top.edgePP>=0?'+':''}${top.edgePP?.toFixed(1)}pp`,
+      'done'
+    );
+
+  } catch(e) {
+    setStatus(`Error: ${e.message}`, 'err');
     console.error(e);
-  }finally{
-    document.getElementById('run-btn').disabled=false;
-    document.getElementById('run-btn').textContent='▶ SCAN';
+  } finally {
+    document.getElementById('run-btn').disabled = false;
+    document.getElementById('run-btn').textContent = '▶ SCAN';
   }
 }
 
-document.getElementById('ticker').addEventListener('keydown',e=>{if(e.key==='Enter')runAll();});
+document.getElementById('ticker').addEventListener('keydown', e => { if(e.key==='Enter') runAll(); });
 </script>
 </body>
 </html>
